@@ -1,0 +1,16 @@
+{
+  "languages" : ["en", "de"],
+  "sources_folder" : "test/sources",
+  "flutter": {
+    "destination_folder": "test/flutter",
+    "destination_file": "*.dart"
+  },
+  "ios": {
+    "destination_folder": "test/ios",
+    "destination_file": "*.strings"
+  },
+  "android": {
+    "destination_folder": "test/android",
+    "destination_file": "*.xml"
+  }
+}
