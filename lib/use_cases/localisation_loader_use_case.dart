@@ -12,7 +12,7 @@ class LocalisationLoaderUseCase {
   AppTask<LocalisationDto> call(String filepath) {
     return runAppTaskSafely(() async {
       final data = buildData(filepath);
-      return buildDto(data);
+      return data.getLocalisationDto();
     });
   }
 
@@ -25,62 +25,67 @@ class LocalisationLoaderUseCase {
     }
     return JsonData(filepath, map);
   }
+}
 
-  @visibleForTesting
-  LocalisationDto buildDto(JsonData data) {
+@visibleForTesting
+extension JsonDataBuildDtos on List<JsonData> {
+  List<R> dtos<R>() => map((data) => data.dto<R>()).toList();
+}
+
+@visibleForTesting
+extension JsonDataBuildDto on JsonData {
+  R dto<R>() {
+    if (R == LocalisationKeyDto) {
+      return getKeyDto() as R;
+    }
+    if (R == LocalisationKeyArgumentDto) {
+      return getKeyArgumentDto() as R;
+    }
+    if (R == LocalisationKeyTranslationDto) {
+      return getKeyTranslationDto() as R;
+    }
+    if (R == LanguageDto) {
+      return getLanguageDto() as R;
+    }
+    throw UnimplementedError('Type $R is not implemented');
+  }
+
+  LocalisationDto getLocalisationDto() {
     return LocalisationDto(
-      languages: buildLanguages(data.getSubList('languages')),
-      keys: buildKeys(data.getSub('keys').groupByKeys()),
+      languages: getSubList('languages').dtos(),
+      keys: getSub('keys').groupByKeys().dtos(),
     );
   }
 
-  @visibleForTesting
-  List<LocalisationKeyDto> buildKeys(List<JsonData> list) {
-    return list.map((data) {
-      return LocalisationKeyDto(
-        key: data.get('key'),
-        comment: data.get('comment'),
-        arguments: buildKeyArguments(
-          data.getSubList('arguments', defaultValue: []),
-        ),
-        localizations: buildKeyTranslations(
-          data.getSub('localizations', defaultValue: []).groupByKeys(),
-        ),
-      );
-    }).toList();
+  LocalisationKeyDto getKeyDto() {
+    return LocalisationKeyDto(
+      key: get('key'),
+      comment: get('comment'),
+      arguments: getSubList('arguments', defaultValue: []).dtos(),
+      localizations:
+          getSub('localizations', defaultValue: []).groupByKeys().dtos(),
+    );
   }
 
-  @visibleForTesting
-  List<LocalisationKeyArgumentDto> buildKeyArguments(List<JsonData> list) {
-    return list.map((data) {
-      final String typeName = data.get('type');
-      return LocalisationKeyArgumentDto(
-        name: data.get('name'),
-        type: LocalisationKeyDtoType.values
-            .firstWhere((e) => e.name.toLowerCase() == typeName.toLowerCase()),
-      );
-    }).toList();
+  LocalisationKeyArgumentDto getKeyArgumentDto() {
+    final String typeName = get('type');
+    return LocalisationKeyArgumentDto(
+      name: get('name'),
+      type: LocalisationKeyDtoType.values
+          .firstWhere((e) => e.name.toLowerCase() == typeName.toLowerCase()),
+    );
   }
 
-  @visibleForTesting
-  List<LocalisationKeyTranslationDto> buildKeyTranslations(List<JsonData> list) {
-    return list.map((data) {
-      print(data.map);
-      return LocalisationKeyTranslationDto(
-        key: data.get('key'),
-        message: data.get('root'),
-      );
-    }).toList();
+  LocalisationKeyTranslationDto getKeyTranslationDto() {
+    return LocalisationKeyTranslationDto(
+      key: get('key'),
+      message: get('root'),
+    );
   }
 
-  @visibleForTesting
-  List<LanguageDto> buildLanguages(List<JsonData> list) {
-    return list.map((data) {
-      print(data.map);
-      return LanguageDto(
-        abbreviation: data.get('root'),
-      );
-    }).toList();
+  LanguageDto getLanguageDto() {
+    return LanguageDto(
+      abbreviation: get('root'),
+    );
   }
 }
-

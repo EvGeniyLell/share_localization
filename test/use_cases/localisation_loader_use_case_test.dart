@@ -8,13 +8,8 @@ void main() {
   final data = loader.buildData('test/sources/General.json');
 
   group('LocalisationLoader', () {
-    test('buildKeys', () {
-      final result = loader.buildKeys(data.getSub('keys').groupByKeys());
-      expect(result, hasLength(3));
-    });
-
-    test('buildDto', () {
-      final dto = loader.buildDto(data);
+    test('getLocalisationDto', () {
+      final dto = data.getLocalisationDto();
       expect(dto.languages, hasLength(2));
       expect(dto.languages.first.abbreviation, 'en');
 
@@ -23,7 +18,7 @@ void main() {
       expect(dto.keys.first.arguments, hasLength(2));
     });
 
-    test('exeption', () async {
+    test('exception', () async {
       final dynamic keys = data.map['keys'];
       keys?['login_message'] = {
         'comment': 'Login message',
@@ -38,7 +33,7 @@ void main() {
       };
 
       final dtoTask = await runAppTaskSafely(() async {
-        return loader.buildDto(data);
+        return data.getLocalisationDto();
       });
 
       expect(dtoTask.failed, true);

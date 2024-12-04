@@ -1,5 +1,8 @@
 class LocalisationKeyTranslationDto {
+  /// Key of language.
   final String key;
+
+  /// Translated message.
   final String message;
 
   const LocalisationKeyTranslationDto({

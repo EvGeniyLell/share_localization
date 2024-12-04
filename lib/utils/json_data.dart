@@ -74,7 +74,6 @@ class JsonDataError extends Error {
   final String? filepath;
   final String? route;
 
-  @visibleForTesting
   JsonDataError(this.message, {this.route, this.filepath});
 
   factory JsonDataError.wrongType(

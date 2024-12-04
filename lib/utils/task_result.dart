@@ -23,5 +23,3 @@ class TaskFailed<R, E> extends TaskResult<R, E> {
 
   const TaskFailed(this.exception);
 }
-
-
