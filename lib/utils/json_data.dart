@@ -1,135 +1,100 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:meta/meta.dart';
-
-typedef JsonMap = Map<String, Object?>;
+import 'package:share_localisation/utils/common.dart';
 
 class JsonData {
-  static const String _rootKey = '#ROOT#';
-  @visibleForTesting
-  final String source;
-  @visibleForTesting
-  final List<JsonMap> list;
-  @visibleForTesting
-  final String path;
+  static const String rootKey = 'root';
 
-  JsonData(this.source, this.list, {required this.path});
+  final String filepath;
+  final JsonMap map;
+  final String route;
 
-  factory JsonData.filepath(String filepath) {
-    final content = File(filepath).readAsStringSync();
-    final data = json.decode(content);
-    if (data is JsonMap) {
-      return JsonData(filepath, [data], path: 'root');
+  const JsonData(this.filepath, this.map, [this.route = rootKey]);
+
+  String _newRoute(String key, {int? index}) {
+    return '$route/$key'
+        '${index != null ? '[$index]' : ''}';
+  }
+
+  /// Get value from map by key and cast it to [R].
+  /// Throws [JsonDataError] if value is not of type [R].
+  R get<R>(String key, {Object? defaultValue}) {
+    final value = map[key] ?? defaultValue;
+    if (value is! R) {
+      if (R == JsonMap) {
+        final map = JsonMap();
+        map[rootKey] = value;
+        return map as R;
+      }
+      throw JsonDataError.wrongType(this,
+          key: key, value: value, expectedType: R);
     }
-    if (data is List<JsonMap>) {
-      return JsonData(filepath, data, path: 'root');
-    }
+    return value;
+  }
 
-    throw ArgumentError('Wrong json map at $filepath');
+  /// Get sub [JsonData] from map by key.
+  JsonData getSub(String key, {int? index, Object? defaultValue}) {
+    final value = get<JsonMap>(key, defaultValue: defaultValue);
+    return JsonData(filepath, value, _newRoute(key, index: index));
+  }
+
+  /// Get sub [JsonData] list from map by key.
+  List<JsonData> getSubList(String key, {int? index, Object? defaultValue}) {
+    final value = get<List<Object?>>(key, defaultValue: defaultValue);
+    int index = 0;
+    return value.map((value) {
+      try {
+        return JsonData(
+            filepath, value as JsonMap, _newRoute(key, index: index++));
+      } catch (e) {
+        final map = JsonMap();
+        map[rootKey] = value;
+        return JsonData(filepath, map, _newRoute(key, index: index++));
+      }
+    }).toList();
+  }
+
+  /// Get sub [JsonData] list from map and group them by fields.
+  /// names fields extracted to result.
+  List<JsonData> groupByKeys([String keyName = 'key']) {
+    return map.keys.map((key) {
+      final sub = getSub(key);
+      sub.map[keyName] = key;
+      return sub;
+    }).toList();
   }
 
   @override
-  String toString() {
-    return '$JsonData: $source:$path';
+  toString() {
+    return '$JsonData{route: $route, map: $map}';
   }
+}
 
-  JsonMap get map {
-    if (list.length != 1) {
-      throw ArgumentError('List should have only one element');
-    }
-    return list.first;
-  }
+class JsonDataError extends Error {
+  final String message;
+  final String? filepath;
+  final String? route;
 
-  R _safetyMap<R, V>(String? key, R Function(V) block) {
-    try {
-      print('### $key -> ${map[key ?? _rootKey]}');
-      final value = map[key ?? _rootKey] as V;
-      final result = block(value);
-      return result;
-    } on Object catch (error) {
-      throw ArgumentError(
-        '$error\nWhere key ${key ?? _rootKey} ($R) is failed at $this',
-      );
-    }
-  }
+  @visibleForTesting
+  JsonDataError(this.message, {this.route, this.filepath});
 
-  R get<R, V>(String? key, {R Function(V)? transform}) {
-    final resolvedTransform = transform ?? (v) => v as R;
-    return _safetyMap<R, V>(key, resolvedTransform);
-  }
-
-  List<R> getList<R, V>(String? key, {R Function(V)? transform}) {
-    final resolvedTransform = transform ?? (v) => v as R;
-    return _safetyMap<List<R>, List<V>>(key, (list) {
-      return list.map(resolvedTransform).toList();
-    });
-  }
-
-  R _subJsonData<R>(
-    Object? subData,
-    String? key,
-    int? index,
-    R Function(JsonData) transform,
-  ) {
-    final newPath =
-        '$path/${key ?? _rootKey}${index != null ? '[$index]' : ''}';
-    if (subData is! JsonMap) {
-      if (subData is! List<JsonMap>) {
-        final map = JsonMap();
-        map[_rootKey] = subData;
-        final newData = JsonData(source, [map], path: newPath);
-        print('>>>1 $newData ($subData)');
-        return transform(newData);
-      } else {
-        final newData = JsonData(source, subData, path: newPath);
-        print('>>>2 $newData ($subData)');
-        return transform(newData);
-      }
-    } else {
-      final newData = JsonData(source, [subData], path: newPath);
-      print('>>>3 $newData ($subData)');
-      return transform(newData);
-    }
-  }
-
-  R getMap<R, V>(
-    String? key, {
-    required R Function(JsonData) transform,
+  factory JsonDataError.wrongType(
+    JsonData data, {
+    required String key,
+    required Object? value,
+    required Type expectedType,
   }) {
-    return _safetyMap<R, V>(key, (subData) {
-      return _subJsonData(subData, key, null, transform);
-    });
+    return JsonDataError(
+      'Wrong type ${value.runtimeType} for key $key, expected $expectedType'
+      ', but value is $value',
+      route: data.route,
+      filepath: data.filepath,
+    );
   }
 
-  List<R> getMapList<R, V>(
-    String? key, {
-    required R Function(JsonData) transform,
-    Object? defaultValue,
-  }) {
-    if (map[key ?? _rootKey] == null) {
-      map[key ?? _rootKey] = defaultValue;
-    }
-    return _safetyMap<List<R>, List<V>>(key, (list) {
-      var index = 0;
-      return list.map((subData) {
-        index += 1;
-        return _subJsonData(subData, key, index, transform);
-      }).toList();
-    });
-  }
-
-  List<R> getMapWithKeys<R, V>(
-    String? key, {
-    required R Function(JsonData) transform,
-  }) {
-    return getMap(key, transform: (data) {
-      return data.map.keys.map((key) {
-        return data.getMap(key, transform: (data) {
-          data.map['key'] = key;
-          return transform(data);
-        });
-      }).toList();
-    });
+  @override
+  toString() {
+    return '$JsonDataError: $message'
+        '${route != null ? ' at $route' : ''}'
+        '${filepath != null ? ' in $filepath' : ''}';
   }
 }

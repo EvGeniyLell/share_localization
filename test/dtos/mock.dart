@@ -1,13 +1,12 @@
+import 'package:share_localisation/dtos/language_dto.dart';
 import 'package:share_localisation/dtos/localisation_key_argument_dto.dart';
 import 'package:share_localisation/dtos/localisation_key_dto.dart';
 import 'package:share_localisation/dtos/localisation_key_translation_dto.dart';
-import 'package:share_localisation/dtos/language_dto.dart';
 
+export 'package:share_localisation/dtos/language_dto.dart';
 export 'package:share_localisation/dtos/localisation_key_argument_dto.dart';
 export 'package:share_localisation/dtos/localisation_key_dto.dart';
 export 'package:share_localisation/dtos/localisation_key_translation_dto.dart';
-export 'package:share_localisation/dtos/language_dto.dart';
-export 'package:share_localisation/utils/json_data.dart';
 
 const bundleLanguage = LanguageDto(
   abbreviation: 'en',

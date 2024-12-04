@@ -5,6 +5,7 @@ import 'package:share_localisation/exceptions/unexpected_exception.dart';
 import 'package:share_localisation/utils/printer.dart';
 import 'package:share_localisation/utils/task_result.dart' as task;
 
+// --- AppTask ---
 typedef TaskResult<T> = task.TaskResult<T, AppException>;
 typedef TaskSucceeded<T> = task.TaskSucceeded<T, AppException>;
 typedef TaskFailed<T> = task.TaskFailed<T, AppException>;
@@ -25,5 +26,16 @@ AppTask<T> runAppTaskSafely<T>(
         UnexpectedException(error.toString()),
       );
     }
+  }
+}
+
+// --- Json ---
+typedef JsonMap = Map<String, Object?>;
+
+// --- List ---
+extension AppListExtension on List {
+  bool equals(List list) {
+    if (length != list.length) return false;
+    return every((item) => list.contains(item));
   }
 }

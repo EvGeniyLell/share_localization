@@ -1,10 +1,10 @@
-import 'package:share_localisation/exceptions/unexpected_exception.dart';
-import 'package:share_localisation/localisation_loader.dart';
+import 'package:share_localisation/exceptions/exceptions.dart';
+import 'package:share_localisation/use_cases/localisation_loader_use_case.dart';
 import 'package:share_localisation/utils/common.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final loader = LocalisationLoader();
+  final loader = LocalisationLoaderUseCase();
   final data = loader.buildData('test/sources/General.json');
 
   group('LocalisationLoader', () {
@@ -23,7 +23,7 @@ void main() {
       expect(dto.keys.first.arguments, hasLength(2));
     });
 
-    test('buildDto 2', () async {
+    test('exeption', () async {
       final dynamic keys = data.map['keys'];
       keys?['login_message'] = {
         'comment': 'Login message',

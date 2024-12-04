@@ -1,5 +1,3 @@
-import 'package:share_localisation/utils/json_data.dart';
-
 class LocalisationKeyTranslationDto {
   final String key;
   final String message;
@@ -8,13 +6,6 @@ class LocalisationKeyTranslationDto {
     required this.key,
     required this.message,
   });
-
-  factory LocalisationKeyTranslationDto.fromJsonData(JsonData data) {
-    return LocalisationKeyTranslationDto(
-      key: data.get('key'),
-      message: data.get(null),
-    );
-  }
 
   @override
   bool operator ==(Object other) =>

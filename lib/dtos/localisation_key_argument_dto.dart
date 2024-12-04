@@ -1,5 +1,3 @@
-import 'package:share_localisation/utils/json_data.dart';
-
 class LocalisationKeyArgumentDto {
   final String name;
   final LocalisationKeyDtoType type;
@@ -8,16 +6,6 @@ class LocalisationKeyArgumentDto {
     required this.name,
     required this.type,
   });
-
-  factory LocalisationKeyArgumentDto.fromJsonData(JsonData data) {
-    return LocalisationKeyArgumentDto(
-      name: data.get('name'),
-      type: data.get('type', transform: (String name) {
-        return LocalisationKeyDtoType.values
-            .firstWhere((e) => e.name.toLowerCase() == name.toLowerCase());
-      }),
-    );
-  }
 
   @override
   bool operator ==(Object other) =>

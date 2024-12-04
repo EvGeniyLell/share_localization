@@ -1,4 +1,4 @@
-import 'package:share_localisation/utils/json_data.dart';
+import 'package:share_localisation/utils/common.dart';
 
 import 'language_dto.dart';
 import 'localisation_key_dto.dart';
@@ -12,16 +12,19 @@ class LocalisationDto {
     required this.keys,
   });
 
-  factory LocalisationDto.fromJsonData(JsonData data) {
-    return LocalisationDto(
-      languages: data.getMapList(
-        'languages',
-        transform: LanguageDto.fromJsonData,
-      ),
-      keys: data.getMapWithKeys(
-        'keys',
-        transform: LocalisationKeyDto.fromJsonData,
-      ),
-    );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LocalisationDto &&
+          runtimeType == other.runtimeType &&
+          languages.equals(other.languages) &&
+          keys.equals(other.keys);
+
+  @override
+  int get hashCode => languages.hashCode ^ keys.hashCode;
+
+  @override
+  String toString() {
+    return '$LocalisationDto(languages: $languages, keys: $keys)';
   }
 }

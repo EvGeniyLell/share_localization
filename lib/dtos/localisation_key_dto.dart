@@ -1,5 +1,4 @@
-import 'package:share_localisation/utils/json_data.dart';
-import 'package:share_localisation/utils/list_extension.dart';
+import 'package:share_localisation/utils/common.dart';
 
 import 'localisation_key_argument_dto.dart';
 import 'localisation_key_translation_dto.dart';
@@ -16,19 +15,6 @@ class LocalisationKeyDto {
     required this.arguments,
     required this.localizations,
   });
-
-  factory LocalisationKeyDto.fromJsonData(JsonData data) {
-    return LocalisationKeyDto(
-      key: data.get('key'),
-      comment: data.get('comment'),
-      arguments: data.getMapList('arguments', transform: (data) {
-        return LocalisationKeyArgumentDto.fromJsonData(data);
-      }, defaultValue: []),
-      localizations: data.getMapWithKeys('localizations', transform: (data) {
-        return LocalisationKeyTranslationDto.fromJsonData(data);
-      }),
-    );
-  }
 
   @override
   bool operator ==(Object other) {
