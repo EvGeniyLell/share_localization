@@ -16,6 +16,20 @@ class LocalisationKeyDto {
     required this.localizations,
   });
 
+  LocalisationKeyDto copyWith({
+    String? key,
+    String? comment,
+    List<LocalisationKeyArgumentDto>? arguments,
+    List<LocalisationKeyTranslationDto>? localizations,
+  }) {
+    return LocalisationKeyDto(
+      key: key ?? this.key,
+      comment: comment ?? this.comment,
+      arguments: arguments ?? this.arguments,
+      localizations: localizations ?? this.localizations,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||

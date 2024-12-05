@@ -1,15 +1,20 @@
+import 'package:share_localisation/dtos/dtos.dart';
 import 'package:share_localisation/exceptions/exceptions.dart';
 import 'package:share_localisation/use_cases/localisation_loader_use_case.dart';
-import 'package:share_localisation/utils/common.dart';
 import 'package:test/test.dart';
 
 void main() {
   final loader = LocalisationLoaderUseCase();
-  final data = loader.buildData('test/sources/General.json');
 
-  group('LocalisationLoader', () {
-    test('getLocalisationDto', () {
-      final dto = data.getLocalisationDto();
+  group('LocalisationLoaderUseCase', () {
+    test('succeeded', () async {
+      final dtoTask = await loader('test/sources/bundles/feature_a.json');
+      expect(dtoTask.succeeded, true);
+      expect(dtoTask.data, isA<LocalisationDto>());
+
+      final dto = dtoTask.data;
+
+      expect(dto.name, 'feature_a.json');
       expect(dto.languages, hasLength(2));
       expect(dto.languages.first.abbreviation, 'en');
 
@@ -18,24 +23,8 @@ void main() {
       expect(dto.keys.first.arguments, hasLength(2));
     });
 
-    test('exception', () async {
-      final dynamic keys = data.map['keys'];
-      keys?['login_message'] = {
-        'comment': 'Login message',
-        'arguments': [
-          {'name': 'username', 'type': 'string'},
-          {'name': 'password', 'type': 'string'},
-        ],
-        'localizations-error': {
-          'en': {'message': 'Login with {username} and {password}'},
-          'es': {'message': 'Iniciar sesión con {username} y {password}'},
-        },
-      };
-
-      final dtoTask = await runAppTaskSafely(() async {
-        return data.getLocalisationDto();
-      });
-
+    test('failed', () async {
+      final dtoTask = await loader('test/sources/sl_settings.json');
       expect(dtoTask.failed, true);
       expect(dtoTask.exception, isA<UnexpectedException>());
     });

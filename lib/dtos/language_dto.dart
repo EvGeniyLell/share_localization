@@ -19,4 +19,5 @@ class LanguageDto {
   toString() {
     return '$LanguageDto(abbreviation: $abbreviation)';
   }
+
 }

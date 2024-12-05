@@ -1,14 +1,34 @@
-import 'package:meta/meta.dart';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:share_localisation/utils/common.dart';
 
 class JsonData {
   static const String rootKey = 'root';
 
   final String filepath;
+  final R Function<R>(JsonData) buildDto;
   final JsonMap map;
   final String route;
 
-  const JsonData(this.filepath, this.map, [this.route = rootKey]);
+  const JsonData(
+    this.filepath,
+    this.buildDto,
+    this.map, [
+    this.route = rootKey,
+  ]);
+
+  static Future<JsonData> fromFile(
+    String filepath, {
+    required R Function<R>(JsonData) buildDto,
+  }) async {
+    final content = await File(filepath).readAsString();
+    final map = json.decode(content);
+    if (map is! JsonMap) {
+      throw JsonDataError('Wrong json map at $filepath');
+    }
+    return JsonData(filepath, buildDto, map);
+  }
 
   String _newRoute(String key, {int? index}) {
     return '$route/$key'
@@ -34,7 +54,7 @@ class JsonData {
   /// Get sub [JsonData] from map by key.
   JsonData getSub(String key, {int? index, Object? defaultValue}) {
     final value = get<JsonMap>(key, defaultValue: defaultValue);
-    return JsonData(filepath, value, _newRoute(key, index: index));
+    return JsonData(filepath, buildDto, value, _newRoute(key, index: index));
   }
 
   /// Get sub [JsonData] list from map by key.
@@ -44,11 +64,20 @@ class JsonData {
     return value.map((value) {
       try {
         return JsonData(
-            filepath, value as JsonMap, _newRoute(key, index: index++));
+          filepath,
+          buildDto,
+          value as JsonMap,
+          _newRoute(key, index: index++),
+        );
       } catch (e) {
         final map = JsonMap();
         map[rootKey] = value;
-        return JsonData(filepath, map, _newRoute(key, index: index++));
+        return JsonData(
+          filepath,
+          buildDto,
+          map,
+          _newRoute(key, index: index++),
+        );
       }
     }).toList();
   }
@@ -96,4 +125,12 @@ class JsonDataError extends Error {
         '${route != null ? ' at $route' : ''}'
         '${filepath != null ? ' in $filepath' : ''}';
   }
+}
+
+extension JsonDataBuildDtos on List<JsonData> {
+  List<R> dtos<R>() => map((data) => data.buildDto<R>(data)).toList();
+}
+
+extension JsonDataBuildDto on JsonData {
+  R dto<R>() => buildDto<R>(this);
 }

@@ -1,6 +1,6 @@
 {
   "languages" : ["en", "de"],
-  "sources_folder" : "test/sources",
+  "sources_folder" : "test/sources/bundles",
   "flutter": {
     "destination_folder": "test/flutter",
     "destination_file": "*.dart"
