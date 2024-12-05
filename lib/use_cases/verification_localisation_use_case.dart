@@ -25,11 +25,11 @@ class VerificationLocalisationUseCase {
     return settings.languages
         .mapWhereEvery(
           localisation.languages,
-          test: (s, l) => s.abbreviation != l.abbreviation,
+          test: (s, l) => s.key != l.key,
           toElement: (s) => VerificationLocalisationException(
             VerificationLocalisationExceptionType.missingLanguage,
-            'Language ${s.abbreviation} not found in ${localisation.name}',
-            key: s.abbreviation,
+            'Language ${s.key} not found in ${localisation.name}',
+            key: s.key,
           ),
         )
         .toList();
@@ -73,15 +73,15 @@ class VerificationLocalisationUseCase {
       );
 
       return [
-        ...?intersectionMap[-1]?.map((argName) {
+        ...intersectionMap.$1.map((argName) {
           return VerificationLocalisationException(
             VerificationLocalisationExceptionType.missingArgument,
             'Argument $argName not found in ${key.key}'
-                ' for ${localization.key} language',
-            key: '${localization.key}:$argName',
+            ' for ${localization.languageKey} language',
+            key: '${localization.languageKey}:$argName',
           );
         }),
-        ...?intersectionMap[1]?.map((argName) {
+        ...intersectionMap.$3.map((argName) {
           return VerificationLocalisationException(
             VerificationLocalisationExceptionType.missingArgument,
             '1) Argument $argName not found in ${key.key}',
@@ -105,12 +105,11 @@ extension MessageArgumentsExtension on String {
 
 @visibleForTesting
 extension ListMergeExtension<E> on Iterable<E> {
-  /// Return map of intersection of two iterables,
-  /// where keys for values are:
-  /// - `-1`: is excluded from the right list,
-  /// - `0`: is common,
-  /// - `1`: is excluded from the left list.
-  Map<int, Iterable<E>> intersection(
+  /// Return tuple of intersection of two iterables,
+  /// - `$1`: for items presents only in `left` list,
+  /// - `$2`: for common,
+  /// - `$3`: for items presents only in `right` list.
+  (Iterable<E> left, Iterable<E> common, Iterable<E> righ) intersection(
     Iterable<E> other, {
     required bool Function(E l, E r) test,
   }) {
@@ -118,44 +117,27 @@ extension ListMergeExtension<E> on Iterable<E> {
       ...this,
       ...other,
     };
-    print('>>> R: $this');
-    print('>>> L: $other');
-    final rExcluded = mapWhereEvery<E>(
+    final onlyLeft = mapWhereEvery<E>(
       other,
-      test: (l, r) {
-        print('R: test? $l $r = ${test(l, r)}');
-        return !test(l, r);
-      },
+      test: (l, r) => !test(l, r),
       toElement: (e) {
-        print('R: remove $e');
         common.remove(e);
         return e;
       },
     );
-    print('RRR: excluded: $rExcluded');
-
-    final lExcluded = other.mapWhereEvery<E>(
+    final onlyRight = other.mapWhereEvery<E>(
       this,
-      test: (l, r) {
-        print('L: test? $l $r = ${test(l, r)}');
-        return !test(l, r);
-      },
+      test: (l, r) => !test(l, r),
       toElement: (e) {
-        print('L: remove $e');
         common.remove(e);
         return e;
       },
     );
-    print('LLL: excluded: $lExcluded');
-    return <int, Iterable<E>>{
-      -1: rExcluded,
-      0: common,
-      1: lExcluded,
-    };
+    return (onlyLeft, common, onlyRight);
   }
 
-  /// Return a new iterable with elements that satisfy the [test]
-  /// mapped to [R] type.
+  /// Return a new iterable with `every elements` that satisfy the [test]
+  /// and mapped to [R] type.
   Iterable<R> mapWhereEvery<R>(
     Iterable<E> other, {
     required bool Function(E l, E r) test,
@@ -167,15 +149,16 @@ extension ListMergeExtension<E> on Iterable<E> {
     }).whereType<R>();
   }
 
+  /// Return a new iterable with `any elements` that satisfy the [test]
+  /// and mapped to [R] type.
   Iterable<R> mapWhereAny<R>(
-      Iterable<E> other, {
-        required bool Function(E l, E r) test,
-        required R Function(E e) toElement,
-      }) {
+    Iterable<E> other, {
+    required bool Function(E l, E r) test,
+    required R Function(E e) toElement,
+  }) {
     return map((lItem) {
       final has = other.any((rItem) => test(lItem, rItem));
       return has ? toElement(lItem) : null;
     }).whereType<R>();
   }
-
 }

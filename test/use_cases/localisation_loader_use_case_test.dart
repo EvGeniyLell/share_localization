@@ -16,7 +16,7 @@ void main() {
 
       expect(dto.name, 'feature_a.json');
       expect(dto.languages, hasLength(2));
-      expect(dto.languages.first.abbreviation, 'en');
+      expect(dto.languages.first.key, 'en');
 
       expect(dto.keys, hasLength(3));
       expect(dto.keys.first.key, 'login_message');

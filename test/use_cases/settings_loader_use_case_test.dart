@@ -15,8 +15,8 @@ void main() {
       final dto = dtoTask.data;
 
       expect(dto.languages, hasLength(2));
-      expect(dto.languages[0].abbreviation, 'en');
-      expect(dto.languages[1].abbreviation, 'de');
+      expect(dto.languages[0].key, 'en');
+      expect(dto.languages[1].key, 'de');
 
       expect(dto.sourcesFolder, 'test/sources/bundles');
 

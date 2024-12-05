@@ -11,9 +11,9 @@ const localisationDto = LocalisationDto(
   ],
 );
 
-const localisationEnLanguage = LanguageDto(abbreviation: 'en');
-const localisationDeLanguage = LanguageDto(abbreviation: 'de');
-const localisationUaLanguage = LanguageDto(abbreviation: 'ua');
+const localisationEnLanguage = LanguageDto(key: 'en');
+const localisationDeLanguage = LanguageDto(key: 'de');
+const localisationUaLanguage = LanguageDto(key: 'ua');
 
 // -- loginMessage -------------------------------------------------------------
 
@@ -37,11 +37,11 @@ const loginMessageKeyArguments = [
 
 const loginMessageKeyLocalizations = [
   LocalisationKeyTranslationDto(
-    key: 'en',
+    languageKey: 'en',
     message: 'Hi {username}, your password is {password}',
   ),
   LocalisationKeyTranslationDto(
-    key: 'de',
+    languageKey: 'de',
     message: 'Heilegh {username}, dein passdahwordther ist {password}',
   ),
 ];

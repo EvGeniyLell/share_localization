@@ -1,12 +1,15 @@
+import 'package:meta/meta.dart';
+
+@immutable
 class LocalisationKeyTranslationDto {
   /// Key of language.
-  final String key;
+  final String languageKey;
 
   /// Translated message.
   final String message;
 
   const LocalisationKeyTranslationDto({
-    required this.key,
+    required this.languageKey,
     required this.message,
   });
 
@@ -15,14 +18,15 @@ class LocalisationKeyTranslationDto {
       identical(this, other) ||
       other is LocalisationKeyTranslationDto &&
           runtimeType == other.runtimeType &&
-          key == other.key &&
+          languageKey == other.languageKey &&
           message == other.message;
 
   @override
-  int get hashCode => key.hashCode ^ message.hashCode;
+  int get hashCode => languageKey.hashCode ^ message.hashCode;
 
   @override
   String toString() {
-    return '$LocalisationKeyTranslationDto(key: $key, message: $message)';
+    return '$LocalisationKeyTranslationDto'
+        '(key: $languageKey, message: $message)';
   }
 }

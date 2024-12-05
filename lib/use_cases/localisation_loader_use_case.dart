@@ -59,14 +59,14 @@ extension LocalisationLoaderUseCaseDtos on LocalisationLoaderUseCase {
 
   LocalisationKeyTranslationDto buildKeyTranslationDto(JsonData data) {
     return LocalisationKeyTranslationDto(
-      key: data.get('key'),
+      languageKey: data.get('key'),
       message: data.get('root'),
     );
   }
 
   LanguageDto buildLanguageDto(JsonData data) {
     return LanguageDto(
-      abbreviation: data.get('root'),
+      key: data.get('root'),
     );
   }
 }

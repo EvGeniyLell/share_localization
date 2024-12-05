@@ -11,9 +11,9 @@ const settingsDto = SettingsDto(
   flutter: flutterSettingsDto,
 );
 
-const settingEnLanguageDto = LanguageDto(abbreviation: 'en');
-const settingDeLanguageDto = LanguageDto(abbreviation: 'de');
-const settingUaLanguageDto = LanguageDto(abbreviation: 'ua');
+const settingEnLanguageDto = LanguageDto(key: 'en');
+const settingDeLanguageDto = LanguageDto(key: 'de');
+const settingUaLanguageDto = LanguageDto(key: 'ua');
 
 const iosSettingsDto = IosSettingsDto(
   destinationFolder: 'test/ios',

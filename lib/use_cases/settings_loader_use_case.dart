@@ -60,7 +60,7 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
 
   LanguageDto buildLanguageDto(JsonData data) {
     return LanguageDto(
-      abbreviation: data.get('root'),
+      key: data.get('root'),
     );
   }
 }

@@ -1,8 +1,11 @@
+import 'package:meta/meta.dart';
+
+@immutable
 class LanguageDto {
-  final String abbreviation;
+  final String key;
 
   const LanguageDto({
-    required this.abbreviation,
+    required this.key,
   });
 
   @override
@@ -10,14 +13,14 @@ class LanguageDto {
       identical(this, other) ||
       other is LanguageDto &&
           runtimeType == other.runtimeType &&
-          abbreviation == other.abbreviation;
+          key == other.key;
 
   @override
-  int get hashCode => abbreviation.hashCode;
+  int get hashCode => key.hashCode;
 
   @override
-  toString() {
-    return '$LanguageDto(abbreviation: $abbreviation)';
+  String toString() {
+    return '$LanguageDto(abbreviation: $key)';
   }
 
 }

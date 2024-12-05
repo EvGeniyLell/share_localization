@@ -40,7 +40,7 @@ void main() {
           predicate((VerificationLocalisationException e) {
             return e.type ==
                     VerificationLocalisationExceptionType.missingLanguage &&
-                e.key == settingUaLanguageDto.abbreviation;
+                e.key == settingUaLanguageDto.key;
           }),
         );
       });
