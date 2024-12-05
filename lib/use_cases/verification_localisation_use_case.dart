@@ -14,6 +14,10 @@ class VerificationLocalisationUseCase {
       if (localisationExceptions.isNotEmpty) {
         throw CompositeException(localisationExceptions);
       }
+      final keyExceptions = checkKeys(settings, localisation);
+      if (keyExceptions.isNotEmpty) {
+        throw CompositeException(keyExceptions);
+      }
     });
   }
 
@@ -22,17 +26,18 @@ class VerificationLocalisationUseCase {
     SettingsDto settings,
     LocalisationDto localisation,
   ) {
-    return settings.languages
-        .mapWhereEvery(
-          localisation.languages,
-          test: (s, l) => s.key != l.key,
-          toElement: (s) => VerificationLocalisationException(
-            VerificationLocalisationExceptionType.missingLanguage,
-            'Language ${s.key} not found in ${localisation.name}',
-            key: s.key,
-          ),
-        )
-        .toList();
+    return settings.languages.mapWhereEvery(
+      localisation.languages,
+      test: (settingsLanguage, localisationLanguage) {
+        return settingsLanguage.key != localisationLanguage.key;
+      },
+      toElement: (settingsLanguage) {
+        return VerificationLocalisationException.missingLanguage(
+          language: settingsLanguage.key,
+          sourceName: localisation.name,
+        );
+      },
+    ).toList();
   }
 
   @visibleForTesting
@@ -40,23 +45,14 @@ class VerificationLocalisationUseCase {
     SettingsDto settings,
     LocalisationDto localisation,
   ) {
-    localisation.keys.map((key) {
-      key.arguments.map((argument) {
-        // argument
-        // .
-        // final hasArgument = settings.arguments.any((s) {
-        // return argument.name == s.name;
-        // });
-        // return hasArgument
-        // ? null
-        //     : VerificationLocalisationException(
-        // VerificationLocalisationExceptionType.missingArgument,
-        // 'Argument ${argument.name} not found in ${localisation.name}',
-        // );
-      });
+    final exceptions = localisation.keys.map((key) {
+      return [
+        ...checkKeyArguments(settings, key),
+        ...checkKeyTranslations(settings, key),
+      ];
     });
 
-    return [];
+    return exceptions.expand((e) => e).toList();
   }
 
   @visibleForTesting
@@ -64,33 +60,52 @@ class VerificationLocalisationUseCase {
     SettingsDto settings,
     LocalisationKeyDto key,
   ) {
-    final argumentNames = key.arguments.map((argument) => argument.name);
-    final exceptions = key.localizations.map((localization) {
+    final argumentNames = key.arguments.map((argument) {
+      return argument.name;
+    }).toList();
+
+    final exceptions = key.translation.map((localization) {
       final messageArguments = localization.message.getMessageArguments();
-      final intersectionMap = argumentNames.intersection(
-        messageArguments,
-        test: (argName, messageArgName) => argName == messageArgName,
-      );
+      final (extraArgs, commonArgs, missingArgs) =
+          argumentNames.intersection(messageArguments);
 
       return [
-        ...intersectionMap.$1.map((argName) {
-          return VerificationLocalisationException(
-            VerificationLocalisationExceptionType.missingArgument,
-            'Argument $argName not found in ${key.key}'
-            ' for ${localization.languageKey} language',
-            key: '${localization.languageKey}:$argName',
+        ...extraArgs.map((argName) {
+          return VerificationLocalisationException.extraArgument(
+            argument: argName,
+            key: key.key,
+            language: localization.languageKey,
           );
         }),
-        ...intersectionMap.$3.map((argName) {
-          return VerificationLocalisationException(
-            VerificationLocalisationExceptionType.missingArgument,
-            '1) Argument $argName not found in ${key.key}',
-            key: argName,
+        ...missingArgs.map((argName) {
+          return VerificationLocalisationException.missingArgument(
+            argument: argName,
+            key: key.key,
+            language: localization.languageKey,
           );
         }),
       ];
     });
     return exceptions.expand((e) => e).toList();
+  }
+
+  @visibleForTesting
+  List<VerificationLocalisationException> checkKeyTranslations(
+    SettingsDto settings,
+    LocalisationKeyDto key,
+  ) {
+    return settings.languages.mapWhereEvery(
+      key.translation,
+      test: (settingsLanguage, translation) {
+        return settingsLanguage.key != translation.languageKey;
+      },
+      toElement: (settingsLanguage) {
+        return VerificationLocalisationException.missingTranslation(
+          language: settingsLanguage.key,
+          key: key.key,
+        );
+      },
+    ).toList();
   }
 }
 
@@ -104,61 +119,62 @@ extension MessageArgumentsExtension on String {
 }
 
 @visibleForTesting
-extension ListMergeExtension<E> on Iterable<E> {
-  /// Return tuple of intersection of two iterables,
+extension ListMergeExtension<E> on List<E> {
+  /// Return tuple of intersection of two lists,
   /// - `$1`: for items presents only in `left` list,
   /// - `$2`: for common,
   /// - `$3`: for items presents only in `right` list.
-  (Iterable<E> left, Iterable<E> common, Iterable<E> righ) intersection(
-    Iterable<E> other, {
-    required bool Function(E l, E r) test,
+  (List<E> left, List<E> common, List<E> righ) intersection(
+    List<E> other, {
+    bool Function(E l, E r)? test,
   }) {
+    final resolvedTest = test ?? (l, r) => l == r;
     final common = {
       ...this,
       ...other,
     };
-    final onlyLeft = mapWhereEvery<E>(
+    final onlyLeft = mapWhereEvery(
       other,
-      test: (l, r) => !test(l, r),
+      test: (l, r) => !resolvedTest(l, r),
       toElement: (e) {
         common.remove(e);
         return e;
       },
     );
-    final onlyRight = other.mapWhereEvery<E>(
+    final onlyRight = other.mapWhereEvery(
       this,
-      test: (l, r) => !test(l, r),
+      test: (l, r) => !resolvedTest(l, r),
       toElement: (e) {
         common.remove(e);
         return e;
       },
     );
-    return (onlyLeft, common, onlyRight);
+    return (onlyLeft.toList(), common.toList(), onlyRight.toList());
   }
 
-  /// Return a new iterable with `every elements` that satisfy the [test]
+  /// Return a new list with `every elements` that satisfy the [test]
   /// and mapped to [R] type.
-  Iterable<R> mapWhereEvery<R>(
-    Iterable<E> other, {
-    required bool Function(E l, E r) test,
+  List<R> mapWhereEvery<R, EE>(
+    List<EE> other, {
+    required bool Function(E l, EE r) test,
     required R Function(E e) toElement,
   }) {
     return map((lItem) {
       final has = other.every((rItem) => test(lItem, rItem));
       return has ? toElement(lItem) : null;
-    }).whereType<R>();
+    }).whereType<R>().toList();
   }
 
-  /// Return a new iterable with `any elements` that satisfy the [test]
+  /// Return a new list with `any elements` that satisfy the [test]
   /// and mapped to [R] type.
-  Iterable<R> mapWhereAny<R>(
-    Iterable<E> other, {
-    required bool Function(E l, E r) test,
+  List<R> mapWhereAny<R, EE>(
+    List<EE> other, {
+    required bool Function(E l, EE r) test,
     required R Function(E e) toElement,
   }) {
     return map((lItem) {
       final has = other.any((rItem) => test(lItem, rItem));
       return has ? toElement(lItem) : null;
-    }).whereType<R>();
+    }).whereType<R>().toList();
   }
 }

@@ -43,7 +43,7 @@ extension LocalisationLoaderUseCaseDtos on LocalisationLoaderUseCase {
       key: data.get('key'),
       comment: data.get('comment'),
       arguments: data.getSubList('arguments', defaultValue: []).dtos(),
-      localizations:
+      translation:
           data.getSub('localizations', defaultValue: []).groupByKeys().dtos(),
     );
   }

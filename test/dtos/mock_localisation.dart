@@ -21,7 +21,7 @@ const loginMessageKey = LocalisationKeyDto(
   key: 'login_message',
   comment: 'This a body of login message.',
   arguments: loginMessageKeyArguments,
-  localizations: loginMessageKeyLocalizations,
+  translation: loginMessageKeyLocalizations,
 );
 
 const loginMessageKeyArguments = [
