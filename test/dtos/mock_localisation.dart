@@ -1,7 +1,7 @@
 import 'package:share_localisation/dtos/dtos.dart';
 
 const localisationDto = LocalisationDto(
-  name: 'test',
+  name: 'test_feature_a_localisation.json',
   languages: [
     localisationEnLanguage,
     localisationDeLanguage,
@@ -45,3 +45,21 @@ const loginMessageKeyLocalizations = [
     message: 'Heilegh {username}, dein passdahwordther ist {password}',
   ),
 ];
+
+// -- loginTitle ---------------------------------------------------------------
+
+const loginTitleKey = LocalisationKeyDto(
+  key: 'login_title',
+  comment: 'This is a title for login screen.',
+  arguments: [],
+  translation: [
+    LocalisationKeyTranslationDto(
+      languageKey: 'en',
+      message: 'Login Page',
+    ),
+    LocalisationKeyTranslationDto(
+      languageKey: 'de',
+      message: 'Ther Loghingher Paghedguahter',
+    ),
+  ],
+);

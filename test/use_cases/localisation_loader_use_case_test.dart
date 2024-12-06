@@ -4,7 +4,7 @@ import 'package:share_localisation/use_cases/localisation_loader_use_case.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final loader = LocalisationLoaderUseCase();
+  const loader = LocalisationLoaderUseCase();
 
   group('LocalisationLoaderUseCase', () {
     test('succeeded', () async {

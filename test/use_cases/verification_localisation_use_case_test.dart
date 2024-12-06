@@ -7,7 +7,7 @@ import '../dtos/mock_localisation.dart';
 import '../dtos/mock_settings.dart';
 
 void main() {
-  final verification = VerificationLocalisationUseCase();
+  const verification = VerificationLocalisationUseCase();
 
   group('VerificationLocalisationUseCase', () {
     group('checkLocalisation', () {

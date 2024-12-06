@@ -4,7 +4,7 @@ import 'package:share_localisation/use_cases/settings_loader_use_case.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final loader = SettingsLoaderUseCase();
+  const loader = SettingsLoaderUseCase();
 
   group('SettingsLoaderUseCase', () {
     test('succeeded', () async {
