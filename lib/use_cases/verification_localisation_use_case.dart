@@ -4,9 +4,7 @@ import 'package:share_localisation/exceptions/exceptions.dart';
 import 'package:share_localisation/utils/common.dart';
 
 class VerificationLocalisationUseCase {
-  // void addError(VerificationLocalisationException error) {
-  //   errors.add(error);
-  // }
+  const VerificationLocalisationUseCase();
 
   AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
     return runAppTaskSafely(() async {

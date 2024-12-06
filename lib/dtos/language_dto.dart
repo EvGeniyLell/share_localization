@@ -22,5 +22,4 @@ class LanguageDto {
   String toString() {
     return '$LanguageDto(abbreviation: $key)';
   }
-
 }
