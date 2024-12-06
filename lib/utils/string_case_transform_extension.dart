@@ -59,6 +59,4 @@ extension StringCaseTransformExtension on String {
   //       .whereType<String>()
   //       .join('_');
   // }
-
-
 }

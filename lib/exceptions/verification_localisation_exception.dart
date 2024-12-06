@@ -1,4 +1,4 @@
-import 'app_exception.dart';
+import 'package:share_localisation/exceptions/app_exception.dart';
 
 class VerificationLocalisationException implements AppException {
   final String message;

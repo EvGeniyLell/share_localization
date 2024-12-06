@@ -1,3 +1,6 @@
+import 'package:meta/meta.dart';
+
+@immutable
 class LocalisationKeyArgumentDto {
   final String name;
   final LocalisationKeyDtoType type;

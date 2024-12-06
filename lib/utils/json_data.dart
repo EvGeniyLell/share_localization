@@ -45,8 +45,12 @@ class JsonData {
         map[rootKey] = value;
         return map as R;
       }
-      throw JsonDataError.wrongType(this,
-          key: key, value: value, expectedType: R);
+      throw JsonDataError.wrongType(
+        this,
+        key: key,
+        value: value,
+        expectedType: R,
+      );
     }
     return value;
   }
@@ -66,10 +70,10 @@ class JsonData {
         return JsonData(
           filepath,
           buildDto,
-          value as JsonMap,
+          value! as JsonMap,
           _newRoute(key, index: index++),
         );
-      } catch (e) {
+      } on Object {
         final map = JsonMap();
         map[rootKey] = value;
         return JsonData(
@@ -93,7 +97,7 @@ class JsonData {
   }
 
   @override
-  toString() {
+  String toString() {
     return '$JsonData{route: $route, map: $map}';
   }
 }
@@ -120,7 +124,7 @@ class JsonDataError extends Error {
   }
 
   @override
-  toString() {
+  String toString() {
     return '$JsonDataError: $message'
         '${route != null ? ' at $route' : ''}'
         '${filepath != null ? ' in $filepath' : ''}';

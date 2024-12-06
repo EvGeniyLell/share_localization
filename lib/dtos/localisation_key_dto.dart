@@ -1,8 +1,9 @@
+import 'package:meta/meta.dart';
+import 'package:share_localisation/dtos/localisation_key_argument_dto.dart';
+import 'package:share_localisation/dtos/localisation_key_translation_dto.dart';
 import 'package:share_localisation/utils/common.dart';
 
-import 'localisation_key_argument_dto.dart';
-import 'localisation_key_translation_dto.dart';
-
+@immutable
 class LocalisationKeyDto {
   final String key;
   final String comment;

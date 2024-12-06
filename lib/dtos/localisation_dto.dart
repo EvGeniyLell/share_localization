@@ -1,8 +1,10 @@
+import 'package:meta/meta.dart';
 import 'package:share_localisation/utils/common.dart';
 
-import 'language_dto.dart';
-import 'localisation_key_dto.dart';
+import 'package:share_localisation/dtos/language_dto.dart';
+import 'package:share_localisation/dtos/localisation_key_dto.dart';
 
+@immutable
 class LocalisationDto {
   final String name;
   final List<LanguageDto> languages;

@@ -1,5 +1,5 @@
 class Printer {
-  static final _instance = Printer._private();
+  static const _instance = Printer._private();
 
   factory Printer() => _instance;
 
