@@ -1,25 +1,41 @@
 import 'package:meta/meta.dart';
 import 'package:share_localisation/dtos/dtos.dart';
+import 'package:share_localisation/use_cases/build_localisation_use_case.dart';
 import 'package:share_localisation/utils/common.dart';
 import 'package:share_localisation/utils/string_case_transform_extension.dart';
 
 part 'build_ios_localisation_use_case_cxstrings.dart';
 part 'build_ios_localisation_use_case_swift.dart';
 
-class BuildIosLocalisationUseCase {
+class BuildIosLocalisationUseCase extends BuildLocalisationUseCase {
+  static const cxStringExtension = 'cxstrings';
+  static const swiftExtension = 'swift';
+
   const BuildIosLocalisationUseCase();
 
   AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
     return runAppTaskSafely(() async {
-      // final localisationExceptions = checkLocalisation(settings, localisation);
-      // if (localisationExceptions.isNotEmpty) {
-      //   throw CompositeException(localisationExceptions);
-      // }
-      // final keyExceptions = checkKeys(settings, localisation);
-      // if (keyExceptions.isNotEmpty) {
-      //   throw CompositeException(keyExceptions);
-      // }
+      final cxStrings = buildCXStrings(settings, localisation);
+      createFile(
+        filePath(settings, localisation, cxStringExtension),
+        cxStrings,
+      );
+      final swift = buildSwift(settings, localisation);
+      createFile(
+        filePath(settings, localisation, swiftExtension),
+        swift,
+      );
     });
+  }
+
+  String filePath(
+    SettingsDto settings,
+    LocalisationDto localisation,
+    String extension,
+  ) {
+    return '${settings.ios.destinationFolder}'
+        '/${localisation.name.baseFilename()}'
+        '.$extension';
   }
 }
 
@@ -47,6 +63,7 @@ extension IosLocalisationKeyDto on LocalisationKeyDto {
     });
     return [key, ...arg].join();
   }
+
   /// return string aka "loginMessage\(name)\(pass)"
   String iosSwiftKey() {
     final arg = arguments.map((argument) {

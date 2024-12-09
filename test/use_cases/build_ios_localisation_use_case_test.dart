@@ -70,33 +70,17 @@ void main() {
       print(result);
     });
 
-    //
-    // test('buildLocale', () async {
-    //   final data = builder.buildLocale(
-    //     settingsDto,
-    //     localisationDto.copyWith(
-    //       keys: [
-    //         loginMessageKey,
-    //         loginTitleKey,
-    //       ],
-    //     ),
-    //     settingEnLanguageDto,
-    //   );
-    //   //final result = buffer.commonBuffer.toString();
-    //   print(data);
-    // });
-    //
-    // test('success', () async {
-    //   final dtoTask = await builder(
-    //     settingsDto,
-    //     localisationDto.copyWith(
-    //       keys: [
-    //         loginMessageKey,
-    //         loginTitleKey,
-    //       ],
-    //     ),
-    //   );
-    //   expect(dtoTask.succeeded, true);
-    // });
+    test('success', () async {
+      final dtoTask = await builder(
+        settingsDto,
+        localisationDto.copyWith(
+          keys: [
+            loginMessageKey,
+            loginTitleKey,
+          ],
+        ),
+      );
+      expect(dtoTask.succeeded, true);
+    });
   });
 }

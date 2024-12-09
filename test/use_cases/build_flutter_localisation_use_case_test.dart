@@ -18,7 +18,6 @@ void main() {
           ],
         ),
       );
-      //final result = buffer.commonBuffer.toString();
       print(commonData);
     });
 
@@ -33,7 +32,6 @@ void main() {
         ),
         settingEnLanguageDto,
       );
-      //final result = buffer.commonBuffer.toString();
       print(data);
     });
 
