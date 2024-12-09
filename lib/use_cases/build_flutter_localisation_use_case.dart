@@ -1,14 +1,16 @@
 import 'package:meta/meta.dart';
 import 'package:share_localisation/dtos/dtos.dart';
+import 'package:share_localisation/use_cases/build_localisation_use_case.dart';
 import 'package:share_localisation/utils/common.dart';
 import 'package:share_localisation/utils/string_case_transform_extension.dart';
 
 part 'build_flutter_localisation_use_case_common.dart';
 part 'build_flutter_localisation_use_case_locale.dart';
 
-class BuildFlutterLocalisationUseCase {
+class BuildFlutterLocalisationUseCase extends BuildLocalisationUseCase {
   const BuildFlutterLocalisationUseCase();
 
+  @override
   AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
     return runAppTaskSafely(() async {
       final common = buildCommon(settings, localisation);
@@ -29,11 +31,6 @@ class BuildFlutterLocalisationUseCase {
         '/${localisation.name.baseFilename()}'
         '${language != null ? '_${language.key}' : ''}'
         '.dart';
-  }
-
-  void createFile(String path, String content) {
-    print('Creating file: $path');
-    print(content);
   }
 }
 

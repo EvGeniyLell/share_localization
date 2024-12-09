@@ -59,4 +59,18 @@ extension StringCaseTransformExtension on String {
   //       .whereType<String>()
   //       .join('_');
   // }
+
+  String pad(int shift) {
+    if (isEmpty || shift == 0) {
+      return this;
+    }
+
+    return split('\n').map((s) {
+      if (shift > 0) {
+        return ''.padLeft(shift) + s;
+      } else {
+        return s.replaceFirst(RegExp('^\\s{0,${-shift}}'), '');
+      }
+    }).join('\n');
+  }
 }
