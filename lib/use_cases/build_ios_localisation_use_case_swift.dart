@@ -9,12 +9,11 @@ extension BuildIosLocalisationUseCaseSwift on BuildIosLocalisationUseCase {
     final defaultLanguage = settings.languages.first;
     final baseFilename = localisation.name.baseFilename();
     final localisationName = baseFilename.camelCase().capitalize();
-    print('localisationName: ${localisation.name}');
     final getters = localisation.keys.map((key) {
       final translation = key.translation.firstWhere((translation) {
         return translation.languageKey == defaultLanguage.key;
       });
-      return buildCXStringsItemTranslation(defaultLanguage, key, translation);
+      return buildXCStringsItemTranslation(defaultLanguage, key, translation);
     }).join('\n\n');
     return '''
 class $localisationName {
@@ -25,7 +24,7 @@ $getters
 ''';
   }
 
-  String buildCXStringsItemTranslation(
+  String buildXCStringsItemTranslation(
     LanguageDto language,
     LocalisationKeyDto key,
     LocalisationKeyTranslationDto translation,
@@ -54,7 +53,7 @@ $getter''';
     if (key.arguments.isEmpty) {
       return '''
   static var $itemName : String {
-    String(localized:"${key.iosCXStringKey()}", table: table)
+    String(localized:"${key.iosXCStringKey()}", table: table)
   }''';
     }
     final arguments = key.arguments.map((argument) {

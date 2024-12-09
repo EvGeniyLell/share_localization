@@ -11,20 +11,23 @@ class VerificationLocalisationException implements AppException {
   }) = VerificationLocalisationMissingLanguageException;
 
   factory VerificationLocalisationException.missingTranslation({
-    required String language,
     required String key,
+    required String language,
+    required String sourceName,
   }) = VerificationLocalisationMissingTranslationException;
 
   factory VerificationLocalisationException.extraArgument({
     required String argument,
     required String key,
     required String language,
+    required String sourceName,
   }) = VerificationLocalisationExtraArgumentException;
 
   factory VerificationLocalisationException.missingArgument({
     required String argument,
     required String key,
     required String language,
+    required String sourceName,
   }) = VerificationLocalisationMissingArgumentException;
 
   @override
@@ -51,13 +54,15 @@ class VerificationLocalisationMissingTranslationException
     extends VerificationLocalisationException {
   final String key;
   final String language;
+  final String sourceName;
 
   VerificationLocalisationMissingTranslationException({
     required this.key,
     required this.language,
+    required this.sourceName,
   }) : super(
           'Missing translation for key "$key"'
-          ' in ${language.toUpperCase()} language',
+          ' in ${language.toUpperCase()} $sourceName',
         );
 }
 
@@ -66,14 +71,16 @@ class VerificationLocalisationExtraArgumentException
   final String argument;
   final String key;
   final String language;
+  final String sourceName;
 
   VerificationLocalisationExtraArgumentException({
     required this.argument,
     required this.key,
     required this.language,
+    required this.sourceName,
   }) : super(
           'Extra argument "$argument" for key "$key"'
-          ' in ${language.toUpperCase()} language',
+          ' in ${language.toUpperCase()} $sourceName',
         );
 }
 
@@ -82,13 +89,15 @@ class VerificationLocalisationMissingArgumentException
   final String argument;
   final String key;
   final String language;
+  final String sourceName;
 
   VerificationLocalisationMissingArgumentException({
     required this.argument,
     required this.key,
     required this.language,
+    required this.sourceName,
   }) : super(
           'Missing argument "$argument" for key "$key"'
-          ' in ${language.toUpperCase()} language',
+          ' in ${language.toUpperCase()} $sourceName',
         );
 }

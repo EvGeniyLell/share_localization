@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:share_localisation/dtos/dtos.dart';
+import 'package:share_localisation/exceptions/exceptions.dart';
 import 'package:share_localisation/utils/common.dart';
 import 'package:share_localisation/utils/json_data.dart';
 
@@ -50,11 +51,18 @@ extension LocalisationLoaderUseCaseDtos on LocalisationLoaderUseCase {
 
   LocalisationKeyArgumentDto buildKeyArgumentDto(JsonData data) {
     final String typeName = data.get('type');
-    return LocalisationKeyArgumentDto(
-      name: data.get('name'),
-      type: LocalisationKeyDtoType.values
-          .firstWhere((e) => e.name.toLowerCase() == typeName.toLowerCase()),
-    );
+    try {
+      return LocalisationKeyArgumentDto(
+        name: data.get('name'),
+        type: LocalisationKeyDtoType.values
+            .firstWhere((e) => e.name.toLowerCase() == typeName.toLowerCase()),
+      );
+    } on Object catch (e) {
+      throw UnexpectedException(
+        'Unknown type $typeName: $e, use one of '
+        '${LocalisationKeyDtoType.values.map((e) => e.name).join(', ')}',
+      );
+    }
   }
 
   LocalisationKeyTranslationDto buildKeyTranslationDto(JsonData data) {

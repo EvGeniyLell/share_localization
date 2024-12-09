@@ -2,15 +2,15 @@
   "languages" : ["en", "de"],
   "sources_folder" : "test/sources/bundles",
   "flutter": {
-    "destination_folder": "test/flutter",
+    "destination_folder": "test/sources/result/flutter",
     "destination_file": "*.dart"
   },
   "ios": {
-    "destination_folder": "test/ios",
+    "destination_folder": "test/sources/result/ios",
     "destination_file": "*.strings"
   },
   "android": {
-    "destination_folder": "test/android",
+    "destination_folder": "test/sources/result/android",
     "destination_file": "*.xml"
   }
 }

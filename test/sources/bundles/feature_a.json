@@ -11,8 +11,8 @@
         "type": "String"
       }],
       "localizations" : {
-        "en" : "Hi $username, your password is $password",
-        "de" : "Heilegh $username, dein passdahwordther ist $password"
+        "en" : "Hi {username}, your password is {password}",
+        "de" : "Heilegh {username}, dein passdahwordther ist {password}"
       }
     },
     "login_title" : {

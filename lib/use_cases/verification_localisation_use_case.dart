@@ -4,7 +4,9 @@ import 'package:share_localisation/exceptions/exceptions.dart';
 import 'package:share_localisation/utils/common.dart';
 
 class VerificationLocalisationUseCase {
-  const VerificationLocalisationUseCase();
+  final List<Type> skipErrorTypes;
+
+  const VerificationLocalisationUseCase({this.skipErrorTypes = const []});
 
   AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
     return runAppTaskSafely(() async {
@@ -45,8 +47,8 @@ class VerificationLocalisationUseCase {
   ) {
     final exceptions = localisation.keys.map((key) {
       return [
-        ...checkKeyArguments(settings, key),
-        ...checkKeyTranslations(settings, key),
+        ...checkKeyArguments(settings, localisation, key),
+        ...checkKeyTranslations(settings, localisation, key),
       ];
     });
 
@@ -56,6 +58,7 @@ class VerificationLocalisationUseCase {
   @visibleForTesting
   List<VerificationLocalisationException> checkKeyArguments(
     SettingsDto settings,
+    LocalisationDto localisation,
     LocalisationKeyDto key,
   ) {
     final argumentNames = key.arguments.map((argument) {
@@ -73,6 +76,7 @@ class VerificationLocalisationUseCase {
             argument: argName,
             key: key.key,
             language: localization.languageKey,
+            sourceName: localisation.name,
           );
         }),
         ...missingArgs.map((argName) {
@@ -80,6 +84,7 @@ class VerificationLocalisationUseCase {
             argument: argName,
             key: key.key,
             language: localization.languageKey,
+            sourceName: localisation.name,
           );
         }),
       ];
@@ -90,6 +95,7 @@ class VerificationLocalisationUseCase {
   @visibleForTesting
   List<VerificationLocalisationException> checkKeyTranslations(
     SettingsDto settings,
+    LocalisationDto localisation,
     LocalisationKeyDto key,
   ) {
     return settings.languages.mapWhereEvery(
@@ -99,8 +105,9 @@ class VerificationLocalisationUseCase {
       },
       toElement: (settingsLanguage) {
         return VerificationLocalisationException.missingTranslation(
-          language: settingsLanguage.key,
           key: key.key,
+          language: settingsLanguage.key,
+          sourceName: localisation.name,
         );
       },
     ).toList();

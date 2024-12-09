@@ -69,8 +69,11 @@ void main() {
       });
 
       test('succeeded', () {
-        final result =
-            verification.checkKeyArguments(settingsDto, loginMessageKey);
+        final result = verification.checkKeyArguments(
+          settingsDto,
+          localisationDto,
+          loginMessageKey,
+        );
         expect(result, []);
       });
 
@@ -85,6 +88,7 @@ void main() {
         );
         final result = verification.checkKeyArguments(
           settingsDto,
+          localisationDto,
           loginMessageKey.copyWith(
             arguments: [
               ...loginMessageKeyArguments,
@@ -126,6 +130,7 @@ void main() {
         );
         final result = verification.checkKeyArguments(
           settingsDto,
+          localisationDto,
           loginMessageKey.copyWith(
             translation: [
               missingArgumentEnTranslation,
@@ -152,14 +157,18 @@ void main() {
 
     group('checkKeyTranslations', () {
       test('succeeded', () {
-        final result =
-            verification.checkKeyTranslations(settingsDto, loginMessageKey);
+        final result = verification.checkKeyTranslations(
+          settingsDto,
+          localisationDto,
+          loginMessageKey,
+        );
         expect(result, []);
       });
 
       test('failed with missingArgument', () {
         final result = verification.checkKeyTranslations(
           settingsDto,
+          localisationDto,
           loginMessageKey.copyWith(
             translation: [
               loginMessageKeyLocalizations[0],

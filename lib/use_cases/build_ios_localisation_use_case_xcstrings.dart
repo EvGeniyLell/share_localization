@@ -1,13 +1,13 @@
 part of 'build_ios_localisation_use_case.dart';
 
 @visibleForTesting
-extension BuildIosLocalisationUseCaseCxstrings on BuildIosLocalisationUseCase {
-  String buildCXStrings(
+extension BuildIosLocalisationUseCaseXCStrings on BuildIosLocalisationUseCase {
+  String buildXCStrings(
     SettingsDto settings,
     LocalisationDto localisation,
   ) {
     final defaultLanguage = settings.languages.first.key;
-    final stringsItems = localisation.keys.map(buildCXStringsItem).join(',\n');
+    final stringsItems = localisation.keys.map(buildXCStringsItem).join(',\n');
     return '''
 {
   "sourceLanguage" : "$defaultLanguage",
@@ -18,12 +18,13 @@ $stringsItems
 }''';
   }
 
-  String buildCXStringsItem(LocalisationKeyDto key) {
+  String buildXCStringsItem(LocalisationKeyDto key) {
     final translations = key.translation.map((translation) {
-      return buildCXStringsItemTranslation(key, translation);
+      return buildXCStringsItemTranslation(key, translation);
     }).join(',\n');
     return '''
-    "${key.iosCXStringKey()}" : {
+    "${key.iosXCStringKey()}" : {
+      "comment" : "${key.comment}",
       "extractionState" : "manual",
       "localizations" : {
 $translations
@@ -31,7 +32,7 @@ $translations
     }''';
   }
 
-  String buildCXStringsItemTranslation(
+  String buildXCStringsItemTranslation(
     LocalisationKeyDto key,
     LocalisationKeyTranslationDto translation,
   ) {

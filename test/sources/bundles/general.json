@@ -1,32 +1,39 @@
 {
   "languages" : ["en", "de"],
   "keys" : {
-    "login_message" : {
-      "comment" : "This a body of login message.",
+    "file_size_error_body" : {
+      "comment" : "This a body of error notification message.",
       "arguments": [{
-        "name": "username",
+        "name": "file_name",
         "type": "String"
       }, {
-        "name": "password",
-        "type": "String"
+        "name": "current_size",
+        "type": "Double"
+      }, {
+        "name": "maximum_size",
+        "type": "Double"
       }],
       "localizations" : {
-        "en" : "Hi $username, your password is $password",
-        "de" : "Heilegh $username, dein passdahwordther ist $password"
+        "en" : "The {file_name} has size {current_size}, it is biggest then maximum {maximum_size}.",
+        "de" : "Цей {file_name} має розмір {current_size}, це більш ніж дозволений максимум {maximum_size}."
       }
     },
-    "login_title" : {
-      "comment" : "This is a title for login screen",
+    "file_size_attention" : {
+      "comment" : "This is a attention message for file size.",
+      "arguments": [{
+        "name": "maximum_size",
+        "type": "Int"
+      }],
       "localizations" : {
-        "en" : "Login Page",
-        "de" : "Ther Loghingher Paghedguahter"
+        "en" : "File should be less or equal to {maximum_size} MB.",
+        "de" : "Файл повинен бути меншим або рівним {maximum_size} МБ."
       }
     },
-    "login_button" : {
-      "comment" : "This is a login button on login screen",
+    "file_size_title" : {
+      "comment" : "This is a title for file size error screen",
       "localizations" : {
-        "en" : "Login",
-        "de" : "Loghinedher"
+        "en" : "Attention! The file size is too big.",
+        "de" : "Увага! Розмір файлу занадто великий."
       }
     }
   },

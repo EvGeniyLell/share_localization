@@ -27,25 +27,25 @@ void main() {
         loginTitleKey,
       ];
       for (final key in keys) {
-        final result = key.iosCXStringKey();
+        final result = key.iosXCStringKey();
         expect(result, anyOf('login_message%@%@', 'login_title'));
       }
     });
 
-    test('buildCXStringsItem', () async {
+    test('buildXCStringsItem', () async {
       final keys = [
         loginMessageKey,
         loginTitleKey,
       ];
       for (final key in keys) {
-        final result = builder.buildCXStringsItem(key);
+        final result = builder.buildXCStringsItem(key);
         print(result);
         //expect(result, anyOf('login_message%@%@', 'login_title'));
       }
     });
 
-    test('buildCXStrings', () async {
-      final result = builder.buildCXStrings(
+    test('buildXCStrings', () async {
+      final result = builder.buildXCStrings(
         settingsDto,
         localisationDto.copyWith(
           keys: [

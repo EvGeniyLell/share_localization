@@ -4,24 +4,25 @@ import 'package:share_localisation/use_cases/build_localisation_use_case.dart';
 import 'package:share_localisation/utils/common.dart';
 import 'package:share_localisation/utils/string_case_transform_extension.dart';
 
-part 'build_ios_localisation_use_case_cxstrings.dart';
+part 'build_ios_localisation_use_case_xcstrings.dart';
 part 'build_ios_localisation_use_case_swift.dart';
 
 class BuildIosLocalisationUseCase extends BuildLocalisationUseCase {
-  static const cxStringExtension = 'cxstrings';
+  static const xcStringExtension = 'xcstrings';
   static const swiftExtension = 'swift';
 
   const BuildIosLocalisationUseCase();
 
+  @override
   AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
     return runAppTaskSafely(() async {
-      final cxStrings = buildCXStrings(settings, localisation);
-      createFile(
-        filePath(settings, localisation, cxStringExtension),
-        cxStrings,
+      final xcStrings = buildXCStrings(settings, localisation);
+      await createFile(
+        filePath(settings, localisation, xcStringExtension),
+        xcStrings,
       );
       final swift = buildSwift(settings, localisation);
-      createFile(
+      await createFile(
         filePath(settings, localisation, swiftExtension),
         swift,
       );
@@ -34,7 +35,7 @@ class BuildIosLocalisationUseCase extends BuildLocalisationUseCase {
     String extension,
   ) {
     return '${settings.ios.destinationFolder}'
-        '/${localisation.name.baseFilename()}'
+        '/${localisation.name.baseFilename().camelCase().capitalize()}'
         '.$extension';
   }
 }
@@ -57,7 +58,7 @@ extension LocalisationKeyDtoTypeToFlutter on LocalisationKeyDtoType {
 @visibleForTesting
 extension IosLocalisationKeyDto on LocalisationKeyDto {
   /// return string aka "loginMessage%@%lld%@"
-  String iosCXStringKey() {
+  String iosXCStringKey() {
     final arg = arguments.map((argument) {
       return '%${argument.type.iosMarker}';
     });

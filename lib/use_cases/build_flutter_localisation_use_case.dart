@@ -14,10 +14,10 @@ class BuildFlutterLocalisationUseCase extends BuildLocalisationUseCase {
   AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
     return runAppTaskSafely(() async {
       final common = buildCommon(settings, localisation);
-      createFile(filePath(settings, localisation), common);
-      settings.languages.forEach((language) {
+      await createFile(filePath(settings, localisation), common);
+      settings.languages.forEach((language) async {
         final locale = buildLocale(settings, localisation, language);
-        createFile(filePath(settings, localisation, language), locale);
+        await createFile(filePath(settings, localisation, language), locale);
       });
     });
   }

@@ -27,7 +27,11 @@ class GenerationUseCase {
     return const GenerationUseCase(
       SettingsLoaderUseCase(),
       LocalisationLoaderUseCase(),
-      VerificationLocalisationUseCase(),
+      VerificationLocalisationUseCase(
+        skipErrorTypes: [
+          VerificationLocalisationExtraArgumentException,
+        ],
+      ),
       [
         BuildFlutterLocalisationUseCase(),
         BuildIosLocalisationUseCase(),
@@ -49,7 +53,7 @@ class GenerationUseCase {
   ) async {
     final settingsTask = await settingsLoader(settingsFilepath);
     if (settingsTask.failed) {
-      throw UnexpectedException('Failed to load settings $settingsFilepath');
+      throw settingsTask.exception;
     }
     final settings = settingsTask.data;
 
@@ -60,9 +64,7 @@ class GenerationUseCase {
         .map((file) async {
       final localisationTask = await localisationLoader(file.path);
       if (localisationTask.failed) {
-        throw UnexpectedException(
-          'Failed to load localisation ${file.path}',
-        );
+        throw localisationTask.exception;
       }
       return localisationTask.data;
     });
@@ -73,9 +75,7 @@ class GenerationUseCase {
       final verificationTask =
           await verificationLocalisation(settings, localisation);
       if (verificationTask.failed) {
-        throw UnexpectedException(
-          'Failed to verify localisation $localisation',
-        );
+        throw verificationTask.exception;
       }
       return verificationTask.data;
     });
@@ -90,9 +90,7 @@ class GenerationUseCase {
     for (final builder in builders) {
       final buildTask = await builder(settings, localisation);
       if (buildTask.failed) {
-        throw UnexpectedException(
-          'Failed to build localisation $localisation',
-        );
+        throw buildTask.exception;
       }
     }
   }
