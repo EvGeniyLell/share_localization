@@ -1,34 +1,40 @@
 {
-  "languages" : ["en", "de"],
-  "keys" : {
-    "login_message" : {
-      "comment" : "This a body of login message.",
-      "arguments": [{
-        "name": "username",
-        "type": "String"
-      }, {
-        "name": "password",
-        "type": "String"
-      }],
-      "localizations" : {
-        "en" : "Hi {username}, your password is {password}",
-        "de" : "Heilegh {username}, dein passdahwordther ist {password}"
+  "languages": [
+    "en",
+    "de"
+  ],
+  "keys": {
+    "login_message": {
+      "comment": "This a body of login message.",
+      "arguments": [
+        {
+          "name": "username",
+          "type": "String"
+        },
+        {
+          "name": "password",
+          "type": "String"
+        }
+      ],
+      "localizations": {
+        "en": "Hi {username}, your password is {password}",
+        "de": "Привіт {username}, ваш пароль є {password}"
       }
     },
-    "login_title" : {
-      "comment" : "This is a title for login screen",
-      "localizations" : {
-        "en" : "Login Page",
-        "de" : "Ther Loghingher Paghedguahter"
+    "login_title": {
+      "comment": "This is a title for login screen",
+      "localizations": {
+        "en": "Login Page",
+        "de": "Сторінка Логіну"
       }
     },
-    "login_button" : {
-      "comment" : "This is a login button on login screen",
-      "localizations" : {
-        "en" : "Login",
-        "de" : "Loghinedher"
+    "login_button": {
+      "comment": "This is a login button on login screen",
+      "localizations": {
+        "en": "Login",
+        "de": "Логін"
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }
