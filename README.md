@@ -1,14 +1,12 @@
 ## Share Localization
 
-`share_localization` is a command-line tool that shares localization files 
-for iOS, Flutter and Android projects. 
-It ensures that localization strings are consistent across different languages and platforms.
+`share_localization` is a command-line tool that shares localization files for iOS, Flutter, and Android projects. It ensures that localization strings are consistent across different languages and platforms.
 
-Currently, it supports sharing `xcstrings`, `dart` and `xml` files.
+Currently, it supports sharing `xcstrings`, `dart`, and `xml` files.
 
-### Attention: 
-- Android part is not implemented yet.
-- This tool is still in development and may not work as expected. 
+### Attention:
+- The Android part is not implemented yet.
+- This tool is still in development and may not work as expected.
 
 ## Installation
 
@@ -28,81 +26,79 @@ dart pub global activate --source git git@github.com:EvGeniyLell/share_localizat
 
 ## Usage
 
-### Settings options
+### Settings Options
 
-The command-line tool expected find the `settings.json` file 
-in the working directory.
+The command-line tool expects to find the `settings.json` file in the working directory.
 
-Settings it is a json file formated like this:
+The settings file should be formatted as follows:
 
 ```yaml
-- languages:
-    # List of languages what you want to share
-    list:
-      string: language code
-- sources_folder:
-    string: folder with localization files
+languages:
+  # List of languages you want to share
+  list:
+    string: "language code"
+sources_folder:
+  string: "folder with localization files"
 # Custom options for each platform
 # If you don't need to share some platform, just remove it from the settings
-- ios:
-    bundle_name:
-      string: name of bundle
-    destination_folder:
-      # Generate files will be put here
-      # support path back step with `../../`
-      string: destination folder
-- flutter:
-    destination_folder:
-      # Generate files will be put here
-      # support path back step with `../../`
-      string: destination folder
-- android:
-    destination_folder:
-      # Generate files will be put here
-      # support path back step with `../../`
-      string: destination folder
+ios:
+  bundle_name:
+    string: "name of bundle"
+  destination_folder:
+    # Generated files will be put here
+    # Supports path back step with `../../`
+    string: "destination folder"
+flutter:
+  destination_folder:
+    # Generated files will be put here
+    # Supports path back step with `../../`
+    string: "destination folder"
+android:
+  destination_folder:
+    # Generated files will be put here
+    # Supports path back step with `../../`
+    string: "destination folder"
 ```
 
 [Example settings](example/Settings.json)
 
+### Source Bundles
 
-### Sources bundles
+You should put your localization files in the folder with the name specified in the settings.
 
-You should put your localization files in the folder with the name what you set in the settings.
-
-#### Format of source localization files
+#### Format of Source Localization Files
 
 ```yaml
-- languages:
-    list:
-      string: language code 
-- keys:
-    key:
-      string: key of localization
-    value:
-      object:
-      comment:
-        string: comment for localization
-      arguments:
-        list:
-          object:
-            name:
-              string: name of argument
-            type:
-              string: type of argument
-              allowed types:
-                String
-                Int
-                Double
-      localizations:
+languages:
+  list:
+    string: "language code"
+keys:
+  key:
+    string: "key of localization"
+  value:
+    object:
+    comment:
+      string: "comment for localization"
+    arguments:
+      list:
         object:
-          key:
-            string: language code
-          value:
-            string: localization value
+          name:
+            string: "name of argument"
+          type:
+            enum: "type of argument"
+            allowed_values:
+              - String
+              - Int
+              - Double
+    localizations:
+      object:
+        key:
+          string: "language code"
+        value:
+          string: "localization value"
 ```
-[Example: general.json](example/bundles/general.json)
 
+[Example: general.json](example/bundles/general.json)
 
 <details>
 <summary><strong>Example Results</strong></summary>
@@ -122,6 +118,3 @@ You should put your localization files in the folder with the name what you set 
 
 [General.xcstrings](example/results/flutter/...)
 </details>
-
-
-
