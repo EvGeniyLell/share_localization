@@ -36,28 +36,29 @@ The settings file should be formatted as follows:
 languages:
   # List of languages you want to share
   list:
-    string: "language code"
+    - language_code
 sources_folder:
-  string: "folder with localization files"
+  # Folder with localization files
+  string: folder_with_localization_files
 # Custom options for each platform
 # If you don't need to share some platform, just remove it from the settings
 ios:
   bundle_name:
-    string: "name of bundle"
+    string: name_of_bundle
   destination_folder:
     # Generated files will be put here
     # Supports path back step with `../../`
-    string: "destination folder"
+    string: destination_folder
 flutter:
   destination_folder:
     # Generated files will be put here
     # Supports path back step with `../../`
-    string: "destination folder"
+    string: destination_folder
 android:
   destination_folder:
     # Generated files will be put here
     # Supports path back step with `../../`
-    string: "destination folder"
+    string: destination_folder
 ```
 
 [Example settings](example/Settings.json)
@@ -71,31 +72,31 @@ You should put your localization files in the folder with the name specified in 
 ```yaml
 languages:
   list:
-    string: "language code"
+    - language_code
 keys:
   key:
-    string: "key of localization"
+    string: key_of_localization
   value:
     object:
     comment:
-      string: "comment for localization"
+      string: comment_for_localization
     arguments:
       list:
         object:
           name:
-            string: "name of argument"
+            string: name_of_argument
           type:
-            enum: "type of argument"
-            allowed_values:
+            string: type_of_argument
+            allowed_types:
               - String
               - Int
               - Double
     localizations:
       object:
         key:
-          string: "language code"
+          string: language_code
         value:
-          string: "localization value"
+          string: localization_value
 ```
 
 [Example: general.json](example/bundles/general.json)
@@ -113,7 +114,7 @@ keys:
 
 [general_en.dart](example/results/flutter/general_en.dart)
 
-##### Android:
+##### Android: not implemented yet
 [General.swift](example/results/flutter/...)
 
 [General.xcstrings](example/results/flutter/...)
