@@ -1,29 +1,29 @@
 import 'package:meta/meta.dart';
-import 'package:share_localisation/dtos/localisation_key_argument_dto.dart';
-import 'package:share_localisation/dtos/localisation_key_translation_dto.dart';
-import 'package:share_localisation/utils/common.dart';
+import 'package:share_localization/dtos/localization_key_argument_dto.dart';
+import 'package:share_localization/dtos/localization_key_translation_dto.dart';
+import 'package:share_localization/utils/common.dart';
 
 @immutable
-class LocalisationKeyDto {
+class LocalizationKeyDto {
   final String key;
   final String comment;
-  final List<LocalisationKeyArgumentDto> arguments;
-  final List<LocalisationKeyTranslationDto> translation;
+  final List<LocalizationKeyArgumentDto> arguments;
+  final List<LocalizationKeyTranslationDto> translation;
 
-  const LocalisationKeyDto({
+  const LocalizationKeyDto({
     required this.key,
     required this.comment,
     required this.arguments,
     required this.translation,
   });
 
-  LocalisationKeyDto copyWith({
+  LocalizationKeyDto copyWith({
     String? key,
     String? comment,
-    List<LocalisationKeyArgumentDto>? arguments,
-    List<LocalisationKeyTranslationDto>? translation,
+    List<LocalizationKeyArgumentDto>? arguments,
+    List<LocalizationKeyTranslationDto>? translation,
   }) {
-    return LocalisationKeyDto(
+    return LocalizationKeyDto(
       key: key ?? this.key,
       comment: comment ?? this.comment,
       arguments: arguments ?? this.arguments,
@@ -34,7 +34,7 @@ class LocalisationKeyDto {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is LocalisationKeyDto &&
+        other is LocalizationKeyDto &&
             runtimeType == other.runtimeType &&
             key == other.key &&
             comment == other.comment &&
@@ -52,7 +52,7 @@ class LocalisationKeyDto {
 
   @override
   String toString() {
-    return '$LocalisationKeyDto(key: $key, comment: $comment, '
+    return '$LocalizationKeyDto(key: $key, comment: $comment, '
         'arguments: $arguments, localizations: $translation)';
   }
 }

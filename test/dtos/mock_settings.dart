@@ -1,4 +1,4 @@
-import 'package:share_localisation/dtos/dtos.dart';
+import 'package:share_localization/dtos/dtos.dart';
 
 const settingsDto = SettingsDto(
   languages: [

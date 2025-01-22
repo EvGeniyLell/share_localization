@@ -1,13 +1,13 @@
-import 'package:share_localisation/use_cases/build_ios_localisation_use_case.dart';
+import 'package:share_localization/use_cases/build_ios_localization_use_case.dart';
 import 'package:test/test.dart';
 
-import '../dtos/mock_localisation.dart';
+import '../dtos/mock_localization.dart';
 import '../dtos/mock_settings.dart';
 
 void main() {
-  const builder = BuildIosLocalisationUseCase();
+  const builder = BuildIosLocalizationUseCase();
 
-  group('BuildIosLocalisationUseCase', () {
+  group('BuildIosLocalizationUseCase', () {
     test('iosMessage', () {
       for (final translation in loginMessageKeyLocalizations) {
         final result = translation.iosMessage(loginMessageKeyArguments);
@@ -47,7 +47,7 @@ void main() {
     test('buildXCStrings', () async {
       final result = builder.buildXCStrings(
         settingsDto,
-        localisationDto.copyWith(
+        localizationDto.copyWith(
           keys: [
             loginMessageKey,
             loginTitleKey,
@@ -60,7 +60,7 @@ void main() {
     test('buildSwift', () async {
       final result = builder.buildSwift(
         settingsDto,
-        localisationDto.copyWith(
+        localizationDto.copyWith(
           keys: [
             loginMessageKey,
             loginTitleKey,
@@ -73,7 +73,7 @@ void main() {
     test('success', () async {
       final dtoTask = await builder(
         settingsDto,
-        localisationDto.copyWith(
+        localizationDto.copyWith(
           keys: [
             loginMessageKey,
             loginTitleKey,

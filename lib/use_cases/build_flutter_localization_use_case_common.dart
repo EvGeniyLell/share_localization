@@ -1,17 +1,17 @@
-part of 'build_flutter_localisation_use_case.dart';
+part of 'build_flutter_localization_use_case.dart';
 
-extension BuildFlutterLocalisationUseCaseCommon
-    on BuildFlutterLocalisationUseCase {
+extension BuildFlutterLocalizationUseCaseCommon
+    on BuildFlutterLocalizationUseCase {
   @visibleForTesting
   String buildCommon(
     SettingsDto settings,
-    LocalisationDto localisation,
+    LocalizationDto localization,
   ) {
-    final baseFilename = localisation.name.baseFilename();
+    final baseFilename = localization.name.baseFilename();
     final defaultLanguage = settings.languages.first.key;
 
     // import 'example_localization_en.dart';
-    final importLocalizations = localisation.languages.map((language) {
+    final importLocalizations = localization.languages.map((language) {
       return "import '${baseFilename}_${language.key}.dart';";
     }).join('\n');
 
@@ -19,17 +19,17 @@ extension BuildFlutterLocalisationUseCaseCommon
     final className = baseFilename.camelCase().capitalize();
 
     // Locale('en'),
-    final supportedLocales = localisation.languages.map((language) {
+    final supportedLocales = localization.languages.map((language) {
       return "Locale('${language.key}'),";
     }).join('\n    ');
 
     // 'en', 'de'
-    final languageCodes = localisation.languages.map((language) {
+    final languageCodes = localization.languages.map((language) {
       return "'${language.key}'";
     }).join(', ');
 
     // case 'en': return ${className}En();
-    final languageCodesCases = localisation.languages.map((language) {
+    final languageCodesCases = localization.languages.map((language) {
       return "case '${language.key}':"
           ' return $className${language.key.capitalize()}();';
     }).join('\n    ');
@@ -45,7 +45,7 @@ extension BuildFlutterLocalisationUseCaseCommon
     // /// In en, this message translates to:
     // /// **'Total file size must be less than {fileSize}'**
     // String maxFileSizeError(String fileSize);
-    final items = localisation.keys.map((key) {
+    final items = localization.keys.map((key) {
       final comment = key.comment;
       final translation = key.translation.firstWhere((translation) {
         return translation.languageKey == defaultLanguage;
@@ -134,7 +134,7 @@ $className lookup$className(Locale locale) {
   }
 
   @visibleForTesting
-  String buildCommonItemGetter(LocalisationKeyDto key) {
+  String buildCommonItemGetter(LocalizationKeyDto key) {
     // Example:
     // String get creatingDocumentBody;
     // or

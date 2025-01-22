@@ -1,13 +1,13 @@
-part of 'build_flutter_localisation_use_case.dart';
+part of 'build_flutter_localization_use_case.dart';
 
-extension BuildFlutterLocalisationUseCaseLocale
-    on BuildFlutterLocalisationUseCase {
+extension BuildFlutterLocalizationUseCaseLocale
+    on BuildFlutterLocalizationUseCase {
   String buildLocale(
     SettingsDto settings,
-    LocalisationDto localisation,
+    LocalizationDto localization,
     LanguageDto language,
   ) {
-    final baseFilename = localisation.name.baseFilename();
+    final baseFilename = localization.name.baseFilename();
 
     // import 'example_localization.dart';
     final importLocalization = "import '$baseFilename.dart';";
@@ -26,7 +26,7 @@ extension BuildFlutterLocalisationUseCaseLocale
     //   String maxFileSizeError(String fileSize) {
     //     return 'Total file size must be less than $fileSize';
     //   }
-    final items = localisation.keys.map((key) {
+    final items = localization.keys.map((key) {
       final getter = buildLocaleItemGetter(key, language.key);
       return '''
   @override
@@ -49,7 +49,7 @@ $items
   }
 
   @visibleForTesting
-  String buildLocaleItemGetter(LocalisationKeyDto key, String languageKey) {
+  String buildLocaleItemGetter(LocalizationKeyDto key, String languageKey) {
     //   @override
     //   String get creatingDocumentBody =>
     //       'Please wait whilst the document is created';

@@ -1,28 +1,28 @@
 import 'package:meta/meta.dart';
-import 'package:share_localisation/dtos/dtos.dart';
-import 'package:share_localisation/exceptions/exceptions.dart';
-import 'package:share_localisation/utils/common.dart';
-import 'package:share_localisation/utils/json_data.dart';
+import 'package:share_localization/dtos/dtos.dart';
+import 'package:share_localization/exceptions/exceptions.dart';
+import 'package:share_localization/utils/common.dart';
+import 'package:share_localization/utils/json_data.dart';
 
-class LocalisationLoaderUseCase {
-  const LocalisationLoaderUseCase();
+class LocalizationLoaderUseCase {
+  const LocalizationLoaderUseCase();
 
-  AppTask<LocalisationDto> call(String filepath) {
+  AppTask<LocalizationDto> call(String filepath) {
     return runAppTaskSafely(() async {
       final data = await JsonData.fromFile(filepath, buildDto: buildDto);
-      return buildDto<LocalisationDto>(data);
+      return buildDto<LocalizationDto>(data);
     });
   }
 }
 
 @visibleForTesting
-extension LocalisationLoaderUseCaseDtos on LocalisationLoaderUseCase {
+extension LocalizationLoaderUseCaseDtos on LocalizationLoaderUseCase {
   R buildDto<R extends Object>(JsonData data) {
     final builder = <Type, Function>{
-      LocalisationDto: buildLocalisationDto,
-      LocalisationKeyDto: buildKeyDto,
-      LocalisationKeyArgumentDto: buildKeyArgumentDto,
-      LocalisationKeyTranslationDto: buildKeyTranslationDto,
+      LocalizationDto: buildLocalizationDto,
+      LocalizationKeyDto: buildKeyDto,
+      LocalizationKeyArgumentDto: buildKeyArgumentDto,
+      LocalizationKeyTranslationDto: buildKeyTranslationDto,
       LanguageDto: buildLanguageDto,
     }[R];
     if (builder == null) {
@@ -31,16 +31,16 @@ extension LocalisationLoaderUseCaseDtos on LocalisationLoaderUseCase {
     return builder(data) as R;
   }
 
-  LocalisationDto buildLocalisationDto(JsonData data) {
-    return LocalisationDto(
+  LocalizationDto buildLocalizationDto(JsonData data) {
+    return LocalizationDto(
       name: data.filepath.split('/').last,
       languages: data.getSubList('languages').dtos(),
       keys: data.getSub('keys').groupByKeys().dtos(),
     );
   }
 
-  LocalisationKeyDto buildKeyDto(JsonData data) {
-    return LocalisationKeyDto(
+  LocalizationKeyDto buildKeyDto(JsonData data) {
+    return LocalizationKeyDto(
       key: data.get('key'),
       comment: data.get('comment'),
       arguments: data.getSubList('arguments', defaultValue: []).dtos(),
@@ -49,24 +49,24 @@ extension LocalisationLoaderUseCaseDtos on LocalisationLoaderUseCase {
     );
   }
 
-  LocalisationKeyArgumentDto buildKeyArgumentDto(JsonData data) {
+  LocalizationKeyArgumentDto buildKeyArgumentDto(JsonData data) {
     final String typeName = data.get('type');
     try {
-      return LocalisationKeyArgumentDto(
+      return LocalizationKeyArgumentDto(
         name: data.get('name'),
-        type: LocalisationKeyDtoType.values
+        type: LocalizationKeyDtoType.values
             .firstWhere((e) => e.name.toLowerCase() == typeName.toLowerCase()),
       );
     } on Object catch (e) {
       throw UnexpectedException(
         'Unknown type $typeName: $e, use one of '
-        '${LocalisationKeyDtoType.values.map((e) => e.name).join(', ')}',
+        '${LocalizationKeyDtoType.values.map((e) => e.name).join(', ')}',
       );
     }
   }
 
-  LocalisationKeyTranslationDto buildKeyTranslationDto(JsonData data) {
-    return LocalisationKeyTranslationDto(
+  LocalizationKeyTranslationDto buildKeyTranslationDto(JsonData data) {
+    return LocalizationKeyTranslationDto(
       languageKey: data.get('key'),
       message: data.get('root'),
     );

@@ -1,6 +1,6 @@
-import 'package:share_localisation/dtos/dtos.dart';
-import 'package:share_localisation/exceptions/exceptions.dart';
-import 'package:share_localisation/use_cases/settings_loader_use_case.dart';
+import 'package:share_localization/dtos/dtos.dart';
+import 'package:share_localization/exceptions/exceptions.dart';
+import 'package:share_localization/use_cases/settings_loader_use_case.dart';
 import 'package:test/test.dart';
 
 void main() {

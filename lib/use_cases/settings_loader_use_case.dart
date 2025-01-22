@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
-import 'package:share_localisation/dtos/dtos.dart';
-import 'package:share_localisation/utils/common.dart';
-import 'package:share_localisation/utils/json_data.dart';
+import 'package:share_localization/dtos/dtos.dart';
+import 'package:share_localization/utils/common.dart';
+import 'package:share_localization/utils/json_data.dart';
 
 class SettingsLoaderUseCase {
   const SettingsLoaderUseCase();

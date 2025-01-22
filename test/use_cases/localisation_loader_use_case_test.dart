@@ -1,16 +1,16 @@
-import 'package:share_localisation/dtos/dtos.dart';
-import 'package:share_localisation/exceptions/exceptions.dart';
-import 'package:share_localisation/use_cases/localisation_loader_use_case.dart';
+import 'package:share_localization/dtos/dtos.dart';
+import 'package:share_localization/exceptions/exceptions.dart';
+import 'package:share_localization/use_cases/localization_loader_use_case.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const loader = LocalisationLoaderUseCase();
+  const loader = LocalizationLoaderUseCase();
 
-  group('LocalisationLoaderUseCase', () {
+  group('LocalizationLoaderUseCase', () {
     test('succeeded', () async {
       final dtoTask = await loader('test/sources/bundles/feature_a.json');
       expect(dtoTask.succeeded, true);
-      expect(dtoTask.data, isA<LocalisationDto>());
+      expect(dtoTask.data, isA<LocalizationDto>());
 
       final dto = dtoTask.data;
 

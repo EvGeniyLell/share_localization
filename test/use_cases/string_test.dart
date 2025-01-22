@@ -1,4 +1,4 @@
-import 'package:share_localisation/utils/string_case_transform_extension.dart';
+import 'package:share_localization/utils/string_case_transform_extension.dart';
 import 'package:test/test.dart';
 
 void main() {

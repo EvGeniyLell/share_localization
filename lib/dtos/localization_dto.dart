@@ -1,27 +1,27 @@
 import 'package:meta/meta.dart';
-import 'package:share_localisation/utils/common.dart';
+import 'package:share_localization/utils/common.dart';
 
-import 'package:share_localisation/dtos/language_dto.dart';
-import 'package:share_localisation/dtos/localisation_key_dto.dart';
+import 'package:share_localization/dtos/language_dto.dart';
+import 'package:share_localization/dtos/localization_key_dto.dart';
 
 @immutable
-class LocalisationDto {
+class LocalizationDto {
   final String name;
   final List<LanguageDto> languages;
-  final List<LocalisationKeyDto> keys;
+  final List<LocalizationKeyDto> keys;
 
-  const LocalisationDto({
+  const LocalizationDto({
     required this.name,
     required this.languages,
     required this.keys,
   });
 
-  LocalisationDto copyWith({
+  LocalizationDto copyWith({
     String? name,
     List<LanguageDto>? languages,
-    List<LocalisationKeyDto>? keys,
+    List<LocalizationKeyDto>? keys,
   }) {
-    return LocalisationDto(
+    return LocalizationDto(
       name: name ?? this.name,
       languages: languages ?? this.languages,
       keys: keys ?? this.keys,
@@ -31,7 +31,7 @@ class LocalisationDto {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LocalisationDto &&
+      other is LocalizationDto &&
           runtimeType == other.runtimeType &&
           name == other.name &&
           languages.equals(other.languages) &&
@@ -42,6 +42,6 @@ class LocalisationDto {
 
   @override
   String toString() {
-    return '$LocalisationDto(name: $name, languages: $languages, keys: $keys)';
+    return '$LocalizationDto(name: $name, languages: $languages, keys: $keys)';
   }
 }

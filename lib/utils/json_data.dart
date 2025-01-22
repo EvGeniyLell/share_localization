@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:share_localisation/utils/common.dart';
+import 'package:share_localization/utils/common.dart';
 
 class JsonData {
   static const String rootKey = 'root';

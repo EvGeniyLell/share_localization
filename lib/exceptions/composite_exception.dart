@@ -1,4 +1,4 @@
-import 'package:share_localisation/exceptions/app_exception.dart';
+import 'package:share_localization/exceptions/app_exception.dart';
 
 class CompositeException implements AppException {
   final List<AppException> exceptions;

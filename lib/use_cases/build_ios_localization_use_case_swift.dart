@@ -1,24 +1,25 @@
-part of 'build_ios_localisation_use_case.dart';
+part of 'build_ios_localization_use_case.dart';
 
 @visibleForTesting
-extension BuildIosLocalisationUseCaseSwift on BuildIosLocalisationUseCase {
+extension BuildIosLocalizationUseCaseSwift on BuildIosLocalizationUseCase {
   String buildSwift(
     SettingsDto settings,
-    LocalisationDto localisation,
+    LocalizationDto localization,
   ) {
     final defaultLanguage = settings.languages.first;
-    final baseFilename = localisation.name.baseFilename();
-    final localisationName = baseFilename.camelCase().capitalize();
-    final getters = localisation.keys.map((key) {
+    final baseFilename = localization.name.baseFilename();
+    final localizationName = baseFilename.camelCase().capitalize();
+    final getters = localization.keys.map((key) {
       final translation = key.translation.firstWhere((translation) {
         return translation.languageKey == defaultLanguage.key;
       });
       return buildXCStringsItemTranslation(defaultLanguage, key, translation);
     }).join('\n\n');
     return '''
-class $localisationName {
-  private static let table: String = "$localisationName"
-  private static let bundle: Bundle = .main
+class ${localizationName}Localization {
+  private static func l(_ key: String.LocalizationValue) -> String {
+    return String(localized: key, table: "$localizationName", bundle: .${settings.ios!.bundleName})
+  }
   
 $getters  
 }
@@ -27,8 +28,8 @@ $getters
 
   String buildXCStringsItemTranslation(
     LanguageDto language,
-    LocalisationKeyDto key,
-    LocalisationKeyTranslationDto translation,
+    LocalizationKeyDto key,
+    LocalizationKeyTranslationDto translation,
   ) {
     final comment = key.comment;
     final defaultLanguage = language.key;
@@ -45,7 +46,7 @@ $getters
 $getter''';
   }
 
-  String buildSwiftItemGetter(LocalisationKeyDto key) {
+  String buildSwiftItemGetter(LocalizationKeyDto key) {
     // Example:
     // static func loginMessage(_ name: String, _ pass: String) -> String {
     // or
@@ -54,7 +55,7 @@ $getter''';
     if (key.arguments.isEmpty) {
       return '''
   static var $itemName : String {
-    String(localized:"${key.iosXCStringKey()}", table: table, bundle: bundle)
+    l("${key.iosXCStringKey()}")
   }''';
     }
     final arguments = key.arguments.map((argument) {
@@ -65,7 +66,7 @@ $getter''';
 
     return '''
   static func $itemName($arguments) -> String {
-    String(localized:"${key.iosSwiftKey()}", table: table, bundle: bundle)
+    l("${key.iosSwiftKey()}")
   }''';
   }
 }

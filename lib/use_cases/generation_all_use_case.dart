@@ -1,50 +1,50 @@
 import 'dart:io' as io;
 
-import 'package:share_localisation/dtos/dtos.dart';
-import 'package:share_localisation/exceptions/exceptions.dart';
-import 'package:share_localisation/use_cases/build_flutter_localisation_use_case.dart';
-import 'package:share_localisation/use_cases/build_ios_localisation_use_case.dart';
-import 'package:share_localisation/use_cases/build_localisation_use_case.dart';
-import 'package:share_localisation/use_cases/localisation_loader_use_case.dart';
-import 'package:share_localisation/use_cases/settings_loader_use_case.dart';
-import 'package:share_localisation/use_cases/verification_localisation_use_case.dart';
-import 'package:share_localisation/utils/common.dart';
+import 'package:share_localization/dtos/dtos.dart';
+import 'package:share_localization/exceptions/exceptions.dart';
+import 'package:share_localization/use_cases/build_flutter_localization_use_case.dart';
+import 'package:share_localization/use_cases/build_ios_localization_use_case.dart';
+import 'package:share_localization/use_cases/build_localization_use_case.dart';
+import 'package:share_localization/use_cases/localization_loader_use_case.dart';
+import 'package:share_localization/use_cases/settings_loader_use_case.dart';
+import 'package:share_localization/use_cases/verification_localization_use_case.dart';
+import 'package:share_localization/utils/common.dart';
 
 class GenerationUseCase {
   final SettingsLoaderUseCase settingsLoader;
-  final LocalisationLoaderUseCase localisationLoader;
-  final VerificationLocalisationUseCase verificationLocalisation;
-  final List<BuildLocalisationUseCase> builders;
+  final LocalizationLoaderUseCase localizationLoader;
+  final VerificationLocalizationUseCase verificationLocalization;
+  final List<BuildLocalizationUseCase> builders;
 
   const GenerationUseCase(
     this.settingsLoader,
-    this.localisationLoader,
-    this.verificationLocalisation,
+    this.localizationLoader,
+    this.verificationLocalization,
     this.builders,
   );
 
   factory GenerationUseCase.all() {
     return const GenerationUseCase(
       SettingsLoaderUseCase(),
-      LocalisationLoaderUseCase(),
-      VerificationLocalisationUseCase(
+      LocalizationLoaderUseCase(),
+      VerificationLocalizationUseCase(
         skipErrorTypes: [
-          VerificationLocalisationExtraArgumentException,
+          VerificationLocalizationExtraArgumentException,
         ],
       ),
       [
-        BuildFlutterLocalisationUseCase(),
-        BuildIosLocalisationUseCase(),
+        BuildFlutterLocalizationUseCase(),
+        BuildIosLocalizationUseCase(),
       ],
     );
   }
 
   AppTask<void> call(String settingsFilepath) {
     return runAppTaskSafely(() async {
-      final (settings, localisations) = await load(settingsFilepath);
+      final (settings, localizations) = await load(settingsFilepath);
       final exceptions = <AppException>{};
-      for (final localisation in localisations) {
-        final subExceptions = await build(settings, localisation);
+      for (final localization in localizations) {
+        final subExceptions = await build(settings, localization);
         exceptions.addAll(subExceptions);
       }
       if (exceptions.isNotEmpty) {
@@ -53,7 +53,7 @@ class GenerationUseCase {
     });
   }
 
-  Future<(SettingsDto, List<LocalisationDto>)> load(
+  Future<(SettingsDto, List<LocalizationDto>)> load(
     String settingsFilepath,
   ) async {
     final settingsTask = await settingsLoader(settingsFilepath);
@@ -62,39 +62,39 @@ class GenerationUseCase {
     }
     final settings = settingsTask.data;
 
-    final localisationsTasks = io.Directory(settings.sourcesFolder)
+    final localizationsTasks = io.Directory(settings.sourcesFolder)
         .listSync()
         .whereType<io.File>()
         .where((file) => file.path.endsWith('.json'))
         .map((file) async {
-      final localisationTask = await localisationLoader(file.path);
-      if (localisationTask.failed) {
-        throw localisationTask.exception;
+      final localizationTask = await localizationLoader(file.path);
+      if (localizationTask.failed) {
+        throw localizationTask.exception;
       }
-      return localisationTask.data;
+      return localizationTask.data;
     });
 
-    final localisations = await Future.wait(localisationsTasks);
+    final localizations = await Future.wait(localizationsTasks);
 
-    localisations.forEach((localisation) async {
+    localizations.forEach((localization) async {
       final verificationTask =
-          await verificationLocalisation(settings, localisation);
+          await verificationLocalization(settings, localization);
       if (verificationTask.failed) {
         throw verificationTask.exception;
       }
       return verificationTask.data;
     });
 
-    return (settings, localisations);
+    return (settings, localizations);
   }
 
   Future<List<AppException>> build(
     SettingsDto settings,
-    LocalisationDto localisation,
+    LocalizationDto localization,
   ) async {
     final exceptions = <AppException>[];
     for (final builder in builders) {
-      final buildTask = await builder(settings, localisation);
+      final buildTask = await builder(settings, localization);
       if (buildTask.failed) {
         exceptions.add(buildTask.exception);
       }

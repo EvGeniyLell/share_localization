@@ -1,5 +1,5 @@
-name: share_localisation
-description: This plugin shared localisation data between platforms.
+name: share_localization
+description: This plugin shares localization data across platforms.
 version: 0.0.1
 # repository: https://github.com/my_org/my_repo
 

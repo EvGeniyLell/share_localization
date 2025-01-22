@@ -1,47 +1,47 @@
-import 'package:share_localisation/exceptions/app_exception.dart';
+import 'package:share_localization/exceptions/app_exception.dart';
 
-class VerificationLocalisationException implements AppException {
+class VerificationLocalizationException implements AppException {
   final String message;
 
-  const VerificationLocalisationException(this.message);
+  const VerificationLocalizationException(this.message);
 
-  factory VerificationLocalisationException.missingLanguage({
+  factory VerificationLocalizationException.missingLanguage({
     required String language,
     required String sourceName,
-  }) = VerificationLocalisationMissingLanguageException;
+  }) = VerificationLocalizationMissingLanguageException;
 
-  factory VerificationLocalisationException.missingTranslation({
+  factory VerificationLocalizationException.missingTranslation({
     required String key,
     required String language,
     required String sourceName,
-  }) = VerificationLocalisationMissingTranslationException;
+  }) = VerificationLocalizationMissingTranslationException;
 
-  factory VerificationLocalisationException.extraArgument({
+  factory VerificationLocalizationException.extraArgument({
     required String argument,
     required String key,
     required String language,
     required String sourceName,
-  }) = VerificationLocalisationExtraArgumentException;
+  }) = VerificationLocalizationExtraArgumentException;
 
-  factory VerificationLocalisationException.missingArgument({
+  factory VerificationLocalizationException.missingArgument({
     required String argument,
     required String key,
     required String language,
     required String sourceName,
-  }) = VerificationLocalisationMissingArgumentException;
+  }) = VerificationLocalizationMissingArgumentException;
 
   @override
   String toString() {
-    return '$VerificationLocalisationException: $message';
+    return '$VerificationLocalizationException: $message';
   }
 }
 
-class VerificationLocalisationMissingLanguageException
-    extends VerificationLocalisationException {
+class VerificationLocalizationMissingLanguageException
+    extends VerificationLocalizationException {
   final String language;
   final String sourceName;
 
-  VerificationLocalisationMissingLanguageException({
+  VerificationLocalizationMissingLanguageException({
     required this.language,
     required this.sourceName,
   }) : super(
@@ -50,13 +50,13 @@ class VerificationLocalisationMissingLanguageException
         );
 }
 
-class VerificationLocalisationMissingTranslationException
-    extends VerificationLocalisationException {
+class VerificationLocalizationMissingTranslationException
+    extends VerificationLocalizationException {
   final String key;
   final String language;
   final String sourceName;
 
-  VerificationLocalisationMissingTranslationException({
+  VerificationLocalizationMissingTranslationException({
     required this.key,
     required this.language,
     required this.sourceName,
@@ -66,14 +66,14 @@ class VerificationLocalisationMissingTranslationException
         );
 }
 
-class VerificationLocalisationExtraArgumentException
-    extends VerificationLocalisationException {
+class VerificationLocalizationExtraArgumentException
+    extends VerificationLocalizationException {
   final String argument;
   final String key;
   final String language;
   final String sourceName;
 
-  VerificationLocalisationExtraArgumentException({
+  VerificationLocalizationExtraArgumentException({
     required this.argument,
     required this.key,
     required this.language,
@@ -84,14 +84,14 @@ class VerificationLocalisationExtraArgumentException
         );
 }
 
-class VerificationLocalisationMissingArgumentException
-    extends VerificationLocalisationException {
+class VerificationLocalizationMissingArgumentException
+    extends VerificationLocalizationException {
   final String argument;
   final String key;
   final String language;
   final String sourceName;
 
-  VerificationLocalisationMissingArgumentException({
+  VerificationLocalizationMissingArgumentException({
     required this.argument,
     required this.key,
     required this.language,

@@ -1,20 +1,20 @@
 import 'package:meta/meta.dart';
-import 'package:share_localisation/dtos/dtos.dart';
-import 'package:share_localisation/exceptions/exceptions.dart';
-import 'package:share_localisation/utils/common.dart';
+import 'package:share_localization/dtos/dtos.dart';
+import 'package:share_localization/exceptions/exceptions.dart';
+import 'package:share_localization/utils/common.dart';
 
-class VerificationLocalisationUseCase {
+class VerificationLocalizationUseCase {
   final List<Type> skipErrorTypes;
 
-  const VerificationLocalisationUseCase({this.skipErrorTypes = const []});
+  const VerificationLocalizationUseCase({this.skipErrorTypes = const []});
 
-  AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
+  AppTask<void> call(SettingsDto settings, LocalizationDto localization) {
     return runAppTaskSafely(() async {
-      final localisationExceptions = checkLocalisation(settings, localisation);
-      if (localisationExceptions.isNotEmpty) {
-        throw CompositeException(localisationExceptions);
+      final localizationExceptions = checkLocalization(settings, localization);
+      if (localizationExceptions.isNotEmpty) {
+        throw CompositeException(localizationExceptions);
       }
-      final keyExceptions = checkKeys(settings, localisation);
+      final keyExceptions = checkKeys(settings, localization);
       if (keyExceptions.isNotEmpty) {
         throw CompositeException(keyExceptions);
       }
@@ -22,33 +22,33 @@ class VerificationLocalisationUseCase {
   }
 
   @visibleForTesting
-  List<VerificationLocalisationException> checkLocalisation(
+  List<VerificationLocalizationException> checkLocalization(
     SettingsDto settings,
-    LocalisationDto localisation,
+    LocalizationDto localization,
   ) {
     return settings.languages.mapWhereEvery(
-      localisation.languages,
-      test: (settingsLanguage, localisationLanguage) {
-        return settingsLanguage.key != localisationLanguage.key;
+      localization.languages,
+      test: (settingsLanguage, localizationLanguage) {
+        return settingsLanguage.key != localizationLanguage.key;
       },
       toElement: (settingsLanguage) {
-        return VerificationLocalisationException.missingLanguage(
+        return VerificationLocalizationException.missingLanguage(
           language: settingsLanguage.key,
-          sourceName: localisation.name,
+          sourceName: localization.name,
         );
       },
     ).toList();
   }
 
   @visibleForTesting
-  List<VerificationLocalisationException> checkKeys(
+  List<VerificationLocalizationException> checkKeys(
     SettingsDto settings,
-    LocalisationDto localisation,
+    LocalizationDto localization,
   ) {
-    final exceptions = localisation.keys.map((key) {
+    final exceptions = localization.keys.map((key) {
       return [
-        ...checkKeyArguments(settings, localisation, key),
-        ...checkKeyTranslations(settings, localisation, key),
+        ...checkKeyArguments(settings, localization, key),
+        ...checkKeyTranslations(settings, localization, key),
       ];
     });
 
@@ -56,10 +56,10 @@ class VerificationLocalisationUseCase {
   }
 
   @visibleForTesting
-  List<VerificationLocalisationException> checkKeyArguments(
+  List<VerificationLocalizationException> checkKeyArguments(
     SettingsDto settings,
-    LocalisationDto localisation,
-    LocalisationKeyDto key,
+    LocalizationDto localization,
+    LocalizationKeyDto key,
   ) {
     final argumentNames = key.arguments.map((argument) {
       return argument.name;
@@ -72,19 +72,19 @@ class VerificationLocalisationUseCase {
 
       return [
         ...extraArgs.map((argName) {
-          return VerificationLocalisationException.extraArgument(
+          return VerificationLocalizationException.extraArgument(
             argument: argName,
             key: key.key,
             language: localization.languageKey,
-            sourceName: localisation.name,
+            sourceName: localization.name,
           );
         }),
         ...missingArgs.map((argName) {
-          return VerificationLocalisationException.missingArgument(
+          return VerificationLocalizationException.missingArgument(
             argument: argName,
             key: key.key,
             language: localization.languageKey,
-            sourceName: localisation.name,
+            sourceName: localization.name,
           );
         }),
       ];
@@ -93,10 +93,10 @@ class VerificationLocalisationUseCase {
   }
 
   @visibleForTesting
-  List<VerificationLocalisationException> checkKeyTranslations(
+  List<VerificationLocalizationException> checkKeyTranslations(
     SettingsDto settings,
-    LocalisationDto localisation,
-    LocalisationKeyDto key,
+    LocalizationDto localization,
+    LocalizationKeyDto key,
   ) {
     return settings.languages.mapWhereEvery(
       key.translation,
@@ -104,10 +104,10 @@ class VerificationLocalisationUseCase {
         return settingsLanguage.key != translation.languageKey;
       },
       toElement: (settingsLanguage) {
-        return VerificationLocalisationException.missingTranslation(
+        return VerificationLocalizationException.missingTranslation(
           key: key.key,
           language: settingsLanguage.key,
-          sourceName: localisation.name,
+          sourceName: localization.name,
         );
       },
     ).toList();

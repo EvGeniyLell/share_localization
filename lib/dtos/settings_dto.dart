@@ -1,4 +1,4 @@
-import 'package:share_localisation/dtos/language_dto.dart';
+import 'package:share_localization/dtos/language_dto.dart';
 
 class SettingsDto {
   final List<LanguageDto> languages;

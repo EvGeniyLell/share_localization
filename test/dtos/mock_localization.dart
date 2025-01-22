@@ -1,23 +1,23 @@
-import 'package:share_localisation/dtos/dtos.dart';
+import 'package:share_localization/dtos/dtos.dart';
 
-const localisationDto = LocalisationDto(
-  name: 'test_feature_a_localisation.json',
+const localizationDto = LocalizationDto(
+  name: 'test_feature_a_localization.json',
   languages: [
-    localisationEnLanguage,
-    localisationDeLanguage,
+    localizationEnLanguage,
+    localizationDeLanguage,
   ],
   keys: [
     loginMessageKey,
   ],
 );
 
-const localisationEnLanguage = LanguageDto(key: 'en');
-const localisationDeLanguage = LanguageDto(key: 'de');
-const localisationUaLanguage = LanguageDto(key: 'ua');
+const localizationEnLanguage = LanguageDto(key: 'en');
+const localizationDeLanguage = LanguageDto(key: 'de');
+const localizationUaLanguage = LanguageDto(key: 'ua');
 
 // -- loginMessage -------------------------------------------------------------
 
-const loginMessageKey = LocalisationKeyDto(
+const loginMessageKey = LocalizationKeyDto(
   key: 'login_message',
   comment: 'This a body of login message.',
   arguments: loginMessageKeyArguments,
@@ -25,22 +25,22 @@ const loginMessageKey = LocalisationKeyDto(
 );
 
 const loginMessageKeyArguments = [
-  LocalisationKeyArgumentDto(
+  LocalizationKeyArgumentDto(
     name: 'username',
-    type: LocalisationKeyDtoType.string,
+    type: LocalizationKeyDtoType.string,
   ),
-  LocalisationKeyArgumentDto(
+  LocalizationKeyArgumentDto(
     name: 'password',
-    type: LocalisationKeyDtoType.string,
+    type: LocalizationKeyDtoType.string,
   ),
 ];
 
 const loginMessageKeyLocalizations = [
-  LocalisationKeyTranslationDto(
+  LocalizationKeyTranslationDto(
     languageKey: 'en',
     message: 'Hi {username}, your password is {password}',
   ),
-  LocalisationKeyTranslationDto(
+  LocalizationKeyTranslationDto(
     languageKey: 'de',
     message: 'Heilegh {username}, dein passdahwordther ist {password}',
   ),
@@ -48,16 +48,16 @@ const loginMessageKeyLocalizations = [
 
 // -- loginTitle ---------------------------------------------------------------
 
-const loginTitleKey = LocalisationKeyDto(
+const loginTitleKey = LocalizationKeyDto(
   key: 'login_title',
   comment: 'This is a title for login screen.',
   arguments: [],
   translation: [
-    LocalisationKeyTranslationDto(
+    LocalizationKeyTranslationDto(
       languageKey: 'en',
       message: 'Login Page',
     ),
-    LocalisationKeyTranslationDto(
+    LocalizationKeyTranslationDto(
       languageKey: 'de',
       message: 'Ther Loghingher Paghedguahter',
     ),

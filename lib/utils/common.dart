@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:share_localisation/exceptions/app_exception.dart';
-import 'package:share_localisation/exceptions/unexpected_exception.dart';
-import 'package:share_localisation/utils/printer.dart';
-import 'package:share_localisation/utils/task_result.dart' as task;
+import 'package:share_localization/exceptions/app_exception.dart';
+import 'package:share_localization/exceptions/unexpected_exception.dart';
+import 'package:share_localization/utils/printer.dart';
+import 'package:share_localization/utils/task_result.dart' as task;
 
 // --- AppTask ---
 typedef TaskResult<T> = task.TaskResult<T, AppException>;

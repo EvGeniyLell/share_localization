@@ -1,14 +1,14 @@
 import 'package:meta/meta.dart';
 
 @immutable
-class LocalisationKeyTranslationDto {
+class LocalizationKeyTranslationDto {
   /// Key of language.
   final String languageKey;
 
   /// Translated message.
   final String message;
 
-  const LocalisationKeyTranslationDto({
+  const LocalizationKeyTranslationDto({
     required this.languageKey,
     required this.message,
   });
@@ -16,7 +16,7 @@ class LocalisationKeyTranslationDto {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LocalisationKeyTranslationDto &&
+      other is LocalizationKeyTranslationDto &&
           runtimeType == other.runtimeType &&
           languageKey == other.languageKey &&
           message == other.message;
@@ -26,7 +26,7 @@ class LocalisationKeyTranslationDto {
 
   @override
   String toString() {
-    return '$LocalisationKeyTranslationDto'
+    return '$LocalizationKeyTranslationDto'
         '(key: $languageKey, message: $message)';
   }
 }

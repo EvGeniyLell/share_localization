@@ -1,12 +1,12 @@
 import 'dart:io' as io;
 
-import 'package:share_localisation/dtos/dtos.dart';
-import 'package:share_localisation/utils/common.dart';
+import 'package:share_localization/dtos/dtos.dart';
+import 'package:share_localization/utils/common.dart';
 
-abstract class BuildLocalisationUseCase {
-  const BuildLocalisationUseCase();
+abstract class BuildLocalizationUseCase {
+  const BuildLocalizationUseCase();
 
-  AppTask<void> call(SettingsDto settings, LocalisationDto localisation);
+  AppTask<void> call(SettingsDto settings, LocalizationDto localization);
 
   Future<void> createFile(String path, String content) async {
     final file = CurrentPathFile.file(path);

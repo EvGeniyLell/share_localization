@@ -1,17 +1,17 @@
-import 'package:share_localisation/use_cases/build_flutter_localisation_use_case.dart';
+import 'package:share_localization/use_cases/build_flutter_localization_use_case.dart';
 import 'package:test/test.dart';
 
-import '../dtos/mock_localisation.dart';
+import '../dtos/mock_localization.dart';
 import '../dtos/mock_settings.dart';
 
 void main() {
-  const builder = BuildFlutterLocalisationUseCase();
+  const builder = BuildFlutterLocalizationUseCase();
 
-  group('BuildFlutterLocalisationUseCase', () {
+  group('BuildFlutterLocalizationUseCase', () {
     test('buildCommon', () async {
       final commonData = builder.buildCommon(
         settingsDto,
-        localisationDto.copyWith(
+        localizationDto.copyWith(
           keys: [
             loginMessageKey,
             loginTitleKey,
@@ -24,7 +24,7 @@ void main() {
     test('buildLocale', () async {
       final data = builder.buildLocale(
         settingsDto,
-        localisationDto.copyWith(
+        localizationDto.copyWith(
           keys: [
             loginMessageKey,
             loginTitleKey,
@@ -38,7 +38,7 @@ void main() {
     test('success', () async {
       final dtoTask = await builder(
         settingsDto,
-        localisationDto.copyWith(
+        localizationDto.copyWith(
           keys: [
             loginMessageKey,
             loginTitleKey,

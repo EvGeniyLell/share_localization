@@ -1,11 +1,11 @@
 import 'package:meta/meta.dart';
 
 @immutable
-class LocalisationKeyArgumentDto {
+class LocalizationKeyArgumentDto {
   final String name;
-  final LocalisationKeyDtoType type;
+  final LocalizationKeyDtoType type;
 
-  const LocalisationKeyArgumentDto({
+  const LocalizationKeyArgumentDto({
     required this.name,
     required this.type,
   });
@@ -13,7 +13,7 @@ class LocalisationKeyArgumentDto {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LocalisationKeyArgumentDto &&
+      other is LocalizationKeyArgumentDto &&
           runtimeType == other.runtimeType &&
           name == other.name &&
           type == other.type;
@@ -23,11 +23,11 @@ class LocalisationKeyArgumentDto {
 
   @override
   String toString() {
-    return '$LocalisationKeyArgumentDto(name: $name, type: $type)';
+    return '$LocalizationKeyArgumentDto(name: $name, type: $type)';
   }
 }
 
-enum LocalisationKeyDtoType {
+enum LocalizationKeyDtoType {
   string,
   int,
   double,

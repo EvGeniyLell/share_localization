@@ -1,43 +1,43 @@
-import 'package:share_localisation/dtos/dtos.dart';
-import 'package:share_localisation/exceptions/exceptions.dart';
-import 'package:share_localisation/use_cases/verification_localisation_use_case.dart';
+import 'package:share_localization/dtos/dtos.dart';
+import 'package:share_localization/exceptions/exceptions.dart';
+import 'package:share_localization/use_cases/verification_localization_use_case.dart';
 import 'package:test/test.dart';
 
-import '../dtos/mock_localisation.dart';
+import '../dtos/mock_localization.dart';
 import '../dtos/mock_settings.dart';
 
 void main() {
-  const verification = VerificationLocalisationUseCase();
+  const verification = VerificationLocalizationUseCase();
 
-  group('VerificationLocalisationUseCase', () {
-    group('checkLocalisation', () {
+  group('VerificationLocalizationUseCase', () {
+    group('checkLocalization', () {
       test('succeeded', () async {
         final result =
-            verification.checkLocalisation(settingsDto, localisationDto);
+            verification.checkLocalization(settingsDto, localizationDto);
         expect(result, []);
       });
 
-      test('succeeded even localisation has more languages', () async {
-        final result = verification.checkLocalisation(
+      test('succeeded even localization has more languages', () async {
+        final result = verification.checkLocalization(
           settingsDto,
-          localisationDto.copyWith(
-            languages: [...localisationDto.languages, localisationUaLanguage],
+          localizationDto.copyWith(
+            languages: [...localizationDto.languages, localizationUaLanguage],
           ),
         );
         expect(result, []);
       });
 
       test('failed with missingLanguage', () async {
-        final result = verification.checkLocalisation(
+        final result = verification.checkLocalization(
           settingsDto.copyWith(
             languages: [...settingsDto.languages, settingUaLanguageDto],
           ),
-          localisationDto,
+          localizationDto,
         );
         expect(result, hasLength(1));
         expect(
           result.first,
-          predicate((VerificationLocalisationMissingLanguageException e) {
+          predicate((VerificationLocalizationMissingLanguageException e) {
             return e.language == settingUaLanguageDto.key;
           }),
         );
@@ -71,24 +71,24 @@ void main() {
       test('succeeded', () {
         final result = verification.checkKeyArguments(
           settingsDto,
-          localisationDto,
+          localizationDto,
           loginMessageKey,
         );
         expect(result, []);
       });
 
       test('failed with extraArgument', () {
-        const extraArgumentA = LocalisationKeyArgumentDto(
+        const extraArgumentA = LocalizationKeyArgumentDto(
           name: 'email',
-          type: LocalisationKeyDtoType.string,
+          type: LocalizationKeyDtoType.string,
         );
-        const extraArgumentB = LocalisationKeyArgumentDto(
+        const extraArgumentB = LocalizationKeyArgumentDto(
           name: 'role',
-          type: LocalisationKeyDtoType.string,
+          type: LocalizationKeyDtoType.string,
         );
         final result = verification.checkKeyArguments(
           settingsDto,
-          localisationDto,
+          localizationDto,
           loginMessageKey.copyWith(
             arguments: [
               ...loginMessageKeyArguments,
@@ -101,15 +101,15 @@ void main() {
         for (final exception in result) {
           expect(
             exception,
-            predicate((VerificationLocalisationExtraArgumentException e) {
+            predicate((VerificationLocalizationExtraArgumentException e) {
               return [
                     extraArgumentA.name,
                     extraArgumentB.name,
                   ].contains(e.argument) &&
                   e.key == loginMessageKey.key &&
                   [
-                    localisationEnLanguage.key,
-                    localisationDeLanguage.key,
+                    localizationEnLanguage.key,
+                    localizationDeLanguage.key,
                   ].contains(e.language);
             }),
           );
@@ -118,19 +118,19 @@ void main() {
 
       test('failed with missingArgument', () {
         const missingArgumentName = 'dayType';
-        const missingArgumentEnTranslation = LocalisationKeyTranslationDto(
+        const missingArgumentEnTranslation = LocalizationKeyTranslationDto(
           languageKey: 'en',
           message: 'Hi {username}, your password is {password}.\n'
               'Have a {$missingArgumentName} day!',
         );
-        const missingArgumentDeTranslation = LocalisationKeyTranslationDto(
+        const missingArgumentDeTranslation = LocalizationKeyTranslationDto(
           languageKey: 'de',
           message: 'Heilegh {username}, dein passdahwordther ist {password}.\n'
               'Habe ein {$missingArgumentName} Tag!',
         );
         final result = verification.checkKeyArguments(
           settingsDto,
-          localisationDto,
+          localizationDto,
           loginMessageKey.copyWith(
             translation: [
               missingArgumentEnTranslation,
@@ -142,12 +142,12 @@ void main() {
         for (final exception in result) {
           expect(
             exception,
-            predicate((VerificationLocalisationMissingArgumentException e) {
+            predicate((VerificationLocalizationMissingArgumentException e) {
               return e.argument == missingArgumentName &&
                   e.key == loginMessageKey.key &&
                   [
-                    localisationEnLanguage.key,
-                    localisationDeLanguage.key,
+                    localizationEnLanguage.key,
+                    localizationDeLanguage.key,
                   ].contains(e.language);
             }),
           );
@@ -159,7 +159,7 @@ void main() {
       test('succeeded', () {
         final result = verification.checkKeyTranslations(
           settingsDto,
-          localisationDto,
+          localizationDto,
           loginMessageKey,
         );
         expect(result, []);
@@ -168,7 +168,7 @@ void main() {
       test('failed with missingArgument', () {
         final result = verification.checkKeyTranslations(
           settingsDto,
-          localisationDto,
+          localizationDto,
           loginMessageKey.copyWith(
             translation: [
               loginMessageKeyLocalizations[0],
@@ -179,9 +179,9 @@ void main() {
         for (final exception in result) {
           expect(
             exception,
-            predicate((VerificationLocalisationMissingTranslationException e) {
+            predicate((VerificationLocalizationMissingTranslationException e) {
               return e.key == loginMessageKey.key &&
-                  e.language == localisationDeLanguage.key;
+                  e.language == localizationDeLanguage.key;
             }),
           );
         }
