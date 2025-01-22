@@ -17,7 +17,7 @@ class LocalisationLoaderUseCase {
 
 @visibleForTesting
 extension LocalisationLoaderUseCaseDtos on LocalisationLoaderUseCase {
-  R buildDto<R>(JsonData data) {
+  R buildDto<R extends Object>(JsonData data) {
     final builder = <Type, Function>{
       LocalisationDto: buildLocalisationDto,
       LocalisationKeyDto: buildKeyDto,

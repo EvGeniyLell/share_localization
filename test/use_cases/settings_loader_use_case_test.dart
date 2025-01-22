@@ -21,13 +21,13 @@ void main() {
       expect(dto.sourcesFolder, 'test/sources/bundles');
 
       expect(dto.ios, isA<IosSettingsDto>());
-      expect(dto.ios.destinationFolder, 'test/ios');
+      expect(dto.ios?.destinationFolder, 'test/ios');
 
       expect(dto.android, isA<AndroidSettingsDto>());
-      expect(dto.android.destinationFolder, 'test/android');
+      expect(dto.android?.destinationFolder, 'test/android');
 
       expect(dto.flutter, isA<FlutterSettingsDto>());
-      expect(dto.flutter.destinationFolder, 'test/flutter');
+      expect(dto.flutter?.destinationFolder, 'test/flutter');
     });
 
     test('failed', () async {

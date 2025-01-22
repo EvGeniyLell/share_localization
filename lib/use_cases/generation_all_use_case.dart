@@ -42,8 +42,13 @@ class GenerationUseCase {
   AppTask<void> call(String settingsFilepath) {
     return runAppTaskSafely(() async {
       final (settings, localisations) = await load(settingsFilepath);
+      final exceptions = <AppException>{};
       for (final localisation in localisations) {
-        await build(settings, localisation);
+        final subExceptions = await build(settings, localisation);
+        exceptions.addAll(subExceptions);
+      }
+      if (exceptions.isNotEmpty) {
+        throw CompositeException(exceptions.toList());
       }
     });
   }
@@ -83,15 +88,17 @@ class GenerationUseCase {
     return (settings, localisations);
   }
 
-  Future<void> build(
+  Future<List<AppException>> build(
     SettingsDto settings,
     LocalisationDto localisation,
   ) async {
+    final exceptions = <AppException>[];
     for (final builder in builders) {
       final buildTask = await builder(settings, localisation);
       if (buildTask.failed) {
-        throw buildTask.exception;
+        exceptions.add(buildTask.exception);
       }
     }
+    return exceptions;
   }
 }

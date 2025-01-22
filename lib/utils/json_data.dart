@@ -7,7 +7,7 @@ class JsonData {
   static const String rootKey = 'root';
 
   final String filepath;
-  final R Function<R>(JsonData) buildDto;
+  final R Function<R extends Object>(JsonData) buildDto;
   final JsonMap map;
   final String route;
 
@@ -20,7 +20,7 @@ class JsonData {
 
   static Future<JsonData> fromFile(
     String filepath, {
-    required R Function<R>(JsonData) buildDto,
+    required R Function<R extends Object>(JsonData) buildDto,
   }) async {
     final content = await File(filepath).readAsString();
     final map = json.decode(content);
@@ -132,9 +132,19 @@ class JsonDataError extends Error {
 }
 
 extension JsonDataBuildDtos on List<JsonData> {
-  List<R> dtos<R>() => map((data) => data.buildDto<R>(data)).toList();
+  List<R> dtos<R extends Object>() {
+    return map((data) => data.buildDto<R>(data)).toList();
+  }
 }
 
 extension JsonDataBuildDto on JsonData {
-  R dto<R>() => buildDto<R>(this);
+  R dto<R extends Object>() => buildDto<R>(this);
+
+  R? dtoOrNull<R extends Object>() {
+    try {
+      return buildDto<R>(this);
+    } on Object {
+      return null;
+    }
+  }
 }

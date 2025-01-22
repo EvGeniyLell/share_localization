@@ -16,14 +16,15 @@ class SettingsLoaderUseCase {
 
 @visibleForTesting
 extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
-  R buildDto<R>(JsonData data) {
-    final builder = <Type, Function>{
+  R buildDto<R extends Object>(JsonData data) {
+    final map = <Type, Function>{
       SettingsDto: buildSettingsDto,
       IosSettingsDto: buildIosSettingsDto,
       AndroidSettingsDto: buildAndroidSettingsDto,
       FlutterSettingsDto: buildFlutterSettingsDto,
       LanguageDto: buildLanguageDto,
-    }[R];
+    };
+    final builder = map[R];
     if (builder == null) {
       throw UnimplementedError('Type $R is not implemented');
     }
@@ -34,15 +35,16 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
     return SettingsDto(
       languages: data.getSubList('languages').dtos(),
       sourcesFolder: data.get('sources_folder'),
-      ios: data.getSub('ios').dto(),
-      android: data.getSub('android').dto(),
-      flutter: data.getSub('flutter').dto(),
+      ios: data.getSub('ios').dtoOrNull(),
+      android: data.getSub('android').dtoOrNull(),
+      flutter: data.getSub('flutter').dtoOrNull(),
     );
   }
 
   IosSettingsDto buildIosSettingsDto(JsonData data) {
     return IosSettingsDto(
       destinationFolder: data.get('destination_folder'),
+      bundleName: data.get('bundle_name'),
     );
   }
 

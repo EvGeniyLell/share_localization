@@ -18,6 +18,7 @@ extension BuildIosLocalisationUseCaseSwift on BuildIosLocalisationUseCase {
     return '''
 class $localisationName {
   private static let table: String = "$localisationName"
+  private static let bundle: Bundle = .main
   
 $getters  
 }
@@ -53,7 +54,7 @@ $getter''';
     if (key.arguments.isEmpty) {
       return '''
   static var $itemName : String {
-    String(localized:"${key.iosXCStringKey()}", table: table)
+    String(localized:"${key.iosXCStringKey()}", table: table, bundle: bundle)
   }''';
     }
     final arguments = key.arguments.map((argument) {
@@ -64,7 +65,7 @@ $getter''';
 
     return '''
   static func $itemName($arguments) -> String {
-    String(localized:"${key.iosSwiftKey()}", table: table)
+    String(localized:"${key.iosSwiftKey()}", table: table, bundle: bundle)
   }''';
   }
 }

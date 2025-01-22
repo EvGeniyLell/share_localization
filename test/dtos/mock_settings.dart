@@ -17,6 +17,7 @@ const settingUaLanguageDto = LanguageDto(key: 'ua');
 
 const iosSettingsDto = IosSettingsDto(
   destinationFolder: 'test/ios',
+  bundleName: 'testBundle',
 );
 const androidSettingsDto = AndroidSettingsDto(
   destinationFolder: 'test/android',

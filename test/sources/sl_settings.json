@@ -5,15 +5,13 @@
   ],
   "sources_folder": "test/sources/bundles",
   "flutter": {
-    "destination_folder": "test/sources/result/flutter",
-    "destination_file": "*.dart"
+    "destination_folder": "test/sources/result/flutter"
   },
   "ios": {
-    "destination_folder": "test/sources/result/ios",
-    "destination_file": "*.strings"
+    "bundle_name": "sdkResource",
+    "destination_folder": "test/sources/result/ios"
   },
   "android": {
-    "destination_folder": "test/sources/result/android",
-    "destination_file": "*.xml"
+    "destination_folder": "test/sources/result/android"
   }
 }

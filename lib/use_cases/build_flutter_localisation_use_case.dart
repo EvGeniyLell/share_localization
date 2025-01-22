@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:share_localisation/dtos/dtos.dart';
+import 'package:share_localisation/exceptions/exceptions.dart';
 import 'package:share_localisation/use_cases/build_localisation_use_case.dart';
 import 'package:share_localisation/utils/common.dart';
 import 'package:share_localisation/utils/string_case_transform_extension.dart';
@@ -13,21 +14,25 @@ class BuildFlutterLocalisationUseCase extends BuildLocalisationUseCase {
   @override
   AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
     return runAppTaskSafely(() async {
+      final flutter = settings.flutter;
+      if (flutter == null) {
+        throw const BuildLocalisationException.missingFlutterSettings();
+      }
       final common = buildCommon(settings, localisation);
-      await createFile(filePath(settings, localisation), common);
+      await createFile(filePath(flutter, localisation), common);
       settings.languages.forEach((language) async {
         final locale = buildLocale(settings, localisation, language);
-        await createFile(filePath(settings, localisation, language), locale);
+        await createFile(filePath(flutter, localisation, language), locale);
       });
     });
   }
 
   String filePath(
-    SettingsDto settings,
+      FlutterSettingsDto settings,
     LocalisationDto localisation, [
     LanguageDto? language,
   ]) {
-    return '${settings.flutter.destinationFolder}'
+    return '${settings.destinationFolder}'
         '/${localisation.name.baseFilename()}'
         '${language != null ? '_${language.key}' : ''}'
         '.dart';

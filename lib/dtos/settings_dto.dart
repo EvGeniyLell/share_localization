@@ -3,9 +3,9 @@ import 'package:share_localisation/dtos/language_dto.dart';
 class SettingsDto {
   final List<LanguageDto> languages;
   final String sourcesFolder;
-  final IosSettingsDto ios;
-  final AndroidSettingsDto android;
-  final FlutterSettingsDto flutter;
+  final IosSettingsDto? ios;
+  final AndroidSettingsDto? android;
+  final FlutterSettingsDto? flutter;
 
   const SettingsDto({
     required this.languages,
@@ -46,7 +46,10 @@ abstract class PlatformSettingsDto {
 }
 
 class IosSettingsDto extends PlatformSettingsDto {
+  final String bundleName;
+
   const IosSettingsDto({
+    required this.bundleName,
     required super.destinationFolder,
   });
 }

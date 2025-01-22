@@ -1,11 +1,12 @@
 import 'package:meta/meta.dart';
 import 'package:share_localisation/dtos/dtos.dart';
+import 'package:share_localisation/exceptions/exceptions.dart';
 import 'package:share_localisation/use_cases/build_localisation_use_case.dart';
 import 'package:share_localisation/utils/common.dart';
 import 'package:share_localisation/utils/string_case_transform_extension.dart';
 
-part 'build_ios_localisation_use_case_xcstrings.dart';
 part 'build_ios_localisation_use_case_swift.dart';
+part 'build_ios_localisation_use_case_xcstrings.dart';
 
 class BuildIosLocalisationUseCase extends BuildLocalisationUseCase {
   static const xcStringExtension = 'xcstrings';
@@ -16,25 +17,29 @@ class BuildIosLocalisationUseCase extends BuildLocalisationUseCase {
   @override
   AppTask<void> call(SettingsDto settings, LocalisationDto localisation) {
     return runAppTaskSafely(() async {
+      final ios = settings.ios;
+      if (ios == null) {
+        throw const BuildLocalisationException.missingIosSettings();
+      }
       final xcStrings = buildXCStrings(settings, localisation);
       await createFile(
-        filePath(settings, localisation, xcStringExtension),
+        filePath(ios, localisation, xcStringExtension),
         xcStrings,
       );
       final swift = buildSwift(settings, localisation);
       await createFile(
-        filePath(settings, localisation, swiftExtension),
+        filePath(ios, localisation, swiftExtension),
         swift,
       );
     });
   }
 
   String filePath(
-    SettingsDto settings,
+    IosSettingsDto settings,
     LocalisationDto localisation,
     String extension,
   ) {
-    return '${settings.ios.destinationFolder}'
+    return '${settings.destinationFolder}'
         '/${localisation.name.baseFilename().camelCase().capitalize()}'
         '.$extension';
   }
