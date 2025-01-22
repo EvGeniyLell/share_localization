@@ -1,6 +1,5 @@
 import 'dart:io' as io;
 
-import 'package:share_localization/dtos/dtos.dart';
 import 'package:share_localization/exceptions/exceptions.dart';
 import 'package:share_localization/use_cases/flutter/build_flutter_localization_use_case.dart';
 import 'package:share_localization/use_cases/ios/build_ios_localization_use_case.dart';
@@ -8,7 +7,6 @@ import 'package:share_localization/use_cases/build_localization_use_case.dart';
 import 'package:share_localization/use_cases/localization_loader_use_case.dart';
 import 'package:share_localization/use_cases/settings_loader_use_case.dart';
 import 'package:share_localization/use_cases/verification_localization_use_case.dart';
-import 'package:share_localization/utils/common.dart';
 
 class GenerationUseCase {
   final SettingsLoaderUseCase settingsLoader;

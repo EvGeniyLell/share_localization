@@ -1,6 +1,7 @@
 import 'package:share_localization/dtos/dtos.dart';
 import 'package:share_localization/exceptions/exceptions.dart';
 import 'package:share_localization/use_cases/verification_localization_use_case.dart';
+import 'package:share_localization/utils/list_merge_extension.dart';
 import 'package:test/test.dart';
 
 import '../dtos/mock_localization.dart';
