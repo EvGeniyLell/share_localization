@@ -1,4 +1,4 @@
-import 'package:share_localization/use_cases/ios/build_ios_localization_use_case.dart';
+import 'package:share_localization/use_cases/ios/ios_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
 import '../dtos/mock_localization.dart';

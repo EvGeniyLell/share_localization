@@ -1,8 +1,8 @@
-import 'package:share_localization/use_cases/generation_all_use_case.dart';
+import 'package:share_localization/code_generation/use_cases/batch_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final builder = GenerationUseCase.all();
+  final builder = BatchCodeGenerationUseCase.all();
 
   group('BuildAllUseCase', () {
     test('builder with sl_settings', () async {
