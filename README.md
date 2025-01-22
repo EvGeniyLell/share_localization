@@ -35,8 +35,9 @@ The settings file should be formatted as follows:
 ```yaml
 languages:
   # List of languages you want to share
+  # First language will be used for descriptions
   list:
-    - language_code
+    string: language_code
 sources_folder:
   # Folder with localization files
   string: folder_with_localization_files
@@ -72,7 +73,7 @@ You should put your localization files in the folder with the name specified in 
 ```yaml
 languages:
   list:
-    - language_code
+    string: language_code
 keys:
   key:
     string: key_of_localization
@@ -86,17 +87,18 @@ keys:
           name:
             string: name_of_argument
           type:
-            string: type_of_argument
-            allowed_types:
+            enum: type_of_argument
+            allowed_values:
               - String
               - Int
               - Double
     localizations:
-      object:
-        key:
-          string: language_code
-        value:
-          string: localization_value
+      list:
+        object:
+          key:
+            string: language_code
+          value:
+            string: localization_value
 ```
 
 [Example: general.json](example/bundles/general.json)
