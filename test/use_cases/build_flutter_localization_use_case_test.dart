@@ -1,4 +1,4 @@
-import 'package:share_localization/use_cases/build_flutter_localization_use_case.dart';
+import 'package:share_localization/use_cases/flutter/build_flutter_localization_use_case.dart';
 import 'package:test/test.dart';
 
 import '../dtos/mock_localization.dart';

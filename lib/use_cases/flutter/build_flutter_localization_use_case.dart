@@ -1,8 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:share_localization/dtos/dtos.dart';
 import 'package:share_localization/exceptions/exceptions.dart';
 import 'package:share_localization/use_cases/build_localization_use_case.dart';
-import 'package:share_localization/utils/common.dart';
 import 'package:share_localization/utils/string_case_transform_extension.dart';
 
 part 'build_flutter_localization_use_case_common.dart';
@@ -28,7 +26,7 @@ class BuildFlutterLocalizationUseCase extends BuildLocalizationUseCase {
   }
 
   String filePath(
-      FlutterSettingsDto settings,
+    FlutterSettingsDto settings,
     LocalizationDto localization, [
     LanguageDto? language,
   ]) {
@@ -54,34 +52,3 @@ extension StringToFlutter on String {
     });
   }
 }
-
-// class LocalizationBuffer {
-//   final StringBuffer commonBuffer;
-//   final Map<String, StringBuffer> languagesBuffers;
-//
-//   factory LocalizationBuffer(LocalizationDto localization) {
-//     final Map<String, StringBuffer> languagesBuffers = {};
-//     for (final language in localization.languages) {
-//       languagesBuffers[language.key] = StringBuffer();
-//     }
-//     final commonBuffer = StringBuffer();
-//     return LocalizationBuffer._(commonBuffer, languagesBuffers);
-//   }
-//
-//   LocalizationBuffer._(this.commonBuffer, this.languagesBuffers);
-//
-//   StringBuffer get([String? language]) {
-//     if (language == null) {
-//       return commonBuffer;
-//     }
-//     return languagesBuffers[language]!;
-//   }
-//
-//   void addCommon(String value) {
-//     commonBuffer.write(value);
-//   }
-//
-//   void addLanguage(String language, String value) {
-//     languagesBuffers[language]?.write(value);
-//   }
-// }

@@ -3,6 +3,12 @@ import 'package:share_localization/dtos/dtos.dart';
 import 'package:share_localization/utils/common.dart';
 import 'package:share_localization/utils/json_data.dart';
 
+/// A use case for loading settings from a file.
+///
+/// This class provides functionality to load settings
+/// from a specified file path.
+/// It uses the [JsonData] utility to read the file
+/// and convert its contents into appropriate DTOs.
 class SettingsLoaderUseCase {
   const SettingsLoaderUseCase();
 
@@ -16,6 +22,10 @@ class SettingsLoaderUseCase {
 
 @visibleForTesting
 extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
+  /// This method uses a map of type to builder functions
+  /// to convert the [JsonData] into the appropriate DTO type.
+  ///
+  /// If the type [R] is not implemented, it throws an [UnimplementedError].
   R buildDto<R extends Object>(JsonData data) {
     final map = <Type, Function>{
       SettingsDto: buildSettingsDto,

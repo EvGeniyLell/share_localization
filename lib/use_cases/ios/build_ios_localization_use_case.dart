@@ -1,8 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:share_localization/dtos/dtos.dart';
 import 'package:share_localization/exceptions/exceptions.dart';
 import 'package:share_localization/use_cases/build_localization_use_case.dart';
-import 'package:share_localization/utils/common.dart';
 import 'package:share_localization/utils/string_case_transform_extension.dart';
 
 part 'build_ios_localization_use_case_swift.dart';
