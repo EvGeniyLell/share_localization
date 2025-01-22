@@ -11,7 +11,7 @@
             "value" : "The %1$@ has size %2$lf, it is biggest then maximum %3$lf."
           }
         },
-        "de" : {
+        "ua" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цей %1$@ має розмір %2$lf, це більш ніж дозволений максимум %3$lf."
@@ -29,7 +29,7 @@
             "value" : "File should be less or equal to %1$lld MB."
           }
         },
-        "de" : {
+        "ua" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Файл повинен бути меншим або рівним %1$lld МБ."
@@ -47,7 +47,7 @@
             "value" : "Attention! The file size is too big."
           }
         },
-        "de" : {
+        "ua" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Увага! Розмір файлу занадто великий."

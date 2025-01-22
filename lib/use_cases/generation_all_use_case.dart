@@ -1,9 +1,10 @@
 import 'dart:io' as io;
 
+import 'package:meta/meta.dart';
 import 'package:share_localization/exceptions/exceptions.dart';
+import 'package:share_localization/use_cases/build_localization_use_case.dart';
 import 'package:share_localization/use_cases/flutter/build_flutter_localization_use_case.dart';
 import 'package:share_localization/use_cases/ios/build_ios_localization_use_case.dart';
-import 'package:share_localization/use_cases/build_localization_use_case.dart';
 import 'package:share_localization/use_cases/localization_loader_use_case.dart';
 import 'package:share_localization/use_cases/settings_loader_use_case.dart';
 import 'package:share_localization/use_cases/verification_localization_use_case.dart';
@@ -51,6 +52,7 @@ class GenerationUseCase {
     });
   }
 
+  @visibleForTesting
   Future<(SettingsDto, List<LocalizationDto>)> load(
     String settingsFilepath,
   ) async {
@@ -86,6 +88,7 @@ class GenerationUseCase {
     return (settings, localizations);
   }
 
+  @visibleForTesting
   Future<List<AppException>> build(
     SettingsDto settings,
     LocalizationDto localization,

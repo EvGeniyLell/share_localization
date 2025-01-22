@@ -1,0 +1,17 @@
+{
+  "languages": [
+    "en",
+    "ua"
+  ],
+  "sources_folder": "bundles",
+  "ios": {
+    "bundle_name": "sdkResource",
+    "destination_folder": "../example/results/ios"
+  },
+  "flutter": {
+    "destination_folder": "../example/results/flutter"
+  },
+  "android": {
+    "destination_folder": "../example/results/android"
+  }
+}

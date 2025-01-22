@@ -1,7 +1,7 @@
 {
   "languages": [
     "en",
-    "de"
+    "ua"
   ],
   "keys": {
     "login_message": {
@@ -18,21 +18,21 @@
       ],
       "localizations": {
         "en": "Hi {username}, your password is {password}",
-        "de": "Привіт {username}, ваш пароль є {password}"
+        "ua": "Привіт {username}, ваш пароль є {password}"
       }
     },
     "login_title": {
       "comment": "This is a title for login screen",
       "localizations": {
         "en": "Login Page",
-        "de": "Сторінка Логіну"
+        "ua": "Сторінка Логіну"
       }
     },
     "login_button": {
       "comment": "This is a login button on login screen",
       "localizations": {
         "en": "Login",
-        "de": "Логін"
+        "ua": "Логін"
       }
     }
   },

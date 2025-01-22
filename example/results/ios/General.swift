@@ -1,4 +1,4 @@
-class GeneralLocalisation {
+class GeneralLocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "General", bundle: .sdkResource)
   }

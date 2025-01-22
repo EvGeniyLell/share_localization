@@ -30,6 +30,9 @@ dart pub global activate --source git git@github.com:EvGeniyLell/share_localizat
 
 ### Settings options
 
+The command-line tool expected find the `settings.json` file 
+in the working directory.
+
 Settings it is a json file formated like this:
 
 ```yaml
@@ -45,16 +48,22 @@ Settings it is a json file formated like this:
     bundle_name:
       string: name of bundle
     destination_folder:
+      # Generate files will be put here
+      # support path back step with `../../`
       string: destination folder
 - flutter:
     destination_folder:
+      # Generate files will be put here
+      # support path back step with `../../`
       string: destination folder
 - android:
     destination_folder:
+      # Generate files will be put here
+      # support path back step with `../../`
       string: destination folder
 ```
 
-[Example settings](example/settings.json)
+[Example settings](example/Settings.json)
 
 
 ### Sources bundles
@@ -104,9 +113,9 @@ You should put your localization files in the folder with the name what you set 
 [General.xcstrings](example/results/ios/General.xcstrings)
 
 ##### Flutter:
-[General.swift](example/results/flutter/...)
+[general.dart](example/results/flutter/general.dart)
 
-[General.xcstrings](example/results/flutter/...)
+[general_en.dart](example/results/flutter/general_en.dart)
 
 ##### Android:
 [General.swift](example/results/flutter/...)

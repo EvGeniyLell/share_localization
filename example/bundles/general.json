@@ -1,7 +1,7 @@
 {
   "languages": [
     "en",
-    "de"
+    "ua"
   ],
   "keys": {
     "file_size_error_body": {
@@ -22,7 +22,7 @@
       ],
       "localizations": {
         "en": "The {file_name} has size {current_size}, it is biggest then maximum {maximum_size}.",
-        "de": "Цей {file_name} має розмір {current_size}, це більш ніж дозволений максимум {maximum_size}."
+        "ua": "Цей {file_name} має розмір {current_size}, це більш ніж дозволений максимум {maximum_size}."
       }
     },
     "file_size_attention": {
@@ -35,14 +35,14 @@
       ],
       "localizations": {
         "en": "File should be less or equal to {maximum_size} MB.",
-        "de": "Файл повинен бути меншим або рівним {maximum_size} МБ."
+        "ua": "Файл повинен бути меншим або рівним {maximum_size} МБ."
       }
     },
     "file_size_title": {
       "comment": "This is a title for file size error screen",
       "localizations": {
         "en": "Attention! The file size is too big.",
-        "de": "Увага! Розмір файлу занадто великий."
+        "ua": "Увага! Розмір файлу занадто великий."
       }
     }
   },
