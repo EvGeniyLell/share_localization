@@ -8,7 +8,7 @@ void main() {
 
   group('SettingsLoaderUseCase', () {
     test('succeeded', () async {
-      final dtoTask = await loader('test/sources/sl_settings.json');
+      final dtoTask = await loader('test/sources/settings.json');
       expect(dtoTask.succeeded, true);
       expect(dtoTask.data, isA<SettingsDto>());
 

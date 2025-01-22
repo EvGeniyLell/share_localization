@@ -6,7 +6,7 @@ void main() {
 
   group('BuildAllUseCase', () {
     test('builder with sl_settings', () async {
-      final result = await builder('test/sources/sl_settings.json');
+      final result = await builder('test/sources/settings.json');
       expect(result.succeeded, isTrue);
     });
   });

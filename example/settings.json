@@ -1,0 +1,17 @@
+{
+  "languages": [
+    "en",
+    "ua"
+  ],
+  "sources_folder": "test/sources/bundles",
+  "ios": {
+    "bundle_name": "sdkResource",
+    "destination_folder": "../../iOS-SDK/Translations"
+  },
+  "flutter": {
+    "destination_folder": "../../Flutter-SDK/lib/src/translations"
+  },
+  "android": {
+    "destination_folder": "android"
+  }
+}

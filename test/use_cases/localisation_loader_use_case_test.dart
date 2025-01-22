@@ -24,7 +24,7 @@ void main() {
     });
 
     test('failed', () async {
-      final dtoTask = await loader('test/sources/sl_settings.json');
+      final dtoTask = await loader('test/sources/settings.json');
       expect(dtoTask.failed, true);
       expect(dtoTask.exception, isA<UnexpectedException>());
     });

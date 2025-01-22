@@ -1,0 +1,60 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "fileSizeErrorBody%@%lf%lf" : {
+      "comment" : "This a body of error notification message.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The %1$@ has size %2$lf, it is biggest then maximum %3$lf."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей %1$@ має розмір %2$lf, це більш ніж дозволений максимум %3$lf."
+          }
+        }
+      }
+    },
+    "fileSizeAttention%lld" : {
+      "comment" : "This is a attention message for file size.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File should be less or equal to %1$lld MB."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл повинен бути меншим або рівним %1$lld МБ."
+          }
+        }
+      }
+    },
+    "fileSizeTitle" : {
+      "comment" : "This is a title for file size error screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attention! The file size is too big."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увага! Розмір файлу занадто великий."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
