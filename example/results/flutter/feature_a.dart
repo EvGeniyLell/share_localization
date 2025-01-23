@@ -23,7 +23,7 @@ abstract class FeatureA {
   static const LocalizationsDelegate<FeatureA> delegate = _FeatureADelegate();
 
   /// A list of this localizations delegate along with the default localizations
-  /// delegates.
+  /// delegates.  
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
@@ -36,25 +36,25 @@ abstract class FeatureA {
     Locale('en'),
     Locale('ua'),
   ];
-
+  
   /// This a body of login message.
   ///
   /// In en, this message translates to:
   /// **'Hi {username}, your password is {password}'**
   String loginMessage(String username, String password);
-
+      
   /// This is a title for login screen
   ///
   /// In en, this message translates to:
   /// **'Login Page'**
   String get loginTitle;
-
+      
   /// This is a login button on login screen
   ///
   /// In en, this message translates to:
   /// **'Login'**
   String get loginButton;
-
+      
 }
 
 class _FeatureADelegate
@@ -84,7 +84,7 @@ FeatureA lookupFeatureA(Locale locale) {
 
   throw FlutterError(
       'FeatureA.delegate failed to load unsupported locale "$locale". This is likely '
-          'an issue with the localizations generation tool. Please file an issue '
-          'on GitHub with a reproducible sample app and the gen-l10n configuration '
-          'that was used.');
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

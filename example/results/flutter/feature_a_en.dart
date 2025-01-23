@@ -8,11 +8,11 @@ class FeatureAEn extends FeatureA {
 
   @override
   String loginMessage(String username, String password) => 'Hi $username, your password is $password';
-
+      
   @override
   String get loginTitle => 'Login Page';
-
+      
   @override
   String get loginButton => 'Login';
-
+      
 }
