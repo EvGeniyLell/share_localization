@@ -34,43 +34,56 @@ The settings file should be formatted as follows:
 
 ```yaml
 languages:
-  # List of languages you want to share
-  # First language will be used for descriptions
-  list:
-    string: language_code
+  description: >-
+    Languages codes you want to share
+    First language will be used for descriptions
+  type: List
+  item:
+    type: String
 sources_folder:
-  # Folder with localization files
-  string: folder_with_localization_files
-# Custom options for each platform
-# If you don't need to share some platform, just remove it from the settings
+  description: Folder with localization files
+  type: String (required)
+# Next you can see custom options for each supported platform.
+# If you don't need to share localizations to some platform, 
+# just remove it from the settings
 ios:
-  bundle_name:
-    description: >-
-      Optional name of the bundle
-    type: String? (optional)
-    default: null
-  destination_folder:
-    description: >-
-      Generated files will be put here
-      Supports path back step with `../../`
-    type: String (required)
+  description: iOS specific options
+  type: Object? (optional)
+  object:
+    bundle_name:
+      description: >-
+        Optional name of localizations bundles
+        Use it if your have the localizations not in main bundle
+      type: String? (optional)
+      default: null
+    destination_folder:
+      description: >-
+        Generated files will be put here
+        Supports path back step with `../../`
+      type: String (required)
 flutter:
-  destination_folder:
-    description: >-
-      Generated files will be put here
-      Supports path back step with `../../`
-    type: String (required)
+  description: Flutter specific options
+  type: Object? (optional)
+  object:
+    destination_folder:
+      description: >-
+        Generated files will be put here
+        Supports path back step with `../../`
+      type: String (required)
 android:
-  use_camel_case:
-    description: >-
-      Optional flag for use camelCase for keys and file names
-    type: Boolean? (optional)
-    default: false
-  destination_folder:
-    description: >-
-      Generated files will be put here
-      Supports path back step with `../../`
-    type: String (required)
+  description: Android specific options
+  type: Object? (optional)
+  object:
+    use_camel_case:
+      description: >-
+        Optional flag for use camelCase for keys and file names
+      type: Boolean? (optional)
+      default: false
+    destination_folder:
+      description: >-
+        Generated files will be put here
+        Supports path back step with `../../`
+      type: String (required)
 ```
 
 [Example settings](example/settings.json)
@@ -83,7 +96,8 @@ You should put your localization files in the folder with the name specified in 
 
 ```yaml
 languages:
-  description: Languages codes
+  description: >-
+    Languages codes what is supported in the bundle
   type: List
   item:
     type: String
