@@ -1,0 +1,42 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "loginMessage%@%@" : {
+      "comment" : "This a body of login message.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hi %1$@, your password is %2$@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heilegh %1$@, dein passdahwordther ist %2$@"
+          }
+        }
+      }
+    },
+    "loginTitle" : {
+      "comment" : "This is a title for login screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login Page"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ther Loghingher Paghedguahter"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

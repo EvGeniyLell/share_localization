@@ -1,0 +1,60 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "loginMessage%@%@" : {
+      "comment" : "This a body of login message.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hi %1$@, your password is %2$@"
+          }
+        },
+        "ua" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Привіт %1$@, ваш пароль є %2$@"
+          }
+        }
+      }
+    },
+    "loginTitle" : {
+      "comment" : "This is a title for login screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login Page"
+          }
+        },
+        "ua" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сторінка Логіну"
+          }
+        }
+      }
+    },
+    "loginButton" : {
+      "comment" : "This is a login button on login screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Login"
+          }
+        },
+        "ua" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Логін"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
