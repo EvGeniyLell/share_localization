@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:mocktail/mocktail.dart';
-import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
+import 'package:share_localization/code_generation/use_cases/android/android_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
 import '../../common/mocks.dart';
@@ -13,12 +13,12 @@ void main() {
 
   late List<InvocationCreateFile> virtualFiles;
   late FileService fileService;
-  late FlutterCodeGenerationUseCase generationUseCase;
+  late AndroidCodeGenerationUseCase generationUseCase;
 
   setUp(() {
     virtualFiles = [];
     fileService = MockFileService();
-    generationUseCase = FlutterCodeGenerationUseCase(fileService);
+    generationUseCase = AndroidCodeGenerationUseCase(fileService);
 
     when(() {
       return fileService.createFile(
@@ -31,25 +31,8 @@ void main() {
   });
 
   group('FlutterCodeGenerationUseCase', () {
-    test('generateCommon', () async {
-      final result = generationUseCase.generateCommon(
-        settingsDto,
-        localizationDto.copyWith(
-          keys: [
-            loginMessageKey,
-            loginTitleKey,
-          ],
-        ),
-      );
-
-      final expectedContent = await File(
-        'example/test_results/flutter/test_feature_a_localization.dart',
-      ).readAsString();
-      expect(expectedContent.tremContent(), result.tremContent());
-    });
-
-    test('generateLocale', () async {
-      final result = generationUseCase.generateLocale(
+    test('generateXml', () async {
+      final result = generationUseCase.generateXml(
         settingsDto,
         settingsEnLanguageDto,
         localizationDto.copyWith(
@@ -61,7 +44,7 @@ void main() {
       );
 
       final expectedContent = await File(
-        'example/test_results/flutter/test_feature_a_localization_en.dart',
+        'example/test_results/android/testFeatureALocalization_en.xml',
       ).readAsString();
       expect(expectedContent.tremContent(), result.tremContent());
     });
@@ -77,11 +60,10 @@ void main() {
         ),
       );
       expect(dtoTask.succeeded, true);
-      expect(virtualFiles.length, 3);
+      expect(virtualFiles.length, 2);
       expect(virtualFiles.map((f) => f.path), [
-        'example/test_results/flutter/test_feature_a_localization.dart',
-        'example/test_results/flutter/test_feature_a_localization_en.dart',
-        'example/test_results/flutter/test_feature_a_localization_de.dart',
+        'example/test_results/android/testFeatureALocalization_en.xml',
+        'example/test_results/android/testFeatureALocalization_de.xml',
       ]);
 
       for (final file in virtualFiles) {

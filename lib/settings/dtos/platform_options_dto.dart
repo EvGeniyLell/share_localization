@@ -27,7 +27,10 @@ class FlutterOptionsDto extends PlatformOptionsDto {
 
 @immutable
 class AndroidOptionsDto extends PlatformOptionsDto {
+  final bool? useCamelCase;
+
   const AndroidOptionsDto({
+    required this.useCamelCase,
     required super.destinationFolder,
   });
 }

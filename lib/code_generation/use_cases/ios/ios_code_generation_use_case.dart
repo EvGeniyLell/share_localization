@@ -17,29 +17,29 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
   @override
   Task<void> call(settings.SettingsDto settings, LocalizationDto localization) {
     return runAppTaskSafely(() async {
-      final ios = settings.ios;
-      if (ios == null) {
+      final options = settings.ios;
+      if (options == null) {
         throw const BuildLocalizationException.missingIosSettings();
       }
       final xcStrings = generateXCStrings(settings, localization);
       await fileService.createFile(
-        path: filePath(ios, localization, xcStringExtension),
+        path: filePath(options, localization, xcStringExtension),
         content: xcStrings,
       );
       final swift = generateSwift(settings, localization);
       await fileService.createFile(
-        path: filePath(ios, localization, swiftExtension),
+        path: filePath(options, localization, swiftExtension),
         content: swift,
       );
     });
   }
 
   String filePath(
-    settings.IosOptionsDto settings,
+    settings.IosOptionsDto options,
     LocalizationDto localization,
     String extension,
   ) {
-    return '${settings.destinationFolder}'
+    return '${options.destinationFolder}'
         '/${localization.name.baseFilename().camelCase().capitalize()}'
         '.$extension';
   }

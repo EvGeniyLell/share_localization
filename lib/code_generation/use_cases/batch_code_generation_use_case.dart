@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:share_localization/code_generation/use_cases/android/android_code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/ios/ios_code_generation_use_case.dart';
@@ -35,6 +36,7 @@ class BatchCodeGenerationUseCase {
       [
         FlutterCodeGenerationUseCase(fileService),
         IosCodeGenerationUseCase(fileService),
+        AndroidCodeGenerationUseCase(fileService),
       ],
       fileService,
     );

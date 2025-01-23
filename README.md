@@ -5,8 +5,8 @@
 Currently, it supports sharing `xcstrings`, `dart`, and `xml` files.
 
 ### Attention:
-- The Android part is not implemented yet.
 - This tool is still in development and may not work as expected.
+- Feel free to share your ideas and suggestions for improving this project!
 
 ## Installation
 
@@ -45,22 +45,32 @@ sources_folder:
 # If you don't need to share some platform, just remove it from the settings
 ios:
   bundle_name:
-    # Optional name of the bundle
-    string: name_of_bundle
+    description: >-
+      Optional name of the bundle
+    type: String? (optional)
+    default: null
   destination_folder:
-    # Generated files will be put here
-    # Supports path back step with `../../`
-    string: destination_folder
+    description: >-
+      Generated files will be put here
+      Supports path back step with `../../`
+    type: String (required)
 flutter:
   destination_folder:
-    # Generated files will be put here
-    # Supports path back step with `../../`
-    string: destination_folder
+    description: >-
+      Generated files will be put here
+      Supports path back step with `../../`
+    type: String (required)
 android:
+  use_camel_case:
+    description: >-
+      Optional flag for use camelCase for keys and file names
+    type: Boolean? (optional)
+    default: false
   destination_folder:
-    # Generated files will be put here
-    # Supports path back step with `../../`
-    string: destination_folder
+    description: >-
+      Generated files will be put here
+      Supports path back step with `../../`
+    type: String (required)
 ```
 
 [Example settings](example/settings.json)
@@ -73,33 +83,42 @@ You should put your localization files in the folder with the name specified in 
 
 ```yaml
 languages:
-  list:
-    string: language_code
+  description: Languages codes
+  type: List
+  item:
+    type: String
 keys:
+  description: Localizations keys
+  type: Map
   key:
-    string: key_of_localization
-  value:
+    description: Unique key of localization
+    type: String
+  value:  
     object:
-    comment:
-      string: comment_for_localization
-    arguments:
-      list:
-        object:
-          name:
-            string: name_of_argument
-          type:
-            enum: type_of_argument
-            allowed_values:
-              - String
-              - Int
-              - Double
-    localizations:
-      list:
-        object:
-          key:
-            string: language_code
-          value:
-            string: localization_value
+      comment:
+        description: Comment for localization
+        type: String
+      arguments:
+        description: Optional list of arguments types and names
+        type: List? (optional)
+        item:
+          object:
+            name:
+              type: String
+            type:
+              type: String
+              allowed_values:
+                - String
+                - Int
+                - Double
+      localizations:
+        type: Map
+        key:
+          description: Language code
+          type: String
+        value:
+          description: Localization value
+          type: String
 ```
 
 [Example: general.json](example/bundles/general.json)
@@ -117,8 +136,11 @@ keys:
 
 [general_en.dart](example/results/flutter/general_en.dart)
 
-##### Android: not implemented yet
-[General.swift](example/results/flutter/...)
+[general_ua.dart](example/results/flutter/general_ua.dart)
 
-[General.xcstrings](example/results/flutter/...)
+##### Android:
+[general_en.xml](example/results/android/general_en.xml)
+
+[general_ua.xml](example/results/android/general_ua.xml)
+
 </details>

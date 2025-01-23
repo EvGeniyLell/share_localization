@@ -9,7 +9,7 @@ const settingsDto = SettingsDto(
     settingsEnLanguageDto,
     settingsDeLanguageDto,
   ],
-  sourcesFolder: 'test/sources/bundles',
+  sourcesFolder: 'example/bundles',
   ios: iosOptionsDto,
   android: androidOptionsDto,
   flutter: flutterOptionsDto,
@@ -24,6 +24,7 @@ const iosOptionsDto = IosOptionsDto(
   destinationFolder: 'example/test_results/ios',
 );
 const androidOptionsDto = AndroidOptionsDto(
+  useCamelCase: true,
   destinationFolder: 'example/test_results/android',
 );
 const flutterOptionsDto = FlutterOptionsDto(

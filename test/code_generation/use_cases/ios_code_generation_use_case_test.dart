@@ -124,7 +124,7 @@ void main() {
         expect(
           expectedContent.tremContent(),
           file.content.tremContent(),
-          reason: file.path,
+          reason: file.toString(),
         );
       }
     });

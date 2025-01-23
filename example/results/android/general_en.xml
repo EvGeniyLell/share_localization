@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- The {file_name} has size {current_size}, it is biggest then maximum {maximum_size}. -->
+  <string name="fileSizeErrorBody">The %1$s has size %2$f, it is biggest then maximum %3$f.</string>
+
+  <!-- File should be less or equal to {maximum_size} MB. -->
+  <string name="fileSizeAttention">File should be less or equal to %1$d MB.</string>
+
+  <!-- Attention! The file size is too big. -->
+  <string name="fileSizeTitle">Attention! The file size is too big.</string>
+</resources>

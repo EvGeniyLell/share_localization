@@ -14,19 +14,19 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
   @override
   Task<void> call(settings.SettingsDto settings, LocalizationDto localization) {
     return runAppTaskSafely(() async {
-      final flutter = settings.flutter;
-      if (flutter == null) {
+      final options = settings.flutter;
+      if (options == null) {
         throw const BuildLocalizationException.missingFlutterSettings();
       }
       final common = generateCommon(settings, localization);
       await fileService.createFile(
-        path: filePath(flutter, null, localization),
+        path: filePath(options, null, localization),
         content: common,
       );
       settings.languages.forEach((language) async {
         final locale = generateLocale(settings, language, localization);
         await fileService.createFile(
-          path: filePath(flutter, language, localization),
+          path: filePath(options, language, localization),
           content: locale,
         );
       });
@@ -34,11 +34,11 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
   }
 
   String filePath(
-    settings.FlutterOptionsDto settings,
+    settings.FlutterOptionsDto options,
     settings.LanguageDto? language,
     LocalizationDto localization,
   ) {
-    return '${settings.destinationFolder}'
+    return '${options.destinationFolder}'
         '/${localization.name.baseFilename()}'
         '${language != null ? '_${language.key}' : ''}'
         '.dart';

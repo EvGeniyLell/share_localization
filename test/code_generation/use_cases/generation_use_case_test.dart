@@ -46,18 +46,22 @@ void main() {
     test('builder with settings', () async {
       final result = await generationUseCase('example/settings.json');
       expect(result.succeeded, isTrue);
-      expect(virtualFiles.length, 10);
+      expect(virtualFiles.length, 14);
       expect(virtualFiles.map((f) => f.path), [
         'example/results/flutter/feature_a.dart',
         'example/results/flutter/feature_a_en.dart',
         'example/results/flutter/feature_a_ua.dart',
         'example/results/ios/FeatureA.xcstrings',
         'example/results/ios/FeatureA.swift',
+        'example/results/android/featureA_en.xml',
+        'example/results/android/featureA_ua.xml',
         'example/results/flutter/general.dart',
         'example/results/flutter/general_en.dart',
         'example/results/flutter/general_ua.dart',
         'example/results/ios/General.xcstrings',
         'example/results/ios/General.swift',
+        'example/results/android/general_en.xml',
+        'example/results/android/general_ua.xml',
       ]);
 
       for (final file in virtualFiles) {
