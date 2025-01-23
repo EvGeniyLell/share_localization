@@ -43,9 +43,11 @@ languages:
 sources_folder:
   description: Folder with localization files.
   type: String (required)
+  
 # Next, you can see custom options for each supported platform.
 # If you don't need to share localizations to some platform,
 # just remove it from the settings.
+
 ios:
   description: iOS specific options.
   type: Object? (optional)
@@ -61,6 +63,7 @@ ios:
         Generated files will be put here.
         Supports path back step with `../../`.
       type: String (required)
+      
 flutter:
   description: Flutter specific options.
   type: Object? (optional)
@@ -70,6 +73,7 @@ flutter:
         Generated files will be put here.
         Supports path back step with `../../`.
       type: String (required)
+      
 android:
   description: Android specific options.
   type: Object? (optional)
