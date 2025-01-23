@@ -45,6 +45,7 @@ sources_folder:
 # If you don't need to share some platform, just remove it from the settings
 ios:
   bundle_name:
+    # Optional name of the bundle
     string: name_of_bundle
   destination_folder:
     # Generated files will be put here

@@ -9,6 +9,12 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
     final defaultLanguage = settings.languages.first;
     final baseFilename = localization.name.baseFilename();
     final localizationName = baseFilename.camelCase().capitalize();
+    final localizationBundle = settings.ios?.bundleName.nullSafe((name) {
+      if (name == null) {
+        return '';
+      }
+      return ', bundle: .$name';
+    });
     final getters = localization.keys.map((key) {
       final translation = key.translation.firstWhere((translation) {
         return translation.languageKey == defaultLanguage.key;
@@ -18,7 +24,7 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
     return '''
 class ${localizationName}Localization {
   private static func l(_ key: String.LocalizationValue) -> String {
-    return String(localized: key, table: "$localizationName", bundle: .${settings.ios!.bundleName})
+    return String(localized: key, table: "$localizationName"$localizationBundle)
   }
   
 $getters  

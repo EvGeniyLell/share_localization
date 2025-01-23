@@ -10,7 +10,7 @@ abstract class PlatformOptionsDto {
 
 @immutable
 class IosOptionsDto extends PlatformOptionsDto {
-  final String bundleName;
+  final String? bundleName;
 
   const IosOptionsDto({
     required this.bundleName,
