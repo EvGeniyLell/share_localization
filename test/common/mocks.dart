@@ -16,8 +16,18 @@ class InvocationCreateFile {
   final String content;
 
   InvocationCreateFile(Invocation invocation)
-      : path = invocation.arg('path'),
+      : path = _fixPath(invocation.arg('path')),
         content = invocation.arg('content');
+
+  static String _fixPath(String path) {
+    final d = FileServiceHelper.getCurrentDirectory().path.split('/');
+    final p = FileServiceHelper.getCurrentPath(path).split('/');
+    while (d.isNotEmpty && p.isNotEmpty && d.first == p.first) {
+      p.removeAt(0);
+      d.removeAt(0);
+    }
+    return p.join('/');
+  }
 
   @override
   String toString() {

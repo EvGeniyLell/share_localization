@@ -1,10 +1,11 @@
 import 'package:test/test.dart';
 
 import '../../common/mocks.dart';
-import '../../localizations/mocks.dart';
 import '../../settings/mocks.dart';
 
 void main() {
+  // Printer.debug = true;
+
   const loader = SettingsLoaderUseCase();
 
   group('SettingsLoaderUseCase', () {

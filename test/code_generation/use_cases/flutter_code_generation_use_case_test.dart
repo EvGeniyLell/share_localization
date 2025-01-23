@@ -9,6 +9,8 @@ import '../../localizations/mocks.dart';
 import '../../settings/mocks.dart';
 
 void main() {
+  //Printer.debug = true;
+
   late List<InvocationCreateFile> virtualFiles;
   late FileService fileService;
   late FlutterCodeGenerationUseCase generationUseCase;

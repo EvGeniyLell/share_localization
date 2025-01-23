@@ -7,15 +7,18 @@ import 'package:test/test.dart';
 import '../../common/mocks.dart';
 
 void main() {
+  // Printer.debug = true;
+
   late List<InvocationCreateFile> virtualFiles;
   late FileService fileService;
   late BatchCodeGenerationUseCase generationUseCase;
 
-
   setUp(() {
     virtualFiles = [];
     fileService = MockFileService();
-    generationUseCase = BatchCodeGenerationUseCase.all(fileService: fileService);
+    generationUseCase = BatchCodeGenerationUseCase.all(
+      fileService: fileService,
+    );
 
     when(() {
       return fileService.createFile(
@@ -25,18 +28,36 @@ void main() {
     }).thenAnswer((invocation) async {
       virtualFiles.add(InvocationCreateFile(invocation));
     });
+
+    when(() {
+      return fileService.getFilesInDirectory(
+        path: any(named: 'path'),
+        extension: any(named: 'extension'),
+      );
+    }).thenAnswer((invocation) async {
+      return <String>[
+        'example/bundles/feature_a.json',
+        'example/bundles/general.json',
+      ].map(File.new).toList();
+    });
   });
 
   group('BatchCodeGenerationUseCase', () {
     test('builder with settings', () async {
       final result = await generationUseCase('example/settings.json');
-      print(result.exception);
       expect(result.succeeded, isTrue);
-      expect(virtualFiles.length, 3);
+      expect(virtualFiles.length, 10);
       expect(virtualFiles.map((f) => f.path), [
-        'example/test_results/flutter/test_feature_a_localization.dart',
-        'example/test_results/flutter/test_feature_a_localization_en.dart',
-        'example/test_results/flutter/test_feature_a_localization_de.dart',
+        'example/results/flutter/feature_a.dart',
+        'example/results/flutter/feature_a_en.dart',
+        'example/results/flutter/feature_a_ua.dart',
+        'example/results/ios/FeatureA.xcstrings',
+        'example/results/ios/FeatureA.swift',
+        'example/results/flutter/general.dart',
+        'example/results/flutter/general_en.dart',
+        'example/results/flutter/general_ua.dart',
+        'example/results/ios/General.xcstrings',
+        'example/results/ios/General.swift',
       ]);
 
       for (final file in virtualFiles) {
@@ -44,7 +65,7 @@ void main() {
         expect(
           expectedContent.tremContent(),
           file.content.tremContent(),
-          reason: file.path,
+          reason: file.toString(),
         );
       }
     });

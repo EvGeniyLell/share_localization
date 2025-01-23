@@ -1,5 +1,3 @@
-import 'dart:io' as io;
-
 import 'package:meta/meta.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
@@ -13,12 +11,14 @@ class BatchCodeGenerationUseCase {
   final LocalizationLoaderUseCase localizationLoader;
   final VerificationLocalizationUseCase verificationLocalization;
   final List<CodeGenerationUseCase> builders;
+  final FileService fileService;
 
   const BatchCodeGenerationUseCase(
     this.settingsLoader,
     this.localizationLoader,
     this.verificationLocalization,
     this.builders,
+    this.fileService,
   );
 
   factory BatchCodeGenerationUseCase.all({
@@ -36,6 +36,7 @@ class BatchCodeGenerationUseCase {
         FlutterCodeGenerationUseCase(fileService),
         IosCodeGenerationUseCase(fileService),
       ],
+      fileService,
     );
   }
 
@@ -63,11 +64,12 @@ class BatchCodeGenerationUseCase {
     }
     final settings = settingsTask.data;
 
-    final localizationsTasks = io.Directory(settings.sourcesFolder)
-        .listSync()
-        .whereType<io.File>()
-        .where((file) => file.path.endsWith('.json'))
-        .map((file) async {
+    final sourceFiles = await fileService.getFilesInDirectory(
+      path: settings.sourcesFolder,
+      extension: '.json',
+    );
+
+    final localizationsTasks = sourceFiles.map((file) async {
       final localizationTask = await localizationLoader(file.path);
       if (localizationTask.failed) {
         throw localizationTask.exception;

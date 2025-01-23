@@ -1,5 +1,14 @@
+import 'dart:io';
+
+import 'package:meta/meta.dart';
+
 class Printer {
-  static const debug = false;
+  @visibleForTesting
+  static void Function(Object? object) output = stdout.writeln;
+
+  @visibleForTesting
+  static bool debug = false;
+
   static const _instance = Printer._private();
 
   factory Printer() => _instance;
@@ -13,6 +22,6 @@ class Printer {
   }
 
   void log(String message) {
-    print(message);
+    output(message);
   }
 }

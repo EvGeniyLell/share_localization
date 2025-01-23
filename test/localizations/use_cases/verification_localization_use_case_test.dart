@@ -5,6 +5,8 @@ import '../../localizations/mocks.dart';
 import '../../settings/mocks.dart';
 
 void main() {
+  // Printer.debug = true;
+
   const verification = VerificationLocalizationUseCase();
 
   group('VerificationLocalizationUseCase', () {
