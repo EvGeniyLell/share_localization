@@ -1,8 +1,8 @@
 part of 'ios_code_generation_use_case.dart';
 
 @visibleForTesting
-extension BuildIosLocalizationUseCaseXCStrings on BuildIosLocalizationUseCase {
-  String buildXCStrings(
+extension BuildIosLocalizationUseCaseXCStrings on IosCodeGenerationUseCase {
+  String generateXCStrings(
     settings.SettingsDto settings,
     LocalizationDto localization,
   ) {

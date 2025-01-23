@@ -30,9 +30,9 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
   R buildDto<R extends Object>(JsonData data) {
     final map = <Type, Function>{
       SettingsDto: buildSettingsDto,
-      IosOptionsDto: buildIosSettingsDto,
-      AndroidOptionsDto: buildAndroidSettingsDto,
-      FlutterOptionsDto: buildFlutterSettingsDto,
+      IosOptionsDto: buildIosOptionsDto,
+      AndroidOptionsDto: buildAndroidOptionsDto,
+      FlutterOptionsDto: buildFlutterOptionsDto,
       LanguageDto: buildLanguageDto,
     };
     final builder = map[R];
@@ -52,20 +52,20 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
     );
   }
 
-  IosOptionsDto buildIosSettingsDto(JsonData data) {
+  IosOptionsDto buildIosOptionsDto(JsonData data) {
     return IosOptionsDto(
       destinationFolder: data.get('destination_folder'),
       bundleName: data.get('bundle_name'),
     );
   }
 
-  AndroidOptionsDto buildAndroidSettingsDto(JsonData data) {
+  AndroidOptionsDto buildAndroidOptionsDto(JsonData data) {
     return AndroidOptionsDto(
       destinationFolder: data.get('destination_folder'),
     );
   }
 
-  FlutterOptionsDto buildFlutterSettingsDto(JsonData data) {
+  FlutterOptionsDto buildFlutterOptionsDto(JsonData data) {
     return FlutterOptionsDto(
       destinationFolder: data.get('destination_folder'),
     );

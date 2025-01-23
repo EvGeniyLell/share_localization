@@ -3,8 +3,8 @@ import 'package:share_localization/common/common.dart';
 
 final builder = BatchCodeGenerationUseCase.all();
 
-Future<void> gen() async {
-  final buildTask = await builder('Settings.json');
+Future<void> run() async {
+  final buildTask = await builder('settings.json');
   if (buildTask.failed) {
     Printer().log('Build task failed with:\n${buildTask.exception}');
     return;

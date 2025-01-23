@@ -60,6 +60,7 @@ extension StringCaseTransformExtension on String {
   //       .join('_');
   // }
 
+  // TODO(evg): consider to remove this method
   String pad(int shift) {
     if (isEmpty || shift == 0) {
       return this;

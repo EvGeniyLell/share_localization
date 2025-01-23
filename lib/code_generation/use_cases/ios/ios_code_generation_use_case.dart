@@ -8,11 +8,11 @@ import 'package:share_localization/settings/settings.dart' as settings;
 part 'ios_code_generation_use_case_swift.dart';
 part 'ios_code_generation_use_case_xcstrings.dart';
 
-class BuildIosLocalizationUseCase extends CodeGenerationUseCase {
+class IosCodeGenerationUseCase extends CodeGenerationUseCase {
   static const xcStringExtension = 'xcstrings';
   static const swiftExtension = 'swift';
 
-  const BuildIosLocalizationUseCase(super.fileService);
+  const IosCodeGenerationUseCase(super.fileService);
 
   @override
   Task<void> call(settings.SettingsDto settings, LocalizationDto localization) {
@@ -21,12 +21,12 @@ class BuildIosLocalizationUseCase extends CodeGenerationUseCase {
       if (ios == null) {
         throw const BuildLocalizationException.missingIosSettings();
       }
-      final xcStrings = buildXCStrings(settings, localization);
+      final xcStrings = generateXCStrings(settings, localization);
       await fileService.createFile(
         path: filePath(ios, localization, xcStringExtension),
         content: xcStrings,
       );
-      final swift = buildSwift(settings, localization);
+      final swift = generateSwift(settings, localization);
       await fileService.createFile(
         path: filePath(ios, localization, swiftExtension),
         content: swift,

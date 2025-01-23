@@ -1,4 +1,8 @@
-import 'package:share_localization/dtos/dtos.dart';
+library;
+
+import 'package:share_localization/localizations/localizations.dart';
+
+export 'package:share_localization/localizations/localizations.dart';
 
 const localizationDto = LocalizationDto(
   name: 'test_feature_a_localization.json',

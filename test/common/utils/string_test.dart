@@ -1,5 +1,6 @@
-import 'package:share_localization/utils/string_case_transform_extension.dart';
 import 'package:test/test.dart';
+
+import '../mocks.dart';
 
 void main() {
   group('String', () {

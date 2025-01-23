@@ -1,14 +1,15 @@
-import 'package:share_localization/dtos/dtos.dart';
-import 'package:share_localization/exceptions/exceptions.dart';
-import 'package:share_localization/localization/use_cases/localization_loader_use_case.dart';
 import 'package:test/test.dart';
+
+import '../../common/mocks.dart';
+import '../../localizations/mocks.dart';
+import '../../settings/mocks.dart';
 
 void main() {
   const loader = LocalizationLoaderUseCase();
 
   group('LocalizationLoaderUseCase', () {
     test('succeeded', () async {
-      final dtoTask = await loader('test/sources/bundles/feature_a.json');
+      final dtoTask = await loader('example/bundles/feature_a.json');
       expect(dtoTask.succeeded, true);
       expect(dtoTask.data, isA<LocalizationDto>());
 
@@ -24,7 +25,7 @@ void main() {
     });
 
     test('failed', () async {
-      final dtoTask = await loader('test/sources/settings.json');
+      final dtoTask = await loader('example/settings.json');
       expect(dtoTask.failed, true);
       expect(dtoTask.exception, isA<UnexpectedException>());
     });

@@ -3,7 +3,7 @@ part of 'flutter_code_generation_use_case.dart';
 extension BuildFlutterLocalizationUseCaseCommon
     on FlutterCodeGenerationUseCase {
   @visibleForTesting
-  String buildCommon(
+  String generateCommon(
     settings.SettingsDto settings,
     LocalizationDto localization,
   ) {

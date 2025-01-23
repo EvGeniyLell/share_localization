@@ -4,9 +4,9 @@ extension ListMergeExtension<E> on List<E> {
   /// - `$2`: for common,
   /// - `$3`: for items presents only in `right` list.
   (List<E> left, List<E> common, List<E> righ) intersection(
-      List<E> other, {
-        bool Function(E l, E r)? test,
-      }) {
+    List<E> other, {
+    bool Function(E l, E r)? test,
+  }) {
     final resolvedTest = test ?? (l, r) => l == r;
     final common = {
       ...this,
@@ -34,10 +34,10 @@ extension ListMergeExtension<E> on List<E> {
   /// Return a new list with `every elements` that satisfy the [test]
   /// and mapped to [R] type.
   List<R> mapWhereEvery<R, EE>(
-      List<EE> other, {
-        required bool Function(E l, EE r) test,
-        required R Function(E e) toElement,
-      }) {
+    List<EE> other, {
+    required bool Function(E l, EE r) test,
+    required R Function(E e) toElement,
+  }) {
     return map((lItem) {
       final has = other.every((rItem) => test(lItem, rItem));
       return has ? toElement(lItem) : null;
@@ -47,10 +47,10 @@ extension ListMergeExtension<E> on List<E> {
   /// Return a new list with `any elements` that satisfy the [test]
   /// and mapped to [R] type.
   List<R> mapWhereAny<R, EE>(
-      List<EE> other, {
-        required bool Function(E l, EE r) test,
-        required R Function(E e) toElement,
-      }) {
+    List<EE> other, {
+    required bool Function(E l, EE r) test,
+    required R Function(E e) toElement,
+  }) {
     return map((lItem) {
       final has = other.any((rItem) => test(lItem, rItem));
       return has ? toElement(lItem) : null;

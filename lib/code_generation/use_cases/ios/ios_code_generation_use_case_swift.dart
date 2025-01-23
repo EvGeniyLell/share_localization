@@ -1,8 +1,8 @@
 part of 'ios_code_generation_use_case.dart';
 
 @visibleForTesting
-extension BuildIosLocalizationUseCaseSwift on BuildIosLocalizationUseCase {
-  String buildSwift(
+extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
+  String generateSwift(
     settings.SettingsDto settings,
     LocalizationDto localization,
   ) {

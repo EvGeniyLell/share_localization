@@ -34,7 +34,7 @@ class BatchCodeGenerationUseCase {
       ),
       [
         FlutterCodeGenerationUseCase(fileService),
-        BuildIosLocalizationUseCase(fileService),
+        IosCodeGenerationUseCase(fileService),
       ],
     );
   }

@@ -18,13 +18,13 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
       if (flutter == null) {
         throw const BuildLocalizationException.missingFlutterSettings();
       }
-      final common = buildCommon(settings, localization);
+      final common = generateCommon(settings, localization);
       await fileService.createFile(
         path: filePath(flutter, null, localization),
         content: common,
       );
       settings.languages.forEach((language) async {
-        final locale = buildLocale(settings, language, localization);
+        final locale = generateLocale(settings, language, localization);
         await fileService.createFile(
           path: filePath(flutter, language, localization),
           content: locale,

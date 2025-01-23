@@ -62,7 +62,7 @@ android:
     string: destination_folder
 ```
 
-[Example settings](example/Settings.json)
+[Example settings](example/settings.json)
 
 ### Source Bundles
 

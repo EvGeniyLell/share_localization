@@ -1,11 +1,8 @@
-import 'package:share_localization/dtos/dtos.dart';
-import 'package:share_localization/exceptions/exceptions.dart';
-import 'package:share_localization/localizations/use_cases/verification_localization_use_case.dart';
-import 'package:share_localization/utils/list_merge_extension.dart';
 import 'package:test/test.dart';
 
-import '../dtos/mock_localization.dart';
-import '../dtos/mock_settings.dart';
+import '../../common/mocks.dart';
+import '../../localizations/mocks.dart';
+import '../../settings/mocks.dart';
 
 void main() {
   const verification = VerificationLocalizationUseCase();
@@ -31,7 +28,7 @@ void main() {
       test('failed with missingLanguage', () async {
         final result = verification.checkLocalization(
           settingsDto.copyWith(
-            languages: [...settingsDto.languages, settingUaLanguageDto],
+            languages: [...settingsDto.languages, settingsUaLanguageDto],
           ),
           localizationDto,
         );
@@ -39,7 +36,7 @@ void main() {
         expect(
           result.first,
           predicate((VerificationLocalizationMissingLanguageException e) {
-            return e.language == settingUaLanguageDto.key;
+            return e.language == settingsUaLanguageDto.key;
           }),
         );
       });

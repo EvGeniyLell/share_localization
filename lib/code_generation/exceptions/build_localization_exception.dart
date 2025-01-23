@@ -20,7 +20,6 @@ class BuildLocalizationException implements AppException {
     String? message = 'settings are not provided or corrupted',
   ]) : this(BuildLocalizationExceptionType.missingFlutterSettings, message);
 
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
