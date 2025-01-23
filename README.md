@@ -1,8 +1,13 @@
 ## Share Localization
 
-`share_localization` is a command-line tool that shares localization files for iOS, Flutter, and Android projects. It ensures that localization strings are consistent across different languages and platforms.
+`share_localization` is a command-line tool that shares localization files for iOS, Flutter, and Android projects. 
+It ensures that localization strings are consistent across different languages and platforms.
 
-Currently, it supports sharing `xcstrings`, `dart`, and `xml` files.
+for each platform, it generates files with localizations in the format of the platform.
+
+- ios: `swift` and `xcstrings` files
+- flutter: `dart` common and locale files
+- android: `xml` locale files
 
 ### Attention:
 - This tool is still in development and may not work as expected.
