@@ -162,8 +162,8 @@ keys:
 [general_ua.dart](example/results/flutter/general_ua.dart)
 
 ##### Android:
-[general_en.xml](example/results/android/general_en.xml)
+[values/general.xml](example/results/android/values/general.xml)
 
-[general_ua.xml](example/results/android/general_ua.xml)
+[values_ua/general.xml](example/results/android/values_ua/general.xml)
 
 </details>
