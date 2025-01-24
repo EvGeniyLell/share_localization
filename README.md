@@ -164,6 +164,6 @@ keys:
 ##### Android:
 [values/general.xml](example/results/android/values/general.xml)
 
-[values_ua/general.xml](example/results/android/values_ua/general.xml)
+[values-ua/general.xml](example/results/android/values-ua/general.xml)
 
 </details>

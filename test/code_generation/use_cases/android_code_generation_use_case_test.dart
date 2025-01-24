@@ -75,7 +75,7 @@ void main() {
         expect(virtualFiles.length, 2);
         expect(virtualFiles.map((f) => f.path), [
           'example/test_results/android/values/testFeatureALocalization.xml',
-          'example/test_results/android/values_de/testFeatureALocalization.xml',
+          'example/test_results/android/values-de/testFeatureALocalization.xml',
         ]);
 
         for (final file in virtualFiles) {
@@ -131,7 +131,7 @@ void main() {
         expect(virtualFiles.length, 2);
         expect(virtualFiles.map((f) => f.path), [
           'example/test_results/android/values/test_feature_a_localization.xml',
-          'example/test_results/android/values_de/test_feature_a_localization.xml',
+          'example/test_results/android/values-de/test_feature_a_localization.xml',
         ]);
 
         for (final file in virtualFiles) {

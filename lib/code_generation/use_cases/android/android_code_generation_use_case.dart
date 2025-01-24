@@ -45,7 +45,7 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
       if (l != null &&
           l.key.isNotEmpty &&
           l.key != settings.languages.firstOrNull?.key) {
-        return '_${l.key}';
+        return '-${l.key}';
       }
       return '';
     });
