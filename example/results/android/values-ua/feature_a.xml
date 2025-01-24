@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <!-- Hi {username}, your password is {password} -->
-  <string name="loginMessage">Привіт %1$s, ваш пароль є %2$s</string>
+  <string name="login_message">Привіт %1$s, ваш пароль є %2$s</string>
 
   <!-- Login Page -->
-  <string name="loginTitle">Сторінка Логіну</string>
+  <string name="login_title">Сторінка Логіну</string>
 
   <!-- Login -->
-  <string name="loginButton">Логін</string>
+  <string name="login_button">Логін</string>
 </resources>

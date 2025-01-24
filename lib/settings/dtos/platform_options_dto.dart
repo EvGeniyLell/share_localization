@@ -32,5 +32,5 @@ class AndroidOptionsDto extends PlatformOptionsDto {
   const AndroidOptionsDto({
     required bool? useCamelCase,
     required super.destinationFolder,
-  }) : useCamelCase = useCamelCase ?? true;
+  }) : useCamelCase = useCamelCase ?? false;
 }

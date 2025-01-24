@@ -12,7 +12,6 @@
     "destination_folder": "../example/results/flutter"
   },
   "android": {
-    "use_camel_case": true,
     "destination_folder": "../example/results/android/values"
   }
 }

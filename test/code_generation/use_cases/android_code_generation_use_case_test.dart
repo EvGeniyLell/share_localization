@@ -38,7 +38,7 @@ void main() {
         customSettingsDto = settingsDto.copyWith(
           android: const AndroidOptionsDto(
             useCamelCase: true,
-            destinationFolder: 'example/test_results/android/values',
+            destinationFolder: 'example/test_results/android/camel_case/values',
           ),
         );
       });
@@ -56,7 +56,7 @@ void main() {
         );
 
         final expectedContent = await File(
-          'example/test_results/android/values/testFeatureALocalization.xml',
+          'example/test_results/android/camel_case/values/test_feature_a_localization.xml',
         ).readAsString();
         expect(expectedContent.tremContent(), result.tremContent());
       });
@@ -74,8 +74,8 @@ void main() {
         expect(dtoTask.succeeded, true);
         expect(virtualFiles.length, 2);
         expect(virtualFiles.map((f) => f.path), [
-          'example/test_results/android/values/testFeatureALocalization.xml',
-          'example/test_results/android/values-de/testFeatureALocalization.xml',
+          'example/test_results/android/camel_case/values/test_feature_a_localization.xml',
+          'example/test_results/android/camel_case/values-de/test_feature_a_localization.xml',
         ]);
 
         for (final file in virtualFiles) {

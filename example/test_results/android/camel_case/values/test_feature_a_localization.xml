@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hi {username}, your password is {password} -->
+    <string name="loginMessage">Hi %1$s, your password is %2$s</string>
+
+    <!-- Login Page -->
+    <string name="loginTitle">Login Page</string>
+</resources>
