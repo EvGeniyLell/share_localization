@@ -70,7 +70,7 @@ void main() {
 
     test('generateXCStrings', () async {
       final result = generationUseCase.generateXCStrings(
-        settingsDto,
+        settingsDto.toPlatformSettingsDto()!,
         localizationDto.copyWith(
           keys: [
             loginMessageKey,
@@ -87,7 +87,7 @@ void main() {
 
     test('generateSwift', () async {
       final result = generationUseCase.generateSwift(
-        settingsDto,
+        settingsDto.toPlatformSettingsDto()!,
         localizationDto.copyWith(
           keys: [
             loginMessageKey,

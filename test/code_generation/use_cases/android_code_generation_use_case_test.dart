@@ -45,7 +45,7 @@ void main() {
 
       test('generateXml', () async {
         final result = generationUseCase.generateXml(
-          customSettingsDto,
+          customSettingsDto.toPlatformSettingsDto()!,
           settingsEnLanguageDto,
           localizationDto.copyWith(
             keys: [
@@ -101,7 +101,7 @@ void main() {
 
       test('generateXml', () async {
         final result = generationUseCase.generateXml(
-          customSettingsDto,
+          customSettingsDto.toPlatformSettingsDto()!,
           settingsEnLanguageDto,
           localizationDto.copyWith(
             keys: [

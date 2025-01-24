@@ -33,7 +33,7 @@ void main() {
   group('FlutterCodeGenerationUseCase', () {
     test('generateCommon', () async {
       final result = generationUseCase.generateCommon(
-        settingsDto,
+        settingsDto.toPlatformSettingsDto()!,
         localizationDto.copyWith(
           keys: [
             loginMessageKey,
@@ -50,7 +50,7 @@ void main() {
 
     test('generateLocale', () async {
       final result = generationUseCase.generateLocale(
-        settingsDto,
+        settingsDto.toPlatformSettingsDto()!,
         settingsEnLanguageDto,
         localizationDto.copyWith(
           keys: [
