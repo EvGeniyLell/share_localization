@@ -44,11 +44,6 @@ extension PlatformSettingsDtoHelperExtension on SettingsDto {
       options = null;
     }
     if (options == null) {
-      print('null for $T where: ($T, $this)');
-      print('- ${ios?.destinationFolder}');
-      print('- ${android?.destinationFolder}');
-      print('- ${flutter?.destinationFolder}');
-
       return null;
     }
     return PlatformSettingsDto<T>(
