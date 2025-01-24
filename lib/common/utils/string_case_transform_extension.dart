@@ -44,21 +44,21 @@ extension StringCaseTransformExtension on String {
         .join();
   }
 
-  // String snakeCase() {
-  //   if (isEmpty) {
-  //     return this;
-  //   }
-  //
-  //   final RegExp expWord = RegExp('([a-zA-Z0-9]+)');
-  //   return expWord
-  //       .allMatches(this)
-  //       .map((m) {
-  //         final word = m.group(0)?.toLowerCase();
-  //         return word;
-  //       })
-  //       .whereType<String>()
-  //       .join('_');
-  // }
+  String snakeCase() {
+    if (isEmpty) {
+      return this;
+    }
+
+    final RegExp expWord = RegExp('([a-zA-Z0-9]+)');
+    return expWord
+        .allMatches(this)
+        .map((m) {
+          final word = m.group(0)?.toLowerCase();
+          return word;
+        })
+        .whereType<String>()
+        .join('_');
+  }
 
   // TODO(evg): consider to remove this method
   String pad(int shift) {

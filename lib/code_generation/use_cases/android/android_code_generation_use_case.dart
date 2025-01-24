@@ -22,7 +22,8 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
       settings.languages.forEach((language) async {
         final xml = generateXml(settings, language, localization);
         await fileService.createFile(
-          path: filePath(options, language, localization, xmlExtension),
+          path:
+              filePath(settings, options, language, localization, xmlExtension),
           content: xml,
         );
       });
@@ -30,6 +31,7 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
   }
 
   String filePath(
+    settings.SettingsDto settings,
     settings.AndroidOptionsDto options,
     settings.LanguageDto? language,
     LocalizationDto localization,
@@ -37,10 +39,17 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
   ) {
     final useCamelCase = options.useCamelCase ?? false;
     final fileName = localization.name.baseFilename().nullSafe((name) {
-      return useCamelCase ? name.camelCase() : name;
+      return useCamelCase ? name.camelCase() : name.snakeCase();
     });
-    final languageKey = language != null ? '_${language.key}' : '';
-    return '${options.destinationFolder}/$fileName$languageKey.$extension';
+    final languageKey = language.nullSafe((l) {
+      if (l != null &&
+          l.key.isNotEmpty &&
+          l.key != settings.languages.firstOrNull?.key) {
+        return '_${l.key}';
+      }
+      return '';
+    });
+    return '${options.destinationFolder}$languageKey/$fileName.$extension';
   }
 }
 

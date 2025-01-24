@@ -22,14 +22,15 @@ void main() {
 
       expect(dto.sourcesFolder, 'bundles');
 
+      const pathPrefix = '../example/results';
       expect(dto.ios, isA<IosOptionsDto>());
-      expect(dto.ios?.destinationFolder, '../example/results/ios');
+      expect(dto.ios?.destinationFolder, '$pathPrefix/ios');
 
       expect(dto.android, isA<AndroidOptionsDto>());
-      expect(dto.android?.destinationFolder, '../example/results/android');
+      expect(dto.android?.destinationFolder, '$pathPrefix/android/values');
 
       expect(dto.flutter, isA<FlutterOptionsDto>());
-      expect(dto.flutter?.destinationFolder, '../example/results/flutter');
+      expect(dto.flutter?.destinationFolder, '$pathPrefix/flutter');
     });
 
     test('failed', () async {

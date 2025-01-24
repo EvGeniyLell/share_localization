@@ -53,15 +53,15 @@ void main() {
         'example/results/flutter/feature_a_ua.dart',
         'example/results/ios/FeatureA.xcstrings',
         'example/results/ios/FeatureA.swift',
-        'example/results/android/featureA_en.xml',
-        'example/results/android/featureA_ua.xml',
+        'example/results/android/values/featureA.xml',
+        'example/results/android/values_ua/featureA.xml',
         'example/results/flutter/general.dart',
         'example/results/flutter/general_en.dart',
         'example/results/flutter/general_ua.dart',
         'example/results/ios/General.xcstrings',
         'example/results/ios/General.swift',
-        'example/results/android/general_en.xml',
-        'example/results/android/general_ua.xml',
+        'example/results/android/values/general.xml',
+        'example/results/android/values_ua/general.xml',
       ]);
 
       for (final file in virtualFiles) {

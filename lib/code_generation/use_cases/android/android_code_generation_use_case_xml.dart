@@ -43,7 +43,7 @@ ${generateStrings(settings, localization.keys, language.key)}
     //   <string name="welcomeMessages">Hello, %1$s! You have %2$d new messages.</string>
     final useCamelCase = settings.android?.useCamelCase ?? false;
     final itemName = key.key.nullSafe((key) {
-      return useCamelCase ? key.camelCase() : key;
+      return useCamelCase ? key.camelCase() : key.snakeCase();
     });
 
     final translation = key.translation

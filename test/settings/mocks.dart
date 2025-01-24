@@ -25,7 +25,7 @@ const iosOptionsDto = IosOptionsDto(
 );
 const androidOptionsDto = AndroidOptionsDto(
   useCamelCase: true,
-  destinationFolder: 'example/test_results/android',
+  destinationFolder: 'example/test_results/android/values',
 );
 const flutterOptionsDto = FlutterOptionsDto(
   destinationFolder: 'example/test_results/flutter',

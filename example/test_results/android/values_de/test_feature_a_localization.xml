@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hi {username}, your password is {password} -->
+    <string name="login_message">Heilegh %1$s, dein passdahwordther ist %2$s</string>
+
+    <!-- Login Page -->
+    <string name="login_title">Ther Loghingher Paghedguahter</string>
+</resources>
