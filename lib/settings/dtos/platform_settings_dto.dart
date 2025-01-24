@@ -33,13 +33,22 @@ class PlatformSettingsDto<PlatformOptionsDto> {
 extension PlatformSettingsDtoHelperExtension on SettingsDto {
   PlatformSettingsDto<T>?
       toPlatformSettingsDto<T extends PlatformOptionsDto>() {
-    final PlatformOptionsDto? options = switch (T) {
-      IosOptionsDto _ => ios,
-      AndroidOptionsDto _ => android,
-      FlutterOptionsDto _ => flutter,
-      _ => null,
-    };
+    final PlatformOptionsDto? options;
+    if (T == IosOptionsDto) {
+      options = ios;
+    } else if (T == AndroidOptionsDto) {
+      options = android;
+    } else if (T == FlutterOptionsDto) {
+      options = flutter;
+    } else {
+      options = null;
+    }
     if (options == null) {
+      print('null for $T where: ($T, $this)');
+      print('- ${ios?.destinationFolder}');
+      print('- ${android?.destinationFolder}');
+      print('- ${flutter?.destinationFolder}');
+
       return null;
     }
     return PlatformSettingsDto<T>(
