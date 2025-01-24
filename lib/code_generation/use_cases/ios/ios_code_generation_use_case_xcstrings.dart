@@ -3,7 +3,7 @@ part of 'ios_code_generation_use_case.dart';
 @visibleForTesting
 extension BuildIosLocalizationUseCaseXCStrings on IosCodeGenerationUseCase {
   String generateXCStrings(
-    settings.SettingsDto settings,
+    IosSettingsDto settings,
     LocalizationDto localization,
   ) {
     final defaultLanguage = settings.languages.first.key;

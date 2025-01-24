@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:share_localization/common/common.dart';
-import 'package:share_localization/settings/dtos/language_dto.dart';
+import 'package:share_localization/settings/dtos/settings_language_dto.dart';
 import 'package:share_localization/settings/dtos/platform_options_dto.dart';
 import 'package:share_localization/settings/dtos/settings_dto.dart';
 
@@ -33,7 +33,7 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
       IosOptionsDto: buildIosOptionsDto,
       AndroidOptionsDto: buildAndroidOptionsDto,
       FlutterOptionsDto: buildFlutterOptionsDto,
-      LanguageDto: buildLanguageDto,
+      SettingsLanguageDto: buildLanguageDto,
     };
     final builder = map[R];
     if (builder == null) {
@@ -72,8 +72,8 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
     );
   }
 
-  LanguageDto buildLanguageDto(JsonData data) {
-    return LanguageDto(
+  SettingsLanguageDto buildLanguageDto(JsonData data) {
+    return SettingsLanguageDto(
       key: data.get('root'),
     );
   }

@@ -2,8 +2,8 @@ part of 'android_code_generation_use_case.dart';
 
 extension BuildAndroidLocalizationUseCaseXml on AndroidCodeGenerationUseCase {
   String generateXml(
-    settings.SettingsDto settings,
-    settings.LanguageDto language,
+    AndroidSettingsDto settings,
+    SettingsLanguageDto language,
     LocalizationDto localization,
   ) {
     return '''
@@ -16,7 +16,7 @@ ${generateStrings(settings, localization.keys, language.key)}
 
   @visibleForTesting
   String generateStrings(
-    settings.SettingsDto settings,
+    AndroidSettingsDto settings,
     List<LocalizationKeyDto> keys,
     String languageKey,
   ) {
@@ -35,13 +35,13 @@ ${generateStrings(settings, localization.keys, language.key)}
 
   @visibleForTesting
   String buildLocaleItemGetter(
-    settings.SettingsDto settings,
+    AndroidSettingsDto settings,
     LocalizationKeyDto key,
     String languageKey,
   ) {
     //   <string name="loginEmail">Email</string>
     //   <string name="welcomeMessages">Hello, %1$s! You have %2$d new messages.</string>
-    final useCamelCase = settings.android?.useCamelCase ?? false;
+    final useCamelCase = settings.options.useCamelCase;
     final itemName = key.key.nullSafe((key) {
       return useCamelCase ? key.camelCase() : key.snakeCase();
     });

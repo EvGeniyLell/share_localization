@@ -3,13 +3,13 @@ part of 'ios_code_generation_use_case.dart';
 @visibleForTesting
 extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
   String generateSwift(
-    settings.SettingsDto settings,
+    IosSettingsDto settings,
     LocalizationDto localization,
   ) {
     final defaultLanguage = settings.languages.first;
     final baseFilename = localization.name.baseFilename();
     final localizationName = baseFilename.camelCase().capitalize();
-    final localizationBundle = settings.ios?.bundleName.nullSafe((name) {
+    final localizationBundle = settings.options.bundleName.nullSafe((name) {
       if (name == null) {
         return '';
       }
@@ -33,7 +33,7 @@ $getters
   }
 
   String buildXCStringsItemTranslation(
-    settings.LanguageDto language,
+    SettingsLanguageDto language,
     LocalizationKeyDto key,
     LocalizationKeyTranslationDto translation,
   ) {

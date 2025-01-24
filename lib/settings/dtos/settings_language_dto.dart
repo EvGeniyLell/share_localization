@@ -1,17 +1,17 @@
 import 'package:meta/meta.dart';
 
 @immutable
-class LanguageDto {
+class SettingsLanguageDto {
   final String key;
 
-  const LanguageDto({
+  const SettingsLanguageDto({
     required this.key,
   });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LanguageDto &&
+      other is SettingsLanguageDto &&
           runtimeType == other.runtimeType &&
           key == other.key;
 
@@ -20,6 +20,6 @@ class LanguageDto {
 
   @override
   String toString() {
-    return '$LanguageDto(abbreviation: $key)';
+    return '$SettingsLanguageDto(abbreviation: $key)';
   }
 }

@@ -85,9 +85,9 @@ android:
   object:
     use_camel_case:
       description: >-
-        Optional flag to use camelCase for keys and file names.
+        Optional flag to use camelCase for keys.
       type: Boolean? (optional)
-      default: false
+      default: true
     destination_folder:
       description: >-
         Generated files will be put here.

@@ -3,7 +3,7 @@ import 'package:share_localization/code_generation/exceptions/build_localization
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/common/common.dart';
 import 'package:share_localization/localizations/localizations.dart';
-import 'package:share_localization/settings/settings.dart' as settings;
+import 'package:share_localization/settings/settings.dart';
 
 part 'android_code_generation_use_case_xml.dart';
 
@@ -13,17 +13,16 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
   const AndroidCodeGenerationUseCase(super.fileService);
 
   @override
-  Task<void> call(settings.SettingsDto settings, LocalizationDto localization) {
+  Task<void> call(SettingsDto settings, LocalizationDto localization) {
     return runAppTaskSafely(() async {
-      final options = settings.android;
-      if (options == null) {
+      final AndroidSettingsDto? pSettings = settings.toPlatformSettingsDto();
+      if (pSettings == null) {
         throw const BuildLocalizationException.missingIosSettings();
       }
-      settings.languages.forEach((language) async {
-        final xml = generateXml(settings, language, localization);
+      pSettings.languages.forEach((language) async {
+        final xml = generateXml(pSettings, language, localization);
         await fileService.createFile(
-          path:
-              filePath(settings, options, language, localization, xmlExtension),
+          path: filePath(pSettings, language, localization, xmlExtension),
           content: xml,
         );
       });
@@ -31,16 +30,12 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
   }
 
   String filePath(
-    settings.SettingsDto settings,
-    settings.AndroidOptionsDto options,
-    settings.LanguageDto? language,
+    AndroidSettingsDto settings,
+    SettingsLanguageDto? language,
     LocalizationDto localization,
     String extension,
   ) {
-    final useCamelCase = options.useCamelCase ?? false;
-    final fileName = localization.name.baseFilename().nullSafe((name) {
-      return useCamelCase ? name.camelCase() : name.snakeCase();
-    });
+    final fileName = localization.name.baseFilename().snakeCase();
     final languageKey = language.nullSafe((l) {
       if (l != null &&
           l.key.isNotEmpty &&
@@ -49,7 +44,7 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
       }
       return '';
     });
-    return '${options.destinationFolder}$languageKey/$fileName.$extension';
+    return '${settings.options.destinationFolder}$languageKey/$fileName.$extension';
   }
 }
 

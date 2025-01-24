@@ -15,9 +15,9 @@ const settingsDto = SettingsDto(
   flutter: flutterOptionsDto,
 );
 
-const settingsEnLanguageDto = LanguageDto(key: 'en');
-const settingsDeLanguageDto = LanguageDto(key: 'de');
-const settingsUaLanguageDto = LanguageDto(key: 'ua');
+const settingsEnLanguageDto = SettingsLanguageDto(key: 'en');
+const settingsDeLanguageDto = SettingsLanguageDto(key: 'de');
+const settingsUaLanguageDto = SettingsLanguageDto(key: 'ua');
 
 const iosOptionsDto = IosOptionsDto(
   bundleName: 'testBundle',

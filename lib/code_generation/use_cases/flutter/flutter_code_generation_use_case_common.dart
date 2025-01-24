@@ -4,7 +4,7 @@ extension BuildFlutterLocalizationUseCaseCommon
     on FlutterCodeGenerationUseCase {
   @visibleForTesting
   String generateCommon(
-    settings.SettingsDto settings,
+    FlutterSettingsDto settings,
     LocalizationDto localization,
   ) {
     final baseFilename = localization.name.baseFilename();

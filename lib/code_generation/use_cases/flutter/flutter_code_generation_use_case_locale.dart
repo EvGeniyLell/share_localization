@@ -3,8 +3,8 @@ part of 'flutter_code_generation_use_case.dart';
 extension BuildFlutterLocalizationUseCaseLocale
     on FlutterCodeGenerationUseCase {
   String generateLocale(
-    settings.SettingsDto settings,
-    settings.LanguageDto language,
+    FlutterSettingsDto settings,
+    SettingsLanguageDto language,
     LocalizationDto localization,
   ) {
     final baseFilename = localization.name.baseFilename();

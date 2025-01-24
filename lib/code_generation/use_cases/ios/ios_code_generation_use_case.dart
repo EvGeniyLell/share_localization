@@ -3,7 +3,7 @@ import 'package:share_localization/code_generation/exceptions/build_localization
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/common/common.dart';
 import 'package:share_localization/localizations/localizations.dart';
-import 'package:share_localization/settings/settings.dart' as settings;
+import 'package:share_localization/settings/settings.dart';
 
 part 'ios_code_generation_use_case_swift.dart';
 part 'ios_code_generation_use_case_xcstrings.dart';
@@ -15,31 +15,31 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
   const IosCodeGenerationUseCase(super.fileService);
 
   @override
-  Task<void> call(settings.SettingsDto settings, LocalizationDto localization) {
+  Task<void> call(SettingsDto settings, LocalizationDto localization) {
     return runAppTaskSafely(() async {
-      final options = settings.ios;
-      if (options == null) {
+      final IosSettingsDto? pSettings = settings.toPlatformSettingsDto();
+      if (pSettings == null) {
         throw const BuildLocalizationException.missingIosSettings();
       }
-      final xcStrings = generateXCStrings(settings, localization);
+      final xcStrings = generateXCStrings(pSettings, localization);
       await fileService.createFile(
-        path: filePath(options, localization, xcStringExtension),
+        path: filePath(pSettings, localization, xcStringExtension),
         content: xcStrings,
       );
-      final swift = generateSwift(settings, localization);
+      final swift = generateSwift(pSettings, localization);
       await fileService.createFile(
-        path: filePath(options, localization, swiftExtension),
+        path: filePath(pSettings, localization, swiftExtension),
         content: swift,
       );
     });
   }
 
   String filePath(
-    settings.IosOptionsDto options,
+    IosSettingsDto settings,
     LocalizationDto localization,
     String extension,
   ) {
-    return '${options.destinationFolder}'
+    return '${settings.options.destinationFolder}'
         '/${localization.name.baseFilename().camelCase().capitalize()}'
         '.$extension';
   }

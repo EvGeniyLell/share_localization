@@ -1,10 +1,10 @@
 import 'package:meta/meta.dart';
-import 'package:share_localization/settings/dtos/language_dto.dart';
+import 'package:share_localization/settings/dtos/settings_language_dto.dart';
 import 'package:share_localization/settings/dtos/platform_options_dto.dart';
 
 @immutable
 class SettingsDto {
-  final List<LanguageDto> languages;
+  final List<SettingsLanguageDto> languages;
   final String sourcesFolder;
   final IosOptionsDto? ios;
   final AndroidOptionsDto? android;
@@ -19,7 +19,7 @@ class SettingsDto {
   });
 
   SettingsDto copyWith({
-    List<LanguageDto>? languages,
+    List<SettingsLanguageDto>? languages,
     String? sourcesFolder,
     IosOptionsDto? ios,
     AndroidOptionsDto? android,
