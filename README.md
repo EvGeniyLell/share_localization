@@ -64,11 +64,11 @@ ios:
       type: String? (optional)
       default: null
     class_access_level:
-        description: >-
-            Access level for generated Swift classes. 
-            Can be open/public/internal/fileprivate/private or null.
-        type: String (optional)
-        default: null
+      description: >-
+        Access level for generated Swift classes. 
+        Can be open/public/internal/fileprivate/private or null.
+      type: String (optional)
+      default: null
     destination_folder:
       description: >-
         Generated files will be put here.
