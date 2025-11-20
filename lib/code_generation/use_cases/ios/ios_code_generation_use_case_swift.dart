@@ -15,6 +15,12 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
       }
       return ', bundle: .$name';
     });
+    final classAccessLevel = settings.options.classAccessLevel.nullSafe((level) {
+      if (level == null) {
+        return '';
+      }
+      return '$level ';
+    });
     final getters = localization.keys.map((key) {
       final translation = key.translation.firstWhere((translation) {
         return translation.languageKey == defaultLanguage.key;
@@ -22,7 +28,7 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
       return buildXCStringsItemTranslation(defaultLanguage, key, translation);
     }).join('\n\n');
     return '''
-class ${localizationName}Localization {
+${classAccessLevel}class ${localizationName}Localization {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "$localizationName"$localizationBundle)
   }

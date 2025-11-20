@@ -1,4 +1,4 @@
-class TestFeatureALocalizationLocalization {
+internal class TestFeatureALocalizationLocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "TestFeatureALocalization", bundle: .testBundle)
   }

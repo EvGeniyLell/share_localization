@@ -11,9 +11,11 @@ abstract class PlatformOptionsDto {
 @immutable
 class IosOptionsDto extends PlatformOptionsDto {
   final String? bundleName;
+  final String? classAccessLevel;
 
   const IosOptionsDto({
     required this.bundleName,
+    required this.classAccessLevel,
     required super.destinationFolder,
   });
 }
