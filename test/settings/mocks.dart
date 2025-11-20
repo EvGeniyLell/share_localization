@@ -21,6 +21,7 @@ const settingsUaLanguageDto = SettingsLanguageDto(key: 'ua');
 
 const iosOptionsDto = IosOptionsDto(
   bundleName: 'testBundle',
+  classAccessLevel: 'internal',
   destinationFolder: 'example/test_results/ios',
 );
 const androidOptionsDto = AndroidOptionsDto(

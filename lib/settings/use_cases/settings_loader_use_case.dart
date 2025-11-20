@@ -56,6 +56,7 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
     return IosOptionsDto(
       destinationFolder: data.get('destination_folder'),
       bundleName: data.get('bundle_name'),
+      classAccessLevel: data.get('class_access_level'),
     );
   }
 
