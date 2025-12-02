@@ -74,7 +74,7 @@ $getter''';
     final itemName = key.key.camelCase();
     if (key.arguments.isEmpty) {
       return '''
-  static var $itemName : String {
+  static var $itemName: String {
     l("${key.iosXCStringKey()}")
   }''';
     }
