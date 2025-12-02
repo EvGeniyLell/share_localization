@@ -5,10 +5,7 @@ class LocalizationKeyArgumentDto {
   final String name;
   final LocalizationKeyDtoType type;
 
-  const LocalizationKeyArgumentDto({
-    required this.name,
-    required this.type,
-  });
+  const LocalizationKeyArgumentDto({required this.name, required this.type});
 
   @override
   bool operator ==(Object other) =>
@@ -27,8 +24,4 @@ class LocalizationKeyArgumentDto {
   }
 }
 
-enum LocalizationKeyDtoType {
-  string,
-  int,
-  double,
-}
+enum LocalizationKeyDtoType { string, int, double }

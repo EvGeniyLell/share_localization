@@ -14,5 +14,8 @@ class GeneralUa extends General {
       
   @override
   String get fileSizeTitle => 'Увага! Розмір файлу занадто великий.';
-      
+
+  @override
+  String get escapeTest => 'Ім\'я!\n Test.';
+
 }

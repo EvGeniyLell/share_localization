@@ -10,9 +10,7 @@ typedef TaskSucceeded<T> = task.TaskSucceeded<T, AppException>;
 typedef TaskFailed<T> = task.TaskFailed<T, AppException>;
 typedef Task<T> = Future<TaskResult<T>>;
 
-Task<T> runAppTaskSafely<T>(
-  FutureOr<T> Function() block,
-) async {
+Task<T> runAppTaskSafely<T>(FutureOr<T> Function() block) async {
   try {
     final T result = await block();
     return TaskSucceeded<T>(result);
@@ -21,9 +19,7 @@ Task<T> runAppTaskSafely<T>(
     if (error is AppException) {
       return TaskFailed<T>(error);
     } else {
-      return TaskFailed<T>(
-        UnexpectedException(error.toString()),
-      );
+      return TaskFailed<T>(UnexpectedException(error.toString()));
     }
   }
 }

@@ -45,10 +45,7 @@ void main() {
     });
 
     test('iosKey', () {
-      final keys = [
-        loginMessageKey,
-        loginTitleKey,
-      ];
+      final keys = [loginMessageKey, loginTitleKey];
       for (final key in keys) {
         final result = key.iosXCStringKey();
         expect(result, anyOf('loginMessage%@%@', 'loginTitle'));
@@ -71,12 +68,7 @@ void main() {
     test('generateXCStrings', () async {
       final result = generationUseCase.generateXCStrings(
         settingsDto.toPlatformSettingsDto()!,
-        localizationDto.copyWith(
-          keys: [
-            loginMessageKey,
-            loginTitleKey,
-          ],
-        ),
+        localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
       );
 
       final expectedContent = await File(
@@ -88,12 +80,7 @@ void main() {
     test('generateSwift', () async {
       final result = generationUseCase.generateSwift(
         settingsDto.toPlatformSettingsDto()!,
-        localizationDto.copyWith(
-          keys: [
-            loginMessageKey,
-            loginTitleKey,
-          ],
-        ),
+        localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
       );
 
       final expectedContent = await File(
@@ -105,12 +92,7 @@ void main() {
     test('generationUseCase', () async {
       final dtoTask = await generationUseCase(
         settingsDto,
-        localizationDto.copyWith(
-          keys: [
-            loginMessageKey,
-            loginTitleKey,
-          ],
-        ),
+        localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
       );
       expect(dtoTask.succeeded, true);
       expect(virtualFiles.length, 2);

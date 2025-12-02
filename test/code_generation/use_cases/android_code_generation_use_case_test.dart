@@ -47,12 +47,7 @@ void main() {
         final result = generationUseCase.generateXml(
           customSettingsDto.toPlatformSettingsDto()!,
           settingsEnLanguageDto,
-          localizationDto.copyWith(
-            keys: [
-              loginMessageKey,
-              loginTitleKey,
-            ],
-          ),
+          localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
         );
 
         final expectedContent = await File(
@@ -64,12 +59,7 @@ void main() {
       test('generationUseCase', () async {
         final dtoTask = await generationUseCase(
           customSettingsDto,
-          localizationDto.copyWith(
-            keys: [
-              loginMessageKey,
-              loginTitleKey,
-            ],
-          ),
+          localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
         );
         expect(dtoTask.succeeded, true);
         expect(virtualFiles.length, 2);
@@ -103,12 +93,7 @@ void main() {
         final result = generationUseCase.generateXml(
           customSettingsDto.toPlatformSettingsDto()!,
           settingsEnLanguageDto,
-          localizationDto.copyWith(
-            keys: [
-              loginMessageKey,
-              loginTitleKey,
-            ],
-          ),
+          localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
         );
 
         final expectedContent = await File(
@@ -120,12 +105,7 @@ void main() {
       test('generationUseCase', () async {
         final dtoTask = await generationUseCase(
           customSettingsDto,
-          localizationDto.copyWith(
-            keys: [
-              loginMessageKey,
-              loginTitleKey,
-            ],
-          ),
+          localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
         );
         expect(dtoTask.succeeded, true);
         expect(virtualFiles.length, 2);

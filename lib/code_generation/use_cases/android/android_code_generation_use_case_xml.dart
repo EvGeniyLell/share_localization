@@ -23,14 +23,12 @@ ${generateStrings(settings, localization.keys, language.key)}
     //   <string name="loginEmail">Email</string>
     //   <string name="welcomeMessages">Hello, %1$s! You have %2$d new messages.</string>
 
-    return keys.map((key) {
-      final getter = buildLocaleItemGetter(
-        settings,
-        key,
-        languageKey,
-      );
-      return getter;
-    }).join('\n\n');
+    return keys
+        .map((key) {
+          final getter = buildLocaleItemGetter(settings, key, languageKey);
+          return getter;
+        })
+        .join('\n\n');
   }
 
   @visibleForTesting
@@ -53,9 +51,12 @@ ${generateStrings(settings, localization.keys, language.key)}
         .message
         .androidTranslationEscape()
         .androidArgumentsEscape(key.arguments);
-    final description = key.translation.firstWhere((translation) {
-      return translation.languageKey == settings.languages.first.key;
-    }).message;
+    final description = key.translation
+        .firstWhere((translation) {
+          return translation.languageKey == settings.languages.first.key;
+        })
+        .message
+        .androidDescriptionEscape();
 
     return '''
 <!-- $description -->

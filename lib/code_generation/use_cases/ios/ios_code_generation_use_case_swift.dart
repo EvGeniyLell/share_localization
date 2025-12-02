@@ -2,10 +2,7 @@ part of 'ios_code_generation_use_case.dart';
 
 @visibleForTesting
 extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
-  String generateSwift(
-    IosSettingsDto settings,
-    LocalizationDto localization,
-  ) {
+  String generateSwift(IosSettingsDto settings, LocalizationDto localization) {
     final defaultLanguage = settings.languages.first;
     final baseFilename = localization.name.baseFilename();
     final localizationName = baseFilename.camelCase().capitalize();
@@ -15,18 +12,26 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
       }
       return ', bundle: .$name';
     });
-    final classAccessLevel = settings.options.classAccessLevel.nullSafe((level) {
+    final classAccessLevel = settings.options.classAccessLevel.nullSafe((
+      level,
+    ) {
       if (level == null) {
         return '';
       }
       return '$level ';
     });
-    final getters = localization.keys.map((key) {
-      final translation = key.translation.firstWhere((translation) {
-        return translation.languageKey == defaultLanguage.key;
-      });
-      return buildXCStringsItemTranslation(defaultLanguage, key, translation);
-    }).join('\n\n');
+    final getters = localization.keys
+        .map((key) {
+          final translation = key.translation.firstWhere((translation) {
+            return translation.languageKey == defaultLanguage.key;
+          });
+          return buildXCStringsItemTranslation(
+            defaultLanguage,
+            key,
+            translation,
+          );
+        })
+        .join('\n\n');
     return '''
 ${classAccessLevel}class ${localizationName}Localization {
   private static func l(_ key: String.LocalizationValue) -> String {
@@ -45,9 +50,12 @@ $getters
   ) {
     final comment = key.comment;
     final defaultLanguage = language.key;
-    final translation = key.translation.firstWhere((translation) {
-      return translation.languageKey == defaultLanguage;
-    }).message;
+    final translation = key.translation
+        .firstWhere((translation) {
+          return translation.languageKey == defaultLanguage;
+        })
+        .message
+        .iosSwiftTranslationEscape();
     final getter = buildSwiftItemGetter(key);
 
     return '''
@@ -70,11 +78,13 @@ $getter''';
     l("${key.iosXCStringKey()}")
   }''';
     }
-    final arguments = key.arguments.map((argument) {
-      final typeName = argument.type.iosType;
-      final argumentName = argument.name.camelCase();
-      return '_ $argumentName: $typeName';
-    }).join(', ');
+    final arguments = key.arguments
+        .map((argument) {
+          final typeName = argument.type.iosType;
+          final argumentName = argument.name.camelCase();
+          return '_ $argumentName: $typeName';
+        })
+        .join(', ');
 
     return '''
   static func $itemName($arguments) -> String {

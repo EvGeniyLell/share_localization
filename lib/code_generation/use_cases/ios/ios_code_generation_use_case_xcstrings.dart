@@ -19,9 +19,11 @@ $stringsItems
   }
 
   String buildXCStringsItem(LocalizationKeyDto key) {
-    final translations = key.translation.map((translation) {
-      return buildXCStringsItemTranslation(key, translation);
-    }).join(',\n');
+    final translations = key.translation
+        .map((translation) {
+          return buildXCStringsItemTranslation(key, translation);
+        })
+        .join(',\n');
     return '''
     "${key.iosXCStringKey()}" : {
       "comment" : "${key.comment}",
@@ -40,7 +42,7 @@ $translations
         "${translation.languageKey}" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "${translation.iosMessage(key.arguments)}"
+            "value" : "${translation.iosMessage(key.arguments).iosXCSTranslationEscape()}"
           }
         }''';
   }

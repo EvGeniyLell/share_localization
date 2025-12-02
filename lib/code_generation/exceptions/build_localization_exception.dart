@@ -8,16 +8,20 @@ class BuildLocalizationException implements AppException {
 
   const BuildLocalizationException(this.type, [this.message]);
 
+  static const _defaultMessage =
+      'settings are not provided or corrupted, '
+      'this location build will be skipped';
+
   const BuildLocalizationException.missingIosSettings([
-    String? message = 'settings are not provided or corrupted',
+    String? message = _defaultMessage,
   ]) : this(BuildLocalizationExceptionType.missingIosSettings, message);
 
   const BuildLocalizationException.missingAndroidSettings([
-    String? message = 'settings are not provided or corrupted',
+    String? message = _defaultMessage,
   ]) : this(BuildLocalizationExceptionType.missingAndroidSettings, message);
 
   const BuildLocalizationException.missingFlutterSettings([
-    String? message = 'settings are not provided or corrupted',
+    String? message = _defaultMessage,
   ]) : this(BuildLocalizationExceptionType.missingFlutterSettings, message);
 
   @override

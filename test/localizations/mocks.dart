@@ -6,13 +6,8 @@ export 'package:share_localization/localizations/localizations.dart';
 
 const localizationDto = LocalizationDto(
   name: 'test_feature_a_localization.json',
-  languages: [
-    localizationEnLanguage,
-    localizationDeLanguage,
-  ],
-  keys: [
-    loginMessageKey,
-  ],
+  languages: [localizationEnLanguage, localizationDeLanguage],
+  keys: [loginMessageKey],
 );
 
 const localizationEnLanguage = LanguageDto(key: 'en');
@@ -57,10 +52,7 @@ const loginTitleKey = LocalizationKeyDto(
   comment: 'This is a title for login screen.',
   arguments: [],
   translation: [
-    LocalizationKeyTranslationDto(
-      languageKey: 'en',
-      message: 'Login Page',
-    ),
+    LocalizationKeyTranslationDto(languageKey: 'en', message: 'Login Page'),
     LocalizationKeyTranslationDto(
       languageKey: 'de',
       message: 'Ther Loghingher Paghedguahter',

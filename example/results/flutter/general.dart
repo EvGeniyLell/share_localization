@@ -54,7 +54,13 @@ abstract class General {
   /// In en, this message translates to:
   /// **'Attention! The file size is too big.'**
   String get fileSizeTitle;
-      
+
+  /// This is a escape test message
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn't!\n Test.'**
+  String get escapeTest;
+
 }
 
 class _GeneralDelegate

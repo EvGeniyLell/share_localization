@@ -6,6 +6,7 @@ import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
 
 part 'ios_code_generation_use_case_swift.dart';
+
 part 'ios_code_generation_use_case_xcstrings.dart';
 
 class IosCodeGenerationUseCase extends CodeGenerationUseCase {
@@ -46,18 +47,18 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
 }
 
 @visibleForTesting
-extension LocalizationKeyDtoTypeToFlutter on LocalizationKeyDtoType {
+extension LocalizationKeyDtoTypeToIos on LocalizationKeyDtoType {
   String get iosMarker => switch (this) {
-        LocalizationKeyDtoType.string => '@',
-        LocalizationKeyDtoType.int => 'lld',
-        LocalizationKeyDtoType.double => 'lf',
-      };
+    LocalizationKeyDtoType.string => '@',
+    LocalizationKeyDtoType.int => 'lld',
+    LocalizationKeyDtoType.double => 'lf',
+  };
 
   String get iosType => switch (this) {
-        LocalizationKeyDtoType.string => 'String',
-        LocalizationKeyDtoType.int => 'Int',
-        LocalizationKeyDtoType.double => 'Double',
-      };
+    LocalizationKeyDtoType.string => 'String',
+    LocalizationKeyDtoType.int => 'Int',
+    LocalizationKeyDtoType.double => 'Double',
+  };
 }
 
 @visibleForTesting
@@ -87,10 +88,21 @@ extension IosLocalizationKeyTranslationDto on LocalizationKeyTranslationDto {
     for (int i = 0; i < arguments.length; i++) {
       final argument = arguments[i];
       result = result.replaceAll(
-          '{${argument.name}}',
-          '%${i + 1}\$'
-              '${argument.type.iosMarker}');
+        '{${argument.name}}',
+        '%${i + 1}\$'
+            '${argument.type.iosMarker}',
+      );
     }
     return result;
+  }
+}
+
+extension StringToIos on String {
+  String iosXCSTranslationEscape() {
+    return replaceAll('"', r'\"').replaceAll('\n', r'\n');
+  }
+
+  String iosSwiftTranslationEscape() {
+    return replaceAll('"', r'\"').replaceAll('\n', r'\n');
   }
 }

@@ -5,8 +5,9 @@ final builder = BatchCodeGenerationUseCase.all();
 
 Future<void> run() async {
   final buildTask = await builder('settings.json');
+  Printer().log('Build task finished');
   if (buildTask.failed) {
-    Printer().log('Build task failed with:\n${buildTask.exception}');
+    Printer().log('with:\n${buildTask.exception}');
     return;
   }
 }

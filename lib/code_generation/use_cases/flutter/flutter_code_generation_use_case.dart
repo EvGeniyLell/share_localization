@@ -47,16 +47,23 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
 
 extension LocalizationKeyDtoTypeToFlutter on LocalizationKeyDtoType {
   String get dartType => switch (this) {
-        LocalizationKeyDtoType.string => 'String',
-        LocalizationKeyDtoType.int => 'int',
-        LocalizationKeyDtoType.double => 'double',
-      };
+    LocalizationKeyDtoType.string => 'String',
+    LocalizationKeyDtoType.int => 'int',
+    LocalizationKeyDtoType.double => 'double',
+  };
 }
 
 extension StringToFlutter on String {
   String flutterEscape() {
-    return replaceAll("'", r"\'").replaceAllMapped(RegExp(r'{(\w+)}'), (math) {
-      return '\$${math.group(1)}';
-    });
+    return replaceAll("'", r"\'").replaceAll('\n', r'\n').replaceAllMapped(
+      RegExp(r'{(\w+)}'),
+      (math) {
+        return '\$${math.group(1)}';
+      },
+    );
+  }
+
+  String flutterDescriptionEscape() {
+    return replaceAll('\n', r'\n');
   }
 }

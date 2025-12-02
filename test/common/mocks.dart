@@ -16,8 +16,8 @@ class InvocationCreateFile {
   final String content;
 
   InvocationCreateFile(Invocation invocation)
-      : path = _fixPath(invocation.arg('path')),
-        content = invocation.arg('content');
+    : path = _fixPath(invocation.arg('path')),
+      content = invocation.arg('content');
 
   static String _fixPath(String path) {
     final d = FileServiceHelper.getCurrentDirectory().path.split('/');

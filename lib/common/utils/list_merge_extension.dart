@@ -8,10 +8,7 @@ extension ListMergeExtension<E> on List<E> {
     bool Function(E l, E r)? test,
   }) {
     final resolvedTest = test ?? (l, r) => l == r;
-    final common = {
-      ...this,
-      ...other,
-    };
+    final common = {...this, ...other};
     final onlyLeft = mapWhereEvery(
       other,
       test: (l, r) => !resolvedTest(l, r),

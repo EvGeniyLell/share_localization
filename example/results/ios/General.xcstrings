@@ -54,6 +54,24 @@
           }
         }
       }
+    },
+    "escapeTest" : {
+      "comment" : "This is a escape test message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't!\n Test."
+          }
+        },
+        "ua" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ім'я!\n Test."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
