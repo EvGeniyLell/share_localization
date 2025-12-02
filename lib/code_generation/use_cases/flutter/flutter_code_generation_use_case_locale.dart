@@ -26,13 +26,15 @@ extension BuildFlutterLocalizationUseCaseLocale
     //   String maxFileSizeError(String fileSize) {
     //     return 'Total file size must be less than $fileSize';
     //   }
-    final items = localization.keys.map((key) {
-      final getter = buildLocaleItemGetter(key, language.key);
-      return '''
+    final items = localization.keys
+        .map((key) {
+          final getter = buildLocaleItemGetter(key, language.key);
+          return '''
   @override
   $getter
       ''';
-    }).join('\n');
+        })
+        .join('\n');
 
     return '''
 $importLocalization
@@ -70,11 +72,13 @@ $items
       return 'String get $itemName => '
           "'$translation';";
     }
-    final arguments = key.arguments.map((argument) {
-      final typeName = argument.type.dartType;
-      final argumentName = argument.name.camelCase();
-      return '$typeName $argumentName';
-    }).join(', ');
+    final arguments = key.arguments
+        .map((argument) {
+          final typeName = argument.type.dartType;
+          final argumentName = argument.name.camelCase();
+          return '$typeName $argumentName';
+        })
+        .join(', ');
 
     return 'String $itemName($arguments) => '
         "'$translation';";

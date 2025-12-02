@@ -46,8 +46,10 @@ extension LocalizationLoaderUseCaseDtos on LocalizationLoaderUseCase {
       key: data.get('key'),
       comment: data.get('comment'),
       arguments: data.getSubList('arguments', defaultValue: []).dtos(),
-      translation:
-          data.getSub('localizations', defaultValue: []).groupByKeys().dtos(),
+      translation: data
+          .getSub('localizations', defaultValue: [])
+          .groupByKeys()
+          .dtos(),
     );
   }
 
@@ -56,8 +58,9 @@ extension LocalizationLoaderUseCaseDtos on LocalizationLoaderUseCase {
     try {
       return LocalizationKeyArgumentDto(
         name: data.get('name'),
-        type: LocalizationKeyDtoType.values
-            .firstWhere((e) => e.name.toLowerCase() == typeName.toLowerCase()),
+        type: LocalizationKeyDtoType.values.firstWhere(
+          (e) => e.name.toLowerCase() == typeName.toLowerCase(),
+        ),
       );
     } on Object catch (e) {
       throw UnexpectedException(
@@ -75,8 +78,6 @@ extension LocalizationLoaderUseCaseDtos on LocalizationLoaderUseCase {
   }
 
   LanguageDto buildLanguageDto(JsonData data) {
-    return LanguageDto(
-      key: data.get('root'),
-    );
+    return LanguageDto(key: data.get('root'));
   }
 }

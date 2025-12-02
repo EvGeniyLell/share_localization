@@ -68,14 +68,10 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
   }
 
   FlutterOptionsDto buildFlutterOptionsDto(JsonData data) {
-    return FlutterOptionsDto(
-      destinationFolder: data.get('destination_folder'),
-    );
+    return FlutterOptionsDto(destinationFolder: data.get('destination_folder'));
   }
 
   SettingsLanguageDto buildLanguageDto(JsonData data) {
-    return SettingsLanguageDto(
-      key: data.get('root'),
-    );
+    return SettingsLanguageDto(key: data.get('root'));
   }
 }

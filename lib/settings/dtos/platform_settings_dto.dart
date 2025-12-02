@@ -14,11 +14,9 @@ class PlatformSettingsDto<PlatformOptionsDto> {
 
   final PlatformOptionsDto options;
 
-  PlatformSettingsDto({
-    required SettingsDto settings,
-    required this.options,
-  })  : languages = settings.languages,
-        sourcesFolder = settings.sourcesFolder;
+  PlatformSettingsDto({required SettingsDto settings, required this.options})
+    : languages = settings.languages,
+      sourcesFolder = settings.sourcesFolder;
 
   @override
   String toString() {
@@ -32,7 +30,7 @@ class PlatformSettingsDto<PlatformOptionsDto> {
 
 extension PlatformSettingsDtoHelperExtension on SettingsDto {
   PlatformSettingsDto<T>?
-      toPlatformSettingsDto<T extends PlatformOptionsDto>() {
+  toPlatformSettingsDto<T extends PlatformOptionsDto>() {
     final PlatformOptionsDto? options;
     if (T == IosOptionsDto) {
       options = ios;
@@ -46,9 +44,6 @@ extension PlatformSettingsDtoHelperExtension on SettingsDto {
     if (options == null) {
       return null;
     }
-    return PlatformSettingsDto<T>(
-      settings: this,
-      options: options as T,
-    );
+    return PlatformSettingsDto<T>(settings: this, options: options as T);
   }
 }

@@ -14,5 +14,8 @@ class GeneralEn extends General {
       
   @override
   String get fileSizeTitle => 'Attention! The file size is too big.';
-      
+
+  @override
+  String get escapeTest => 'Couldn\'t!\n Test.';
+
 }

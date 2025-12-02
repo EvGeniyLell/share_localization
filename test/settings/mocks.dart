@@ -5,10 +5,7 @@ import 'package:share_localization/settings/settings.dart';
 export 'package:share_localization/settings/settings.dart';
 
 const settingsDto = SettingsDto(
-  languages: [
-    settingsEnLanguageDto,
-    settingsDeLanguageDto,
-  ],
+  languages: [settingsEnLanguageDto, settingsDeLanguageDto],
   sourcesFolder: 'example/bundles',
   ios: iosOptionsDto,
   android: androidOptionsDto,

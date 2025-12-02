@@ -8,4 +8,7 @@
 
   <!-- Attention! The file size is too big. -->
   <string name="file_size_title">Увага! Розмір файлу занадто великий.</string>
+
+  <!-- Couldn't!\n Test. -->
+  <string name="escape_test">Ім\'я!\n Test.</string>
 </resources>

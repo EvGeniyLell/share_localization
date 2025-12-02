@@ -20,10 +20,9 @@ class FileService {
     required String extension,
   }) async {
     final currentPath = FileServiceHelper.getCurrentPath(path);
-    return Directory(currentPath)
-        .listSync()
-        .whereType<File>()
-        .where((file) => file.path.endsWith(extension));
+    return Directory(currentPath).listSync().whereType<File>().where(
+      (file) => file.path.endsWith(extension),
+    );
   }
 }
 

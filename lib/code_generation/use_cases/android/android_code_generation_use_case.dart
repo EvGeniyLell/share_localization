@@ -50,21 +50,29 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
 
 extension LocalizationKeyDtoTypeToAndroid on LocalizationKeyDtoType {
   String get androidType => switch (this) {
-        LocalizationKeyDtoType.string => r'$s',
-        LocalizationKeyDtoType.int => r'$d',
-        LocalizationKeyDtoType.double => r'$f',
-      };
+    LocalizationKeyDtoType.string => r'$s',
+    LocalizationKeyDtoType.int => r'$d',
+    LocalizationKeyDtoType.double => r'$f',
+  };
 }
 
 extension StringToAndroid on String {
   String androidTranslationEscape() {
-    return replaceAll('<', '&lt;');
+    return replaceAll(
+      '<',
+      '&lt;',
+    ).replaceAll("'", r"\'").replaceAll('\n', r'\n');
+  }
+
+  String androidDescriptionEscape() {
+    return replaceAll('\n', r'\n');
   }
 
   String androidArgumentsEscape(List<LocalizationKeyArgumentDto> arguments) {
     int index = 0;
     return replaceAllMapped(RegExp(r'{(\w+)}'), (math) {
-      final argument = arguments.elementAtOrNull(index++)?.type ??
+      final argument =
+          arguments.elementAtOrNull(index++)?.type ??
           LocalizationKeyDtoType.string;
       return '%$index${argument.androidType}';
     });

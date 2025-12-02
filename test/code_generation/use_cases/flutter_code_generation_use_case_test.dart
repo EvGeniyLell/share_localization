@@ -34,12 +34,7 @@ void main() {
     test('generateCommon', () async {
       final result = generationUseCase.generateCommon(
         settingsDto.toPlatformSettingsDto()!,
-        localizationDto.copyWith(
-          keys: [
-            loginMessageKey,
-            loginTitleKey,
-          ],
-        ),
+        localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
       );
 
       final expectedContent = await File(
@@ -52,12 +47,7 @@ void main() {
       final result = generationUseCase.generateLocale(
         settingsDto.toPlatformSettingsDto()!,
         settingsEnLanguageDto,
-        localizationDto.copyWith(
-          keys: [
-            loginMessageKey,
-            loginTitleKey,
-          ],
-        ),
+        localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
       );
 
       final expectedContent = await File(
@@ -69,12 +59,7 @@ void main() {
     test('generationUseCase', () async {
       final dtoTask = await generationUseCase(
         settingsDto,
-        localizationDto.copyWith(
-          keys: [
-            loginMessageKey,
-            loginTitleKey,
-          ],
-        ),
+        localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
       );
       expect(dtoTask.succeeded, true);
       expect(virtualFiles.length, 3);

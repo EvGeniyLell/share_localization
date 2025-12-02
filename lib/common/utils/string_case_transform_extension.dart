@@ -66,12 +66,14 @@ extension StringCaseTransformExtension on String {
       return this;
     }
 
-    return split('\n').map((s) {
-      if (shift > 0) {
-        return ''.padLeft(shift) + s;
-      } else {
-        return s.replaceFirst(RegExp('^\\s{0,${-shift}}'), '');
-      }
-    }).join('\n');
+    return split('\n')
+        .map((s) {
+          if (shift > 0) {
+            return ''.padLeft(shift) + s;
+          } else {
+            return s.replaceFirst(RegExp('^\\s{0,${-shift}}'), '');
+          }
+        })
+        .join('\n');
   }
 }

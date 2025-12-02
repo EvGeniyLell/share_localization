@@ -29,9 +29,7 @@ class BatchCodeGenerationUseCase {
       const SettingsLoaderUseCase(),
       const LocalizationLoaderUseCase(),
       const VerificationLocalizationUseCase(
-        skipErrorTypes: [
-          VerificationLocalizationExtraArgumentException,
-        ],
+        skipErrorTypes: [VerificationLocalizationExtraArgumentException],
       ),
       [
         FlutterCodeGenerationUseCase(fileService),
@@ -82,8 +80,10 @@ class BatchCodeGenerationUseCase {
     final localizations = await Future.wait(localizationsTasks);
 
     localizations.forEach((localization) async {
-      final verificationTask =
-          await verificationLocalization(settings, localization);
+      final verificationTask = await verificationLocalization(
+        settings,
+        localization,
+      );
       if (verificationTask.failed) {
         throw verificationTask.exception;
       }

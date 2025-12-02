@@ -12,8 +12,10 @@ void main() {
   group('VerificationLocalizationUseCase', () {
     group('checkLocalization', () {
       test('succeeded', () async {
-        final result =
-            verification.checkLocalization(settingsDto, localizationDto);
+        final result = verification.checkLocalization(
+          settingsDto,
+          localizationDto,
+        );
         expect(result, []);
       });
 
@@ -53,16 +55,26 @@ void main() {
       });
 
       test('intersection - AB', () {
-        final (left, common, right) =
-            [1, 2, 3, 4, 5].intersection([3, 4, 5, 6, 7]);
+        final (left, common, right) = [
+          1,
+          2,
+          3,
+          4,
+          5,
+        ].intersection([3, 4, 5, 6, 7]);
         expect(left, [1, 2]);
         expect(common, [3, 4, 5]);
         expect(right, [6, 7]);
       });
 
       test('intersection - BA', () {
-        final (left, common, right) =
-            [3, 4, 5, 6, 7].intersection([1, 2, 3, 4, 5]);
+        final (left, common, right) = [
+          3,
+          4,
+          5,
+          6,
+          7,
+        ].intersection([1, 2, 3, 4, 5]);
         expect(left, [6, 7]);
         expect(common, [3, 4, 5]);
         expect(right, [1, 2]);
@@ -120,12 +132,14 @@ void main() {
         const missingArgumentName = 'dayType';
         const missingArgumentEnTranslation = LocalizationKeyTranslationDto(
           languageKey: 'en',
-          message: 'Hi {username}, your password is {password}.\n'
+          message:
+              'Hi {username}, your password is {password}.\n'
               'Have a {$missingArgumentName} day!',
         );
         const missingArgumentDeTranslation = LocalizationKeyTranslationDto(
           languageKey: 'de',
-          message: 'Heilegh {username}, dein passdahwordther ist {password}.\n'
+          message:
+              'Heilegh {username}, dein passdahwordther ist {password}.\n'
               'Habe ein {$missingArgumentName} Tag!',
         );
         final result = verification.checkKeyArguments(
@@ -170,9 +184,7 @@ void main() {
           settingsDto,
           localizationDto,
           loginMessageKey.copyWith(
-            translation: [
-              loginMessageKeyLocalizations[0],
-            ],
+            translation: [loginMessageKeyLocalizations[0]],
           ),
         );
         expect(result, hasLength(1));

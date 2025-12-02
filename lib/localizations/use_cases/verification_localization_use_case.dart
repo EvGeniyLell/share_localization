@@ -28,18 +28,20 @@ class VerificationLocalizationUseCase {
     SettingsDto settings,
     LocalizationDto localization,
   ) {
-    return settings.languages.mapWhereEvery(
-      localization.languages,
-      test: (settingsLanguage, localizationLanguage) {
-        return settingsLanguage.key != localizationLanguage.key;
-      },
-      toElement: (settingsLanguage) {
-        return VerificationLocalizationException.missingLanguage(
-          language: settingsLanguage.key,
-          sourceName: localization.name,
-        );
-      },
-    ).toList();
+    return settings.languages
+        .mapWhereEvery(
+          localization.languages,
+          test: (settingsLanguage, localizationLanguage) {
+            return settingsLanguage.key != localizationLanguage.key;
+          },
+          toElement: (settingsLanguage) {
+            return VerificationLocalizationException.missingLanguage(
+              language: settingsLanguage.key,
+              sourceName: localization.name,
+            );
+          },
+        )
+        .toList();
   }
 
   @visibleForTesting
@@ -69,8 +71,9 @@ class VerificationLocalizationUseCase {
 
     final exceptions = key.translation.map((keyTranslation) {
       final messageArguments = keyTranslation.message.getMessageArguments();
-      final (extraArgs, commonArgs, missingArgs) =
-          argumentNames.intersection(messageArguments);
+      final (extraArgs, commonArgs, missingArgs) = argumentNames.intersection(
+        messageArguments,
+      );
 
       return [
         ...extraArgs.map((argName) {
@@ -100,19 +103,21 @@ class VerificationLocalizationUseCase {
     LocalizationDto localization,
     LocalizationKeyDto key,
   ) {
-    return settings.languages.mapWhereEvery(
-      key.translation,
-      test: (settingsLanguage, translation) {
-        return settingsLanguage.key != translation.languageKey;
-      },
-      toElement: (settingsLanguage) {
-        return VerificationLocalizationException.missingTranslation(
-          key: key.key,
-          language: settingsLanguage.key,
-          sourceName: localization.name,
-        );
-      },
-    ).toList();
+    return settings.languages
+        .mapWhereEvery(
+          key.translation,
+          test: (settingsLanguage, translation) {
+            return settingsLanguage.key != translation.languageKey;
+          },
+          toElement: (settingsLanguage) {
+            return VerificationLocalizationException.missingTranslation(
+              key: key.key,
+              language: settingsLanguage.key,
+              sourceName: localization.name,
+            );
+          },
+        )
+        .toList();
   }
 }
 

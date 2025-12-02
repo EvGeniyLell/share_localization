@@ -4,9 +4,7 @@ import 'package:meta/meta.dart';
 class LanguageDto {
   final String key;
 
-  const LanguageDto({
-    required this.key,
-  });
+  const LanguageDto({required this.key});
 
   @override
   bool operator ==(Object other) =>

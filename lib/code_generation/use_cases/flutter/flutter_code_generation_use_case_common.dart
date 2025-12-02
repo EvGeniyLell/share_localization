@@ -11,28 +11,36 @@ extension BuildFlutterLocalizationUseCaseCommon
     final defaultLanguage = settings.languages.first.key;
 
     // import 'example_localization_en.dart';
-    final importLocalizations = localization.languages.map((language) {
-      return "import '${baseFilename}_${language.key}.dart';";
-    }).join('\n');
+    final importLocalizations = localization.languages
+        .map((language) {
+          return "import '${baseFilename}_${language.key}.dart';";
+        })
+        .join('\n');
 
     // ExampleLocalization
     final className = baseFilename.camelCase().capitalize();
 
     // Locale('en'),
-    final supportedLocales = localization.languages.map((language) {
-      return "Locale('${language.key}'),";
-    }).join('\n    ');
+    final supportedLocales = localization.languages
+        .map((language) {
+          return "Locale('${language.key}'),";
+        })
+        .join('\n    ');
 
     // 'en', 'de'
-    final languageCodes = localization.languages.map((language) {
-      return "'${language.key}'";
-    }).join(', ');
+    final languageCodes = localization.languages
+        .map((language) {
+          return "'${language.key}'";
+        })
+        .join(', ');
 
     // case 'en': return ${className}En();
-    final languageCodesCases = localization.languages.map((language) {
-      return "case '${language.key}':"
-          ' return $className${language.key.capitalize()}();';
-    }).join('\n    ');
+    final languageCodesCases = localization.languages
+        .map((language) {
+          return "case '${language.key}':"
+              ' return $className${language.key.capitalize()}();';
+        })
+        .join('\n    ');
 
     // /// Dialog message shown when a document is being created
     // ///
@@ -45,20 +53,22 @@ extension BuildFlutterLocalizationUseCaseCommon
     // /// In en, this message translates to:
     // /// **'Total file size must be less than {fileSize}'**
     // String maxFileSizeError(String fileSize);
-    final items = localization.keys.map((key) {
-      final comment = key.comment;
-      final translation = key.translation.firstWhere((translation) {
-        return translation.languageKey == defaultLanguage;
-      }).message;
-      final getter = buildCommonItemGetter(key);
-      return '''
+    final items = localization.keys
+        .map((key) {
+          final comment = key.comment;
+          final translation = key.translation.firstWhere((translation) {
+            return translation.languageKey == defaultLanguage;
+          }).message;
+          final getter = buildCommonItemGetter(key);
+          return '''
   /// $comment
   ///
   /// In $defaultLanguage, this message translates to:
-  /// **'$translation'**
+  /// **'${translation.flutterDescriptionEscape()}'**
   $getter
       ''';
-    }).join('\n');
+        })
+        .join('\n');
 
     return '''
 import 'dart:async';
@@ -143,11 +153,13 @@ $className lookup$className(Locale locale) {
     if (key.arguments.isEmpty) {
       return 'String get $itemName;';
     }
-    final arguments = key.arguments.map((argument) {
-      final typeName = argument.type.dartType;
-      final argumentName = argument.name.camelCase();
-      return '$typeName $argumentName';
-    }).join(', ');
+    final arguments = key.arguments
+        .map((argument) {
+          final typeName = argument.type.dartType;
+          final argumentName = argument.name.camelCase();
+          return '$typeName $argumentName';
+        })
+        .join(', ');
 
     return 'String $itemName($arguments);';
   }

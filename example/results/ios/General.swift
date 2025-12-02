@@ -25,5 +25,13 @@ class GeneralLocalization {
   /// **'Attention! The file size is too big.'**
   static var fileSizeTitle : String {
     l("fileSizeTitle")
-  }  
+  }
+
+  /// This is a escape test message
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn't!\n Test.'**
+  static var escapeTest : String {
+    l("escapeTest")
+  }
 }

@@ -3,9 +3,7 @@ import 'package:meta/meta.dart';
 abstract class PlatformOptionsDto {
   final String destinationFolder;
 
-  const PlatformOptionsDto({
-    required this.destinationFolder,
-  });
+  const PlatformOptionsDto({required this.destinationFolder});
 }
 
 @immutable
@@ -22,9 +20,7 @@ class IosOptionsDto extends PlatformOptionsDto {
 
 @immutable
 class FlutterOptionsDto extends PlatformOptionsDto {
-  const FlutterOptionsDto({
-    required super.destinationFolder,
-  });
+  const FlutterOptionsDto({required super.destinationFolder});
 }
 
 @immutable

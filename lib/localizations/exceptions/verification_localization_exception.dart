@@ -45,9 +45,9 @@ class VerificationLocalizationMissingLanguageException
     required this.language,
     required this.sourceName,
   }) : super(
-          'Missing language ${language.toUpperCase()}'
-          ' in $sourceName source',
-        );
+         'Missing language ${language.toUpperCase()}'
+         ' in $sourceName source',
+       );
 }
 
 class VerificationLocalizationMissingTranslationException
@@ -61,9 +61,9 @@ class VerificationLocalizationMissingTranslationException
     required this.language,
     required this.sourceName,
   }) : super(
-          'Missing translation for key "$key"'
-          ' in ${language.toUpperCase()} $sourceName',
-        );
+         'Missing translation for key "$key"'
+         ' in ${language.toUpperCase()} $sourceName',
+       );
 }
 
 class VerificationLocalizationExtraArgumentException
@@ -79,9 +79,9 @@ class VerificationLocalizationExtraArgumentException
     required this.language,
     required this.sourceName,
   }) : super(
-          'Extra argument "$argument" for key "$key"'
-          ' in ${language.toUpperCase()} $sourceName',
-        );
+         'Extra argument "$argument" for key "$key"'
+         ' in ${language.toUpperCase()} $sourceName',
+       );
 }
 
 class VerificationLocalizationMissingArgumentException
@@ -97,7 +97,7 @@ class VerificationLocalizationMissingArgumentException
     required this.language,
     required this.sourceName,
   }) : super(
-          'Missing argument "$argument" for key "$key"'
-          ' in ${language.toUpperCase()} $sourceName',
-        );
+         'Missing argument "$argument" for key "$key"'
+         ' in ${language.toUpperCase()} $sourceName',
+       );
 }
