@@ -47,7 +47,7 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
 }
 
 @visibleForTesting
-extension LocalizationKeyDtoTypeToFlutter on LocalizationKeyDtoType {
+extension LocalizationKeyDtoTypeToIos on LocalizationKeyDtoType {
   String get iosMarker => switch (this) {
     LocalizationKeyDtoType.string => '@',
     LocalizationKeyDtoType.int => 'lld',
@@ -99,10 +99,10 @@ extension IosLocalizationKeyTranslationDto on LocalizationKeyTranslationDto {
 
 extension StringToIos on String {
   String iosXCSTranslationEscape() {
-    return replaceAll('"', r"\'").replaceAll('\n', r'\n');
+    return replaceAll('"', r'\"').replaceAll('\n', r'\n');
   }
 
   String iosSwiftTranslationEscape() {
-    return replaceAll('"', r"\'").replaceAll('\n', r'\n');
+    return replaceAll('"', r'\"').replaceAll('\n', r'\n');
   }
 }
