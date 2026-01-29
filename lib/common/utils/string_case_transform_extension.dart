@@ -25,10 +25,12 @@ extension StringCaseTransformExtension on String {
       return this;
     }
 
-    final RegExp expWord = RegExp('([a-zA-Z0-9]+)');
+    final normalized = _toSpacedWords();
+
+    final expWord = RegExp('([a-zA-Z0-9]+)');
     bool isFirst = true;
     return expWord
-        .allMatches(this)
+        .allMatches(normalized)
         .map((m) {
           final word = m.group(0)?.toLowerCase();
           if (word != null) {
@@ -49,9 +51,11 @@ extension StringCaseTransformExtension on String {
       return this;
     }
 
+    final normalized = _toSpacedWords();
+
     final RegExp expWord = RegExp('([a-zA-Z0-9]+)');
     return expWord
-        .allMatches(this)
+        .allMatches(normalized)
         .map((m) {
           final word = m.group(0)?.toLowerCase();
           return word;
@@ -75,5 +79,15 @@ extension StringCaseTransformExtension on String {
           }
         })
         .join('\n');
+  }
+
+  String _toSpacedWords() {
+    return replaceAllMapped(
+      RegExp('([a-z0-9])([A-Z])'),
+      (m) => '${m[1]} ${m[2]}',
+    ).replaceAllMapped(
+      RegExp('([A-Z]+)([A-Z][a-z])'),
+      (m) => '${m[1]} ${m[2]}',
+    );
   }
 }

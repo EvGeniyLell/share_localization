@@ -42,7 +42,7 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
   ) {
     return '${settings.options.destinationFolder}'
         '/${localization.name.baseFilename().camelCase().capitalize()}'
-        '.$extension';
+        'Localization.$extension';
   }
 }
 
