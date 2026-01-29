@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:share_localization/common/common.dart';
-import 'package:share_localization/settings/dtos/settings_language_dto.dart';
 import 'package:share_localization/settings/dtos/platform_options_dto.dart';
 import 'package:share_localization/settings/dtos/settings_dto.dart';
+import 'package:share_localization/settings/dtos/settings_language_dto.dart';
 
 /// A use case for loading settings from a file.
 ///

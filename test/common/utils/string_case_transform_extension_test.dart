@@ -35,6 +35,5 @@ void main() {
       expect('extraDATA'.snakeCase(), 'extra_data');
       expect('MEGATRON'.snakeCase(), 'megatron');
     });
-
   });
 }
