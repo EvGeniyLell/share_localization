@@ -51,7 +51,7 @@ void main() {
         );
 
         final expectedContent = await File(
-          'example/test_results/android/camel_case/values/test_feature_a_localization.xml',
+          'example/test_results/android/camel_case/values/test_feature_a.xml',
         ).readAsString();
         expect(expectedContent.tremContent(), result.tremContent());
       });
@@ -64,8 +64,8 @@ void main() {
         expect(dtoTask.succeeded, true);
         expect(virtualFiles.length, 2);
         expect(virtualFiles.map((f) => f.path), [
-          'example/test_results/android/camel_case/values/test_feature_a_localization.xml',
-          'example/test_results/android/camel_case/values-de/test_feature_a_localization.xml',
+          'example/test_results/android/camel_case/values/test_feature_a.xml',
+          'example/test_results/android/camel_case/values-de/test_feature_a.xml',
         ]);
 
         for (final file in virtualFiles) {
@@ -97,7 +97,7 @@ void main() {
         );
 
         final expectedContent = await File(
-          'example/test_results/android/values/test_feature_a_localization.xml',
+          'example/test_results/android/values/test_feature_a.xml',
         ).readAsString();
         expect(expectedContent.tremContent(), result.tremContent());
       });
@@ -110,8 +110,8 @@ void main() {
         expect(dtoTask.succeeded, true);
         expect(virtualFiles.length, 2);
         expect(virtualFiles.map((f) => f.path), [
-          'example/test_results/android/values/test_feature_a_localization.xml',
-          'example/test_results/android/values-de/test_feature_a_localization.xml',
+          'example/test_results/android/values/test_feature_a.xml',
+          'example/test_results/android/values-de/test_feature_a.xml',
         ]);
 
         for (final file in virtualFiles) {

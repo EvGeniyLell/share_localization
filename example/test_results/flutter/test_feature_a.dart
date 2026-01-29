@@ -5,22 +5,22 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
-import 'test_feature_a_localization_en.dart';
-import 'test_feature_a_localization_de.dart';
+import 'test_feature_a_en.dart';
+import 'test_feature_a_de.dart';
 
 // ignore_for_file: type=lint
 
-abstract class TestFeatureALocalization {
-  TestFeatureALocalization(String locale)
+abstract class TestFeatureA {
+  TestFeatureA(String locale)
       : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
-  static TestFeatureALocalization of(BuildContext context) {
-    return Localizations.of<TestFeatureALocalization>(context, TestFeatureALocalization)!;
+  static TestFeatureA of(BuildContext context) {
+    return Localizations.of<TestFeatureA>(context, TestFeatureA)!;
   }
 
-  static const LocalizationsDelegate<TestFeatureALocalization> delegate = _TestFeatureALocalizationDelegate();
+  static const LocalizationsDelegate<TestFeatureA> delegate = _TestFeatureADelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -51,14 +51,14 @@ abstract class TestFeatureALocalization {
 
 }
 
-class _TestFeatureALocalizationDelegate
-    extends LocalizationsDelegate<TestFeatureALocalization> {
-  const _TestFeatureALocalizationDelegate();
+class _TestFeatureADelegate
+    extends LocalizationsDelegate<TestFeatureA> {
+  const _TestFeatureADelegate();
 
   @override
-  Future<TestFeatureALocalization> load(Locale locale) {
-    return SynchronousFuture<TestFeatureALocalization>(
-        lookupTestFeatureALocalization(locale));
+  Future<TestFeatureA> load(Locale locale) {
+    return SynchronousFuture<TestFeatureA>(
+        lookupTestFeatureA(locale));
   }
 
   @override
@@ -66,18 +66,18 @@ class _TestFeatureALocalizationDelegate
       <String>['en', 'de'].contains(locale.languageCode);
 
   @override
-  bool shouldReload(_TestFeatureALocalizationDelegate old) => false;
+  bool shouldReload(_TestFeatureADelegate old) => false;
 }
 
-TestFeatureALocalization lookupTestFeatureALocalization(Locale locale) {
+TestFeatureA lookupTestFeatureA(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return TestFeatureALocalizationEn();
-    case 'de': return TestFeatureALocalizationDe();
+    case 'en': return TestFeatureAEn();
+    case 'de': return TestFeatureADe();
   }
 
   throw FlutterError(
-      'TestFeatureALocalization.delegate failed to load unsupported locale "$locale". This is likely '
+      'TestFeatureA.delegate failed to load unsupported locale "$locale". This is likely '
           'an issue with the localizations generation tool. Please file an issue '
           'on GitHub with a reproducible sample app and the gen-l10n configuration '
           'that was used.');

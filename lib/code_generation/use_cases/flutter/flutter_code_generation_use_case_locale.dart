@@ -7,7 +7,7 @@ extension BuildFlutterLocalizationUseCaseLocale
     SettingsLanguageDto language,
     LocalizationDto localization,
   ) {
-    final baseFilename = localization.name.baseFilename();
+    final baseFilename = localization.name.baseFilename().snakeCase();
 
     // import 'example_localization.dart';
     final importLocalization = "import '$baseFilename.dart';";

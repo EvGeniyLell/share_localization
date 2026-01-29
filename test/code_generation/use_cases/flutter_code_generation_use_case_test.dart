@@ -38,9 +38,9 @@ void main() {
       );
 
       final expectedContent = await File(
-        'example/test_results/flutter/test_feature_a_localization.dart',
+        'example/test_results/flutter/test_feature_a.dart',
       ).readAsString();
-      expect(expectedContent.tremContent(), result.tremContent());
+      expect(result.tremContent(), expectedContent.tremContent());
     });
 
     test('generateLocale', () async {
@@ -51,7 +51,7 @@ void main() {
       );
 
       final expectedContent = await File(
-        'example/test_results/flutter/test_feature_a_localization_en.dart',
+        'example/test_results/flutter/test_feature_a_en.dart',
       ).readAsString();
       expect(expectedContent.tremContent(), result.tremContent());
     });
@@ -64,9 +64,9 @@ void main() {
       expect(dtoTask.succeeded, true);
       expect(virtualFiles.length, 3);
       expect(virtualFiles.map((f) => f.path), [
-        'example/test_results/flutter/test_feature_a_localization.dart',
-        'example/test_results/flutter/test_feature_a_localization_en.dart',
-        'example/test_results/flutter/test_feature_a_localization_de.dart',
+        'example/test_results/flutter/test_feature_a.dart',
+        'example/test_results/flutter/test_feature_a_en.dart',
+        'example/test_results/flutter/test_feature_a_de.dart',
       ]);
 
       for (final file in virtualFiles) {

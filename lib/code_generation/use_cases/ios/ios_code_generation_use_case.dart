@@ -6,7 +6,6 @@ import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
 
 part 'ios_code_generation_use_case_swift.dart';
-
 part 'ios_code_generation_use_case_xcstrings.dart';
 
 class IosCodeGenerationUseCase extends CodeGenerationUseCase {
@@ -29,7 +28,12 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
       );
       final swift = generateSwift(pSettings, localization);
       await fileService.createFile(
-        path: filePath(pSettings, localization, swiftExtension),
+        path: filePath(
+          pSettings,
+          localization,
+          swiftExtension,
+          postfix: 'Localization',
+        ),
         content: swift,
       );
     });
@@ -38,11 +42,12 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
   String filePath(
     IosSettingsDto settings,
     LocalizationDto localization,
-    String extension,
-  ) {
+    String extension, {
+    String postfix = '',
+  }) {
     return '${settings.options.destinationFolder}'
         '/${localization.name.baseFilename().camelCase().capitalize()}'
-        'Localization.$extension';
+        '$postfix.$extension';
   }
 }
 

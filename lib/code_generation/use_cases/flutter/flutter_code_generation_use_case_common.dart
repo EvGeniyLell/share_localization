@@ -7,7 +7,7 @@ extension BuildFlutterLocalizationUseCaseCommon
     FlutterSettingsDto settings,
     LocalizationDto localization,
   ) {
-    final baseFilename = localization.name.baseFilename();
+    final baseFilename = localization.name.baseFilename().snakeCase();
     final defaultLanguage = settings.languages.first.key;
 
     // import 'example_localization_en.dart';
