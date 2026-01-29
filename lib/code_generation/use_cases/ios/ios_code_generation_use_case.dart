@@ -28,12 +28,7 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
       );
       final swift = generateSwift(pSettings, localization);
       await fileService.createFile(
-        path: filePath(
-          pSettings,
-          localization,
-          swiftExtension,
-          postfix: 'Localization',
-        ),
+        path: filePath(pSettings, localization, swiftExtension),
         content: swift,
       );
     });
@@ -42,12 +37,11 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
   String filePath(
     IosSettingsDto settings,
     LocalizationDto localization,
-    String extension, {
-    String postfix = '',
-  }) {
+    String extension,
+  ) {
     return '${settings.options.destinationFolder}'
         '/${localization.name.baseFilename().camelCase().capitalize()}'
-        '$postfix.$extension';
+        '${localizationPostfix.capitalize()}.$extension';
   }
 }
 

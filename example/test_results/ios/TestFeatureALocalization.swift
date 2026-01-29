@@ -1,6 +1,6 @@
 internal class TestFeatureALocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
-    return String(localized: key, table: "TestFeatureA", bundle: .testBundle)
+    return String(localized: key, table: "TestFeatureALocalization", bundle: .testBundle)
   }
 
   /// This a body of login message.

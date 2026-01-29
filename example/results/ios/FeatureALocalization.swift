@@ -1,6 +1,6 @@
 class FeatureALocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
-    return String(localized: key, table: "FeatureA", bundle: .sdkResource)
+    return String(localized: key, table: "FeatureALocalization", bundle: .sdkResource)
   }
   
   /// This a body of login message.

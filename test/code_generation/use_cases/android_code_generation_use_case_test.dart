@@ -53,7 +53,7 @@ void main() {
         final expectedContent = await File(
           'example/test_results/android/camel_case/values/test_feature_a.xml',
         ).readAsString();
-        expect(expectedContent.tremContent(), result.tremContent());
+        expect(result.tremContent(), expectedContent.tremContent());
       });
 
       test('generationUseCase', () async {
@@ -99,7 +99,7 @@ void main() {
         final expectedContent = await File(
           'example/test_results/android/values/test_feature_a.xml',
         ).readAsString();
-        expect(expectedContent.tremContent(), result.tremContent());
+        expect(result.tremContent(), expectedContent.tremContent());
       });
 
       test('generationUseCase', () async {

@@ -82,12 +82,12 @@ extension StringCaseTransformExtension on String {
   }
 
   String _toSpacedWords() {
-    return replaceAllMapped(
-      RegExp('([a-z0-9])([A-Z])'),
-      (m) => '${m[1]} ${m[2]}',
-    ).replaceAllMapped(
-      RegExp('([A-Z]+)([A-Z][a-z])'),
-      (m) => '${m[1]} ${m[2]}',
-    );
+    final withDelimitersNormalized = replaceAll(RegExp(r'[_\s]+'), ' ');
+    return withDelimitersNormalized
+        .replaceAllMapped(RegExp('([a-z0-9])([A-Z])'), (m) => '${m[1]} ${m[2]}')
+        .replaceAllMapped(
+          RegExp('([A-Z]+)([A-Z][a-z])'),
+          (m) => '${m[1]} ${m[2]}',
+        );
   }
 }

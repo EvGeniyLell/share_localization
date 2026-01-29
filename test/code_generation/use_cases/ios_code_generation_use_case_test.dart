@@ -72,9 +72,9 @@ void main() {
       );
 
       final expectedContent = await File(
-        'example/test_results/ios/TestFeatureA.xcstrings',
+        'example/test_results/ios/TestFeatureALocalization.xcstrings',
       ).readAsString();
-      expect(expectedContent.tremContent(), result.tremContent());
+      expect(result.tremContent(), expectedContent.tremContent());
     });
 
     test('generateSwift', () async {
@@ -97,7 +97,7 @@ void main() {
       expect(dtoTask.succeeded, true);
       expect(virtualFiles.length, 2);
       expect(virtualFiles.map((f) => f.path), [
-        'example/test_results/ios/TestFeatureA.xcstrings',
+        'example/test_results/ios/TestFeatureALocalization.xcstrings',
         'example/test_results/ios/TestFeatureALocalization.swift',
       ]);
 

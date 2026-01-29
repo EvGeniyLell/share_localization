@@ -156,16 +156,16 @@ keys:
 <summary><strong>Example Results</strong></summary>
 
 ##### iOS:
-[General.swift](example/results/ios/General.swift)
+[GeneralLocalization.swift](example/results/ios/GeneralLocalization.swift)
 
-[General.xcstrings](example/results/ios/General.xcstrings)
+[GeneralLocalization.xcstrings](example/results/ios/GeneralLocalization.xcstrings)
 
 ##### Flutter:
-[general.dart](example/results/flutter/general.dart)
+[general_localization.dart](example/results/flutter/general_localization.dart)
 
-[general_en.dart](example/results/flutter/general_en.dart)
+[general_localization_en.dart](example/results/flutter/general_localization_en.dart)
 
-[general_ua.dart](example/results/flutter/general_ua.dart)
+[general_localization_ua.dart](example/results/flutter/general_localization_ua.dart)
 
 ##### Android:
 [values/general.xml](example/results/android/values/general.xml)
