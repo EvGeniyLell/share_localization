@@ -12,4 +12,5 @@
 
 ## 0.0.4
 
-- Fix CamelCase and add `Localization` to ios swift naming
+- Fix CamelCase/SnakCase and add postfix `Localization` to ios and flutter
+  naming
