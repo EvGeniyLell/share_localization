@@ -5,7 +5,9 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
   String generateSwift(IosSettingsDto settings, LocalizationDto localization) {
     final defaultLanguage = settings.languages.first;
     final baseFilename = localization.name.baseFilename();
-    final localizationName = baseFilename.camelCase().capitalize();
+    final localizationName = (baseFilename + localizationPostfix.capitalize())
+        .camelCase()
+        .capitalize();
     final localizationBundle = settings.options.bundleName.nullSafe((name) {
       if (name == null) {
         return '';
@@ -33,7 +35,7 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
         })
         .join('\n\n');
     return '''
-${classAccessLevel}class ${localizationName}Localization {
+${classAccessLevel}class $localizationName {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "$localizationName"$localizationBundle)
   }

@@ -1,6 +1,6 @@
 class GeneralLocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
-    return String(localized: key, table: "General", bundle: .sdkResource)
+    return String(localized: key, table: "GeneralLocalization", bundle: .sdkResource)
   }
   
   /// This a body of error notification message.
@@ -23,7 +23,7 @@ class GeneralLocalization {
   ///
   /// In en, this message translates to:
   /// **'Attention! The file size is too big.'**
-  static var fileSizeTitle : String {
+  static var fileSizeTitle: String {
     l("fileSizeTitle")
   }
 
@@ -31,7 +31,7 @@ class GeneralLocalization {
   ///
   /// In en, this message translates to:
   /// **'Couldn't!\n Test.'**
-  static var escapeTest : String {
+  static var escapeTest: String {
     l("escapeTest")
   }
 }

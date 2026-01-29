@@ -1,4 +1,4 @@
-internal class TestFeatureALocalizationLocalization {
+internal class TestFeatureALocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "TestFeatureALocalization", bundle: .testBundle)
   }
@@ -15,7 +15,7 @@ internal class TestFeatureALocalizationLocalization {
   ///
   /// In en, this message translates to:
   /// **'Login Page'**
-  static var loginTitle : String {
+  static var loginTitle: String {
     l("loginTitle")
   }
 }

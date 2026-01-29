@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
-import 'package:share_localization/settings/dtos/settings_language_dto.dart';
 import 'package:share_localization/settings/dtos/platform_options_dto.dart';
 import 'package:share_localization/settings/dtos/settings_dto.dart';
+import 'package:share_localization/settings/dtos/settings_language_dto.dart';
 
 typedef IosSettingsDto = PlatformSettingsDto<IosOptionsDto>;
 typedef AndroidSettingsDto = PlatformSettingsDto<AndroidOptionsDto>;

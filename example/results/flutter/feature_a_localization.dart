@@ -5,22 +5,22 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
-import 'general_en.dart';
-import 'general_ua.dart';
+import 'feature_a_localization_en.dart';
+import 'feature_a_localization_ua.dart';
 
 // ignore_for_file: type=lint
 
-abstract class General {
-  General(String locale)
+abstract class FeatureALocalization {
+  FeatureALocalization(String locale)
       : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
-  static General of(BuildContext context) {
-    return Localizations.of<General>(context, General)!;
+  static FeatureALocalization of(BuildContext context) {
+    return Localizations.of<FeatureALocalization>(context, FeatureALocalization)!;
   }
 
-  static const LocalizationsDelegate<General> delegate = _GeneralDelegate();
+  static const LocalizationsDelegate<FeatureALocalization> delegate = _FeatureALocalizationDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.  
@@ -37,40 +37,34 @@ abstract class General {
     Locale('ua'),
   ];
   
-  /// This a body of error notification message.
+  /// This a body of login message.
   ///
   /// In en, this message translates to:
-  /// **'The {file_name} has size {current_size}, it is biggest then maximum {maximum_size}.'**
-  String fileSizeErrorBody(String fileName, double currentSize, double maximumSize);
+  /// **'Hi {username}, your password is {password}'**
+  String loginMessage(String username, String password);
       
-  /// This is a attention message for file size.
+  /// This is a title for login screen
   ///
   /// In en, this message translates to:
-  /// **'File should be less or equal to {maximum_size} MB.'**
-  String fileSizeAttention(int maximumSize);
+  /// **'Login Page'**
+  String get loginTitle;
       
-  /// This is a title for file size error screen
+  /// This is a login button on login screen
   ///
   /// In en, this message translates to:
-  /// **'Attention! The file size is too big.'**
-  String get fileSizeTitle;
-
-  /// This is a escape test message
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn't!\n Test.'**
-  String get escapeTest;
-
+  /// **'Login'**
+  String get loginButton;
+      
 }
 
-class _GeneralDelegate
-    extends LocalizationsDelegate<General> {
-  const _GeneralDelegate();
+class _FeatureALocalizationDelegate
+    extends LocalizationsDelegate<FeatureALocalization> {
+  const _FeatureALocalizationDelegate();
 
   @override
-  Future<General> load(Locale locale) {
-    return SynchronousFuture<General>(
-        lookupGeneral(locale));
+  Future<FeatureALocalization> load(Locale locale) {
+    return SynchronousFuture<FeatureALocalization>(
+        lookupFeatureALocalization(locale));
   }
 
   @override
@@ -78,18 +72,18 @@ class _GeneralDelegate
       <String>['en', 'ua'].contains(locale.languageCode);
 
   @override
-  bool shouldReload(_GeneralDelegate old) => false;
+  bool shouldReload(_FeatureALocalizationDelegate old) => false;
 }
 
-General lookupGeneral(Locale locale) {
+FeatureALocalization lookupFeatureALocalization(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return GeneralEn();
-    case 'ua': return GeneralUa();
+    case 'en': return FeatureALocalizationEn();
+    case 'ua': return FeatureALocalizationUa();
   }
 
   throw FlutterError(
-      'General.delegate failed to load unsupported locale "$locale". This is likely '
+      'FeatureALocalization.delegate failed to load unsupported locale "$locale". This is likely '
       'an issue with the localizations generation tool. Please file an issue '
       'on GitHub with a reproducible sample app and the gen-l10n configuration '
       'that was used.');

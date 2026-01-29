@@ -40,7 +40,7 @@ void main() {
       final expectedContent = await File(
         'example/test_results/flutter/test_feature_a_localization.dart',
       ).readAsString();
-      expect(expectedContent.tremContent(), result.tremContent());
+      expect(result.tremContent(), expectedContent.tremContent());
     });
 
     test('generateLocale', () async {
@@ -53,7 +53,7 @@ void main() {
       final expectedContent = await File(
         'example/test_results/flutter/test_feature_a_localization_en.dart',
       ).readAsString();
-      expect(expectedContent.tremContent(), result.tremContent());
+      expect(result.tremContent(), expectedContent.tremContent());
     });
 
     test('generationUseCase', () async {

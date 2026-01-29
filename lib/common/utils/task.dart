@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:share_localization/common/utils/printer.dart';
-import 'package:share_localization/common/utils/task_result.dart' as task;
 import 'package:share_localization/common/exceptions/app_exception.dart';
 import 'package:share_localization/common/exceptions/unexpected_exception.dart';
+import 'package:share_localization/common/utils/printer.dart';
+import 'package:share_localization/common/utils/task_result.dart' as task;
 
 typedef TaskResult<T> = task.TaskResult<T, AppException>;
 typedef TaskSucceeded<T> = task.TaskSucceeded<T, AppException>;

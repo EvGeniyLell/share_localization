@@ -1,10 +1,10 @@
-import 'general.dart';
+import 'general_localization.dart';
 
 // ignore_for_file: type=lint
 
 /// The translations for Ua.
-class GeneralUa extends General {
-  GeneralUa([String locale = 'ua']) : super(locale);
+class GeneralLocalizationUa extends GeneralLocalization {
+  GeneralLocalizationUa([String locale = 'ua']) : super(locale);
 
   @override
   String fileSizeErrorBody(String fileName, double currentSize, double maximumSize) => 'Цей $file_name має розмір $current_size, це більш ніж дозволений максимум $maximum_size.';

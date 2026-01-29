@@ -6,7 +6,6 @@ import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
 
 part 'ios_code_generation_use_case_swift.dart';
-
 part 'ios_code_generation_use_case_xcstrings.dart';
 
 class IosCodeGenerationUseCase extends CodeGenerationUseCase {
@@ -42,7 +41,7 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
   ) {
     return '${settings.options.destinationFolder}'
         '/${localization.name.baseFilename().camelCase().capitalize()}'
-        '.$extension';
+        '${localizationPostfix.capitalize()}.$extension';
   }
 }
 

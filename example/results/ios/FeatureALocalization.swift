@@ -1,6 +1,6 @@
 class FeatureALocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
-    return String(localized: key, table: "FeatureA", bundle: .sdkResource)
+    return String(localized: key, table: "FeatureALocalization", bundle: .sdkResource)
   }
   
   /// This a body of login message.
@@ -15,7 +15,7 @@ class FeatureALocalization {
   ///
   /// In en, this message translates to:
   /// **'Login Page'**
-  static var loginTitle : String {
+  static var loginTitle: String {
     l("loginTitle")
   }
 
@@ -23,7 +23,7 @@ class FeatureALocalization {
   ///
   /// In en, this message translates to:
   /// **'Login'**
-  static var loginButton : String {
+  static var loginButton: String {
     l("loginButton")
   }  
 }

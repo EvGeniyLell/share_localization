@@ -1,10 +1,10 @@
-import 'feature_a.dart';
+import 'feature_a_localization.dart';
 
 // ignore_for_file: type=lint
 
 /// The translations for En.
-class FeatureAEn extends FeatureA {
-  FeatureAEn([String locale = 'en']) : super(locale);
+class FeatureALocalizationEn extends FeatureALocalization {
+  FeatureALocalizationEn([String locale = 'en']) : super(locale);
 
   @override
   String loginMessage(String username, String password) => 'Hi $username, your password is $password';

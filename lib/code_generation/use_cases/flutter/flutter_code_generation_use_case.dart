@@ -39,7 +39,8 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
     LocalizationDto localization,
   ) {
     return '${settings.options.destinationFolder}'
-        '/${localization.name.baseFilename()}'
+        '/${localization.name.baseFilename().snakeCase()}'
+        '_${localizationPostfix.snakeCase()}'
         '${language != null ? '_${language.key}' : ''}'
         '.dart';
   }
