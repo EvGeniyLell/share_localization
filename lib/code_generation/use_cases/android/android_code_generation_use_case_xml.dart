@@ -6,10 +6,15 @@ extension BuildAndroidLocalizationUseCaseXml on AndroidCodeGenerationUseCase {
     SettingsLanguageDto language,
     LocalizationDto localization,
   ) {
+    final localizationKeyPrefix =
+        switch (settings.options.useFilePrefixForKeys) {
+          true => localization.name.baseFilename(),
+          false => '',
+        };
     return '''
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-${generateStrings(settings, localization.keys, language.key)}
+${generateStrings(settings, localizationKeyPrefix, localization.keys, language.key)}
 </resources>
 ''';
   }
@@ -17,6 +22,7 @@ ${generateStrings(settings, localization.keys, language.key)}
   @visibleForTesting
   String generateStrings(
     AndroidSettingsDto settings,
+    String localizationKeyPrefix,
     List<LocalizationKeyDto> keys,
     String languageKey,
   ) {
@@ -25,7 +31,12 @@ ${generateStrings(settings, localization.keys, language.key)}
 
     return keys
         .map((key) {
-          final getter = buildLocaleItemGetter(settings, key, languageKey);
+          final getter = buildLocaleItemGetter(
+            settings,
+            localizationKeyPrefix,
+            key,
+            languageKey,
+          );
           return getter;
         })
         .join('\n\n');
@@ -34,6 +45,7 @@ ${generateStrings(settings, localization.keys, language.key)}
   @visibleForTesting
   String buildLocaleItemGetter(
     AndroidSettingsDto settings,
+    String localizationKeyPrefix,
     LocalizationKeyDto key,
     String languageKey,
   ) {
@@ -41,7 +53,10 @@ ${generateStrings(settings, localization.keys, language.key)}
     //   <string name="welcomeMessages">Hello, %1$s! You have %2$d new messages.</string>
     final useCamelCase = settings.options.useCamelCase;
     final itemName = key.key.nullSafe((key) {
-      return useCamelCase ? key.camelCase() : key.snakeCase();
+      final fullKey = [localizationKeyPrefix, key]
+          .where((s) => s.isNotEmpty)
+          .join('_');
+      return useCamelCase ? fullKey.camelCase() : fullKey.snakeCase();
     });
 
     final translation = key.translation

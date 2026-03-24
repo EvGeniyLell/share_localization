@@ -23,6 +23,7 @@ const iosOptionsDto = IosOptionsDto(
 );
 const androidOptionsDto = AndroidOptionsDto(
   useCamelCase: true,
+  useFilePrefixForKeys: true,
   destinationFolder: 'example/test_results/android/values',
 );
 const flutterOptionsDto = FlutterOptionsDto(

@@ -26,9 +26,12 @@ class FlutterOptionsDto extends PlatformOptionsDto {
 @immutable
 class AndroidOptionsDto extends PlatformOptionsDto {
   final bool useCamelCase;
+  final bool useFilePrefixForKeys;
 
   const AndroidOptionsDto({
     required bool? useCamelCase,
+    required bool? useFilePrefixForKeys,
     required super.destinationFolder,
-  }) : useCamelCase = useCamelCase ?? false;
+  }) : useCamelCase = useCamelCase ?? false,
+       useFilePrefixForKeys = useFilePrefixForKeys ?? false;
 }

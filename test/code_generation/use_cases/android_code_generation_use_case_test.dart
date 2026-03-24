@@ -38,6 +38,7 @@ void main() {
         customSettingsDto = settingsDto.copyWith(
           android: const AndroidOptionsDto(
             useCamelCase: true,
+            useFilePrefixForKeys: true,
             destinationFolder: 'example/test_results/android/camel_case/values',
           ),
         );
@@ -84,6 +85,7 @@ void main() {
         customSettingsDto = settingsDto.copyWith(
           android: const AndroidOptionsDto(
             useCamelCase: false,
+            useFilePrefixForKeys: true,
             destinationFolder: 'example/test_results/android/values',
           ),
         );

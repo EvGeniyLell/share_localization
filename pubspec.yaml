@@ -1,6 +1,6 @@
 name: share_localization
 description: This plugin shares localization data across platforms.
-version: 0.0.4
+version: 0.0.5
 repository: https://github.com/EvGeniyLell/share_localization
 
 publish_to: 'none'
@@ -9,13 +9,13 @@ environment:
   sdk: ">=3.8.1 <4.0.0"
 
 dependencies:
-  meta: ^1.17.0
+  meta: ^1.18.2
   path: ^1.9.1
 
 dev_dependencies:
-  lints: ^6.0.0
+  lints: ^6.1.0
   mocktail: any
-  test: ^1.27.0
+  test: ^1.31.0
 
 executables:
   share_localization:

@@ -14,3 +14,7 @@
 
 - Fix CamelCase/SnakeCase and add postfix `Localization` to ios and flutter
   naming
+
+## 0.0.5
+
+- Add support for `useFilePrefixForKeys` for android.

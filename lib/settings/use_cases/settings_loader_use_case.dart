@@ -63,6 +63,7 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
   AndroidOptionsDto buildAndroidOptionsDto(JsonData data) {
     return AndroidOptionsDto(
       useCamelCase: data.get('use_camel_case'),
+      useFilePrefixForKeys: data.get('use_file_prefix_for_keys'),
       destinationFolder: data.get('destination_folder'),
     );
   }
