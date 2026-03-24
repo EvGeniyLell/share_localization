@@ -93,7 +93,12 @@ android:
       description: >-
         Optional flag to use camelCase for keys.
       type: Boolean? (optional)
-      default: true
+      default: false
+    use_file_prefix_for_keys:
+      description: >-
+        Optional flag to add file name as prefix to keys.
+      type: Boolean? (optional)
+      default: false
     destination_folder:
       description: >-
         Generated files will be put here.
