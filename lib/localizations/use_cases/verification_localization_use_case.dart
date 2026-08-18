@@ -12,11 +12,15 @@ class VerificationLocalizationUseCase {
 
   Task<void> call(SettingsDto settings, LocalizationDto localization) {
     return runAppTaskSafely(() async {
-      final localizationExceptions = checkLocalization(settings, localization);
+      final localizationExceptions = checkLocalization(settings, localization)
+          .where((e) => !skipErrorTypes.contains(e.runtimeType))
+          .toList();
       if (localizationExceptions.isNotEmpty) {
         throw CompositeException(localizationExceptions);
       }
-      final keyExceptions = checkKeys(settings, localization);
+      final keyExceptions = checkKeys(settings, localization)
+          .where((e) => !skipErrorTypes.contains(e.runtimeType))
+          .toList();
       if (keyExceptions.isNotEmpty) {
         throw CompositeException(keyExceptions);
       }

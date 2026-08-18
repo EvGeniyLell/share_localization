@@ -23,13 +23,13 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
         path: filePath(pSettings, null, localization),
         content: common,
       );
-      pSettings.languages.forEach((language) async {
+      await Future.wait(pSettings.languages.map((language) async {
         final locale = generateLocale(pSettings, language, localization);
         await fileService.createFile(
           path: filePath(pSettings, language, localization),
           content: locale,
         );
-      });
+      }));
     });
   }
 

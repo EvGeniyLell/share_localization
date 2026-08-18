@@ -17,15 +17,15 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
     return runAppTaskSafely(() async {
       final AndroidSettingsDto? pSettings = settings.toPlatformSettingsDto();
       if (pSettings == null) {
-        throw const BuildLocalizationException.missingIosSettings();
+        throw const BuildLocalizationException.missingAndroidSettings();
       }
-      pSettings.languages.forEach((language) async {
+      await Future.wait(pSettings.languages.map((language) async {
         final xml = generateXml(pSettings, language, localization);
         await fileService.createFile(
           path: filePath(pSettings, language, localization, xmlExtension),
           content: xml,
         );
-      });
+      }));
     });
   }
 

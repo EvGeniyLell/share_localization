@@ -79,7 +79,7 @@ class BatchCodeGenerationUseCase {
 
     final localizations = await Future.wait(localizationsTasks);
 
-    localizations.forEach((localization) async {
+    await Future.wait(localizations.map((localization) async {
       final verificationTask = await verificationLocalization(
         settings,
         localization,
@@ -87,8 +87,7 @@ class BatchCodeGenerationUseCase {
       if (verificationTask.failed) {
         throw verificationTask.exception;
       }
-      return verificationTask.data;
-    });
+    }));
 
     return (settings, localizations);
   }
