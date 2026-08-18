@@ -58,7 +58,7 @@ extension BuildFlutterLocalizationUseCaseCommon
     final items = localization.keys
         .map((key) {
           final comment = key.comment;
-          final translation = key.translation.firstWhere((translation) {
+          final translation = key.translations.firstWhere((translation) {
             return translation.languageKey == defaultLanguage;
           }).message;
           final getter = buildCommonItemGetter(key);

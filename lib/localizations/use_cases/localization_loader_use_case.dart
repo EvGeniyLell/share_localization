@@ -46,7 +46,7 @@ extension LocalizationLoaderUseCaseDtos on LocalizationLoaderUseCase {
       key: data.get('key'),
       comment: data.get('comment'),
       arguments: data.getSubList('arguments', defaultValue: []).dtos(),
-      translation: data
+      translations: data
           .getSub('localizations', defaultValue: [])
           .groupByKeys()
           .dtos(),

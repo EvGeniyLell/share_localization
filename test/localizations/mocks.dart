@@ -20,7 +20,7 @@ const loginMessageKey = LocalizationKeyDto(
   key: 'login_message',
   comment: 'This a body of login message.',
   arguments: loginMessageKeyArguments,
-  translation: loginMessageKeyLocalizations,
+  translations: loginMessageKeyLocalizations,
 );
 
 const loginMessageKeyArguments = [
@@ -51,7 +51,7 @@ const loginTitleKey = LocalizationKeyDto(
   key: 'login_title',
   comment: 'This is a title for login screen.',
   arguments: [],
-  translation: [
+  translations: [
     LocalizationKeyTranslationDto(languageKey: 'en', message: 'Login Page'),
     LocalizationKeyTranslationDto(
       languageKey: 'de',

@@ -73,7 +73,7 @@ class VerificationLocalizationUseCase {
       return argument.name;
     }).toList();
 
-    final exceptions = key.translation.map((keyTranslation) {
+    final exceptions = key.translations.map((keyTranslation) {
       final messageArguments = keyTranslation.message.getMessageArguments();
       final (extraArgs, commonArgs, missingArgs) = argumentNames.intersection(
         messageArguments,
@@ -109,7 +109,7 @@ class VerificationLocalizationUseCase {
   ) {
     return settings.languages
         .mapWhereEvery(
-          key.translation,
+          key.translations,
           test: (settingsLanguage, translation) {
             return settingsLanguage.key != translation.languageKey;
           },

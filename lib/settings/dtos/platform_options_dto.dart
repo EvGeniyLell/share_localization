@@ -12,9 +12,9 @@ class IosOptionsDto extends PlatformOptionsDto {
   final String? classAccessLevel;
 
   const IosOptionsDto({
-    required this.bundleName,
-    required this.classAccessLevel,
     required super.destinationFolder,
+    this.bundleName,
+    this.classAccessLevel,
   });
 }
 
@@ -29,9 +29,9 @@ class AndroidOptionsDto extends PlatformOptionsDto {
   final bool useFilePrefixForKeys;
 
   const AndroidOptionsDto({
-    required bool? useCamelCase,
-    required bool? useFilePrefixForKeys,
     required super.destinationFolder,
+    bool? useCamelCase,
+    bool? useFilePrefixForKeys,
   }) : useCamelCase = useCamelCase ?? false,
        useFilePrefixForKeys = useFilePrefixForKeys ?? false;
 }

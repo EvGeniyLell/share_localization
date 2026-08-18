@@ -19,7 +19,7 @@ $stringsItems
   }
 
   String buildXCStringsItem(LocalizationKeyDto key) {
-    final translations = key.translation
+    final translations = key.translations
         .map((translation) {
           return buildXCStringsItemTranslation(key, translation);
         })

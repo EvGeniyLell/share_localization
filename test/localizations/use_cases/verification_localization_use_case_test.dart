@@ -146,7 +146,7 @@ void main() {
           settingsDto,
           localizationDto,
           loginMessageKey.copyWith(
-            translation: [
+            translations: [
               missingArgumentEnTranslation,
               missingArgumentDeTranslation,
             ],
@@ -184,7 +184,7 @@ void main() {
           settingsDto,
           localizationDto,
           loginMessageKey.copyWith(
-            translation: [loginMessageKeyLocalizations[0]],
+            translations: [loginMessageKeyLocalizations[0]],
           ),
         );
         expect(result, hasLength(1));

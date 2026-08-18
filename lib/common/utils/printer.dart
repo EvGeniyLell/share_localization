@@ -7,6 +7,8 @@ class Printer {
   static void Function(Object? object) output = stdout.writeln;
 
   @visibleForTesting
+  static void Function(Object? object) errorOutput = stderr.writeln;
+
   static bool debug = false;
 
   static const _instance = Printer._private();
@@ -16,12 +18,17 @@ class Printer {
   const Printer._private();
 
   void logError(Object error, {required StackTrace stackTrace}) {
+    errorOutput('Error: $error');
     if (debug) {
-      log('Error: $error\nStack trace: $stackTrace');
+      errorOutput('Stack trace: $stackTrace');
     }
   }
 
   void log(String message) {
     output(message);
+  }
+
+  void err(String message) {
+    errorOutput(message);
   }
 }

@@ -59,14 +59,14 @@ ${generateStrings(settings, localizationKeyPrefix, localization.keys, language.k
       return useCamelCase ? fullKey.camelCase() : fullKey.snakeCase();
     });
 
-    final translation = key.translation
+    final translation = key.translations
         .firstWhere((translation) {
           return translation.languageKey == languageKey;
         })
         .message
         .androidTranslationEscape()
         .androidArgumentsEscape(key.arguments);
-    final description = key.translation
+    final description = key.translations
         .firstWhere((translation) {
           return translation.languageKey == settings.languages.first.key;
         })

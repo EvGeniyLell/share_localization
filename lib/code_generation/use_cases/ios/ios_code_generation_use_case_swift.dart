@@ -24,7 +24,7 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
     });
     final getters = localization.keys
         .map((key) {
-          final translation = key.translation.firstWhere((translation) {
+          final translation = key.translations.firstWhere((translation) {
             return translation.languageKey == defaultLanguage.key;
           });
           return buildXCStringsItemTranslation(
@@ -52,7 +52,7 @@ $getters
   ) {
     final comment = key.comment;
     final defaultLanguage = language.key;
-    final translation = key.translation
+    final translation = key.translations
         .firstWhere((translation) {
           return translation.languageKey == defaultLanguage;
         })

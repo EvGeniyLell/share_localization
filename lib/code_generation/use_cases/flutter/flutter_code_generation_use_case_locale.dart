@@ -63,7 +63,7 @@ $items
     //     return 'Total file size must be less than $fileSize';
     //   }
     final itemName = key.key.camelCase();
-    final translation = key.translation
+    final translation = key.translations
         .firstWhere((translation) {
           return translation.languageKey == languageKey;
         })

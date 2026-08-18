@@ -8,26 +8,26 @@ class LocalizationKeyDto {
   final String key;
   final String comment;
   final List<LocalizationKeyArgumentDto> arguments;
-  final List<LocalizationKeyTranslationDto> translation;
+  final List<LocalizationKeyTranslationDto> translations;
 
   const LocalizationKeyDto({
     required this.key,
     required this.comment,
     required this.arguments,
-    required this.translation,
+    required this.translations,
   });
 
   LocalizationKeyDto copyWith({
     String? key,
     String? comment,
     List<LocalizationKeyArgumentDto>? arguments,
-    List<LocalizationKeyTranslationDto>? translation,
+    List<LocalizationKeyTranslationDto>? translations,
   }) {
     return LocalizationKeyDto(
       key: key ?? this.key,
       comment: comment ?? this.comment,
       arguments: arguments ?? this.arguments,
-      translation: translation ?? this.translation,
+      translations: translations ?? this.translations,
     );
   }
 
@@ -39,20 +39,20 @@ class LocalizationKeyDto {
             key == other.key &&
             comment == other.comment &&
             arguments.equals(other.arguments) &&
-            translation.equals(other.translation);
+            translations.equals(other.translations);
   }
 
   @override
-  int get hashCode {
-    return key.hashCode ^
-        comment.hashCode ^
-        arguments.hashCode ^
-        translation.hashCode;
-  }
+  int get hashCode => Object.hash(
+        key,
+        comment,
+        Object.hashAll(arguments),
+        Object.hashAll(translations),
+      );
 
   @override
   String toString() {
     return '$LocalizationKeyDto(key: $key, comment: $comment, '
-        'arguments: $arguments, localizations: $translation)';
+        'arguments: $arguments, translations: $translations)';
   }
 }

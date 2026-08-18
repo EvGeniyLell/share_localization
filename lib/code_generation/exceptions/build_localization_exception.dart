@@ -8,20 +8,19 @@ class BuildLocalizationException implements AppException {
 
   const BuildLocalizationException(this.type, [this.message]);
 
-  static const _defaultMessage =
-      'settings are not provided or corrupted, '
-      'this location build will be skipped';
-
   const BuildLocalizationException.missingIosSettings([
-    String? message = _defaultMessage,
+    String? message =
+        'iOS generation skipped — no "ios" block in settings.json.',
   ]) : this(BuildLocalizationExceptionType.missingIosSettings, message);
 
   const BuildLocalizationException.missingAndroidSettings([
-    String? message = _defaultMessage,
+    String? message =
+        'Android generation skipped — no "android" block in settings.json.',
   ]) : this(BuildLocalizationExceptionType.missingAndroidSettings, message);
 
   const BuildLocalizationException.missingFlutterSettings([
-    String? message = _defaultMessage,
+    String? message =
+        'Flutter generation skipped — no "flutter" block in settings.json.',
   ]) : this(BuildLocalizationExceptionType.missingFlutterSettings, message);
 
   @override

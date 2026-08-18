@@ -99,3 +99,7 @@ when you run the tool — do not confuse the two when adding new test assertions
 `Printer.debug = true` (commented at the top of test files) enables verbose
 logging when debugging. Methods needed only by tests are exposed with
 `@visibleForTesting`.
+
+## Cost policy
+After a plan is approved, delegate implementation to the `code-generator` subagent.
+Keep the main model for architecture, review and debugging only.

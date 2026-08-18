@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:share_localization/common/exceptions/invalid_json_exception.dart';
+import 'package:share_localization/common/exceptions/settings_not_found_exception.dart';
 import 'package:share_localization/common/utils/app_types.dart';
 
 class JsonData {
@@ -22,12 +24,24 @@ class JsonData {
     String filepath, {
     required R Function<R extends Object>(JsonData) buildDto,
   }) async {
-    final content = await File(filepath).readAsString();
-    final map = json.decode(content);
-    if (map is! JsonMap) {
+    final String content;
+    try {
+      content = await File(filepath).readAsString();
+    } on FileSystemException {
+      throw SettingsNotFoundException(filepath);
+    }
+
+    final Object? decoded;
+    try {
+      decoded = json.decode(content);
+    } on FormatException catch (e) {
+      throw InvalidJsonException(filepath, e.message);
+    }
+
+    if (decoded is! JsonMap) {
       throw JsonDataError('Wrong json map at $filepath');
     }
-    return JsonData(filepath, buildDto, map);
+    return JsonData(filepath, buildDto, decoded);
   }
 
   String _newRoute(String key, {int? index}) {
