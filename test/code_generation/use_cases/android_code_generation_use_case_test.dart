@@ -272,6 +272,25 @@ void main() {
       test('wraps a mixed value with tab, spaces and quotes in quotes', () {
         expect(' a\tb  "c" '.androidTranslationEscape(), r'" a\tb  \"c\" "');
       });
+
+      // aapt2 turns a raw CR into a space and has no `\r` escape, so a CR is
+      // written as `\u000d`. Verified with aapt2 (build-tools 37), not on a
+      // device.
+      test(r'escapes a carriage return as \u000d', () {
+        expect('\r'.androidTranslationEscape(), r'\u000d');
+      });
+
+      test(r'escapes a carriage return inside a value as \u000d', () {
+        expect('a\rb'.androidTranslationEscape(), r'a\u000db');
+      });
+
+      test(r'escapes a CRLF pair as \u000d followed by \n', () {
+        expect('a\r\nb'.androidTranslationEscape(), r'a\u000d\nb');
+      });
+
+      test(r'wraps a leading space and trailing CR in quotes as \u000d', () {
+        expect(' a\r'.androidTranslationEscape(), r'" a\u000d"');
+      });
     });
 
     group('androidDescriptionEscape', () {
@@ -293,6 +312,10 @@ void main() {
           expect(entry.key.androidDescriptionEscape(), entry.value);
         });
       }
+
+      test(r'escapes a carriage return as \r', () {
+        expect('a\rb'.androidDescriptionEscape(), r'a\rb');
+      });
     });
 
     group('buildLocaleItemGetter', () {

@@ -183,6 +183,8 @@ extension StringToAndroid on String {
   /// `&` must be replaced before `<`, otherwise the `&` of the new `&lt;`
   /// would be escaped again. A `"` becomes `\"`, because an unescaped quote is
   /// dropped from the output. A tab becomes `\t` and a newline becomes `\n`.
+  /// A carriage return is written as `\u000d` because aapt2 has no `\r`
+  /// escape (verified with aapt2, not on a device).
   ///
   /// aapt trims leading and trailing spaces and collapses repeated spaces in
   /// unquoted values. If the escaped text starts with a space, ends with a
@@ -202,7 +204,8 @@ extension StringToAndroid on String {
         .replaceAll('<', '&lt;')
         .replaceAll("'", r"\'")
         .replaceAll('\n', r'\n')
-        .replaceAll('\t', r'\t');
+        .replaceAll('\t', r'\t')
+        .replaceAll('\r', r'\u000d');
     if (RegExp(r'^ | $|  ').hasMatch(escaped)) {
       return '"$escaped"';
     }
@@ -217,7 +220,10 @@ extension StringToAndroid on String {
   /// A comment must not contain `--`, so each hyphen followed by another
   /// hyphen is followed by a space instead (`--` becomes `- -`).
   String androidDescriptionEscape() {
-    return replaceAll('\n', r'\n').replaceAll(RegExp('-(?=-)'), '- ');
+    return replaceAll(
+      '\n',
+      r'\n',
+    ).replaceAll('\r', r'\r').replaceAll(RegExp('-(?=-)'), '- ');
   }
 
   /// Replaces `{name}` with a positional format specifier, e.g. `%2$d`.
