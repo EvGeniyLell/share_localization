@@ -26,12 +26,17 @@ class DuplicateResourceNameException implements AppException {
   final String name;
   final String bundleName;
 
+  /// The bundle of [otherKey] when it is another bundle, or null when both
+  /// keys are in [bundleName].
+  final String? otherBundleName;
+
   const DuplicateResourceNameException({
     required this.platform,
     required this.key,
     required this.otherKey,
     required this.name,
     required this.bundleName,
+    this.otherBundleName,
   });
 
   @override
@@ -43,13 +48,22 @@ class DuplicateResourceNameException implements AppException {
           key == other.key &&
           otherKey == other.otherKey &&
           name == other.name &&
-          bundleName == other.bundleName;
+          bundleName == other.bundleName &&
+          otherBundleName == other.otherBundleName;
 
   @override
-  int get hashCode => Object.hash(platform, key, otherKey, name, bundleName);
+  int get hashCode =>
+      Object.hash(platform, key, otherKey, name, bundleName, otherBundleName);
 
   @override
   String toString() {
+    final other = otherBundleName;
+    if (other != null) {
+      return '$DuplicateResourceNameException: key "$otherKey" in "$other" '
+          'and key "$key" in "$bundleName" both become ${platform.label} '
+          'name "$name"\n'
+          'Rename one of the keys so that each key gives a unique name.';
+    }
     return '$DuplicateResourceNameException: keys "$otherKey" and '
         '"$key" in "$bundleName" both become ${platform.label} name "$name"\n'
         'Rename one of the keys so that each key gives a unique name.';

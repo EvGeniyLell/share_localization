@@ -58,19 +58,71 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
     AndroidSettingsDto settings,
     LocalizationDto localization,
   ) {
-    final keyPrefix = _localizationKeyPrefix(settings, localization);
     validateResourceNames(
       platform: ResourcePlatform.android,
       bundleName: localization.name,
-      entries: localization.keys.map(
-        (key) => ResourceNameEntry(
-          key: key.key,
-          name: _itemName(settings, keyPrefix, key.key),
-          baseName: _itemName(settings, '', key.key),
-        ),
-      ),
+      entries: _resourceEntries(settings, localization),
     );
   }
+
+  /// All bundles share one Android resource namespace, so a name taken by
+  /// one bundle cannot be used by another. Bundles are checked in name
+  /// order, so the first holder of a name is the same on every run. Same-
+  /// bundle duplicates and invalid names are left to [call].
+  @override
+  List<AppException> validateBundles(
+    SettingsDto settings,
+    List<LocalizationDto> localizations,
+  ) {
+    final AndroidSettingsDto? pSettings = settings.toPlatformSettingsDto();
+    if (pSettings == null) {
+      return const [];
+    }
+    final sorted = [...localizations]..sort((a, b) => a.name.compareTo(b.name));
+    // The first bundle and key that took each final name.
+    final firstHolder = <String, (String bundleName, String key)>{};
+    final errors = <AppException>[];
+    for (final localization in sorted) {
+      for (final entry in _resourceEntries(pSettings, localization)) {
+        if (!isDuplicateCheckable(entry)) {
+          continue;
+        }
+        final holder = firstHolder[entry.identity];
+        if (holder == null) {
+          firstHolder[entry.identity] = (localization.name, entry.key);
+        } else if (holder.$1 != localization.name) {
+          errors.add(
+            DuplicateResourceNameException(
+              platform: ResourcePlatform.android,
+              key: entry.key,
+              otherKey: holder.$2,
+              name: entry.name,
+              bundleName: localization.name,
+              otherBundleName: holder.$1,
+            ),
+          );
+        }
+      }
+    }
+    return errors;
+  }
+}
+
+/// One entry per key of [localization], with the final name and the name
+/// without prefix. Used by both the per-bundle and the cross-bundle checks.
+List<ResourceNameEntry> _resourceEntries(
+  AndroidSettingsDto settings,
+  LocalizationDto localization,
+) {
+  final keyPrefix = _localizationKeyPrefix(settings, localization);
+  return [
+    for (final key in localization.keys)
+      ResourceNameEntry(
+        key: key.key,
+        name: _itemName(settings, keyPrefix, key.key),
+        baseName: _itemName(settings, '', key.key),
+      ),
+  ];
 }
 
 /// The file name prefix added to keys, or empty when prefixes are off.

@@ -52,8 +52,14 @@ class BatchCodeGenerationUseCase {
     return runAppTaskSafely(() async {
       final (settings, localizations, skipped) = await load(settingsFilepath);
       final all = <AppException>[...skipped];
+      // A builder with a cross-bundle clash is skipped for every bundle.
+      final clashes = _crossBundleErrors(settings, localizations);
+      for (final errors in clashes.values) {
+        all.addAll(errors);
+      }
+      final skippedBuilders = clashes.keys.toSet();
       for (final localization in localizations) {
-        all.addAll(await build(settings, localization));
+        all.addAll(await build(settings, localization, skip: skippedBuilders));
       }
       return BuildReport(all);
     });
@@ -119,13 +125,32 @@ class BatchCodeGenerationUseCase {
     ]);
   }
 
+  /// The cross-bundle errors of each builder that has any.
+  Map<CodeGenerationUseCase, List<AppException>> _crossBundleErrors(
+    SettingsDto settings,
+    List<LocalizationDto> localizations,
+  ) {
+    final result = <CodeGenerationUseCase, List<AppException>>{};
+    for (final builder in builders) {
+      final errors = builder.validateBundles(settings, localizations);
+      if (errors.isNotEmpty) {
+        result[builder] = errors;
+      }
+    }
+    return result;
+  }
+
   @visibleForTesting
   Future<List<AppException>> build(
     SettingsDto settings,
-    LocalizationDto localization,
-  ) async {
+    LocalizationDto localization, {
+    Set<CodeGenerationUseCase> skip = const {},
+  }) async {
     final exceptions = <AppException>[];
     for (final builder in builders) {
+      if (skip.contains(builder)) {
+        continue;
+      }
       final buildTask = await builder(settings, localization);
       if (buildTask.failed) {
         exceptions.add(buildTask.exception);

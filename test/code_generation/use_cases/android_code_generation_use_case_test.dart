@@ -26,7 +26,7 @@ void main() {
     setUpMockFileService(fileService, virtualFiles);
   });
 
-  group('FlutterCodeGenerationUseCase', () {
+  group('AndroidCodeGenerationUseCase', () {
     late SettingsDto customSettingsDto;
 
     group('useCamelCase: true', () {
@@ -499,6 +499,146 @@ void main() {
           reason: file.toString(),
         );
       }
+    });
+
+    group('cross-bundle resource names', () {
+      const noPrefix = AndroidOptionsDto(
+        useCamelCase: false,
+        useFilePrefixForKeys: false,
+        destinationFolder: 'example/test_results/android/values',
+      );
+      const withPrefix = AndroidOptionsDto(
+        useCamelCase: false,
+        useFilePrefixForKeys: true,
+        destinationFolder: 'example/test_results/android/values',
+      );
+      final noPrefixSettings = settingsDto.copyWith(android: noPrefix);
+      final prefixSettings = settingsDto.copyWith(android: withPrefix);
+      final featureA = localizationDto.copyWith(
+        name: 'feature_a.json',
+        keys: [loginTitleKey],
+      );
+      final general = localizationDto.copyWith(
+        name: 'general.json',
+        keys: [loginTitleKey],
+      );
+
+      test('prefix off: same key in two bundles is one error', () {
+        final errors = generationUseCase.validateBundles(noPrefixSettings, [
+          featureA,
+          general,
+        ]);
+
+        expect(errors, hasLength(1));
+        expect(
+          errors.single,
+          isA<DuplicateResourceNameException>()
+              .having((e) => e.key, 'key', 'login_title')
+              .having((e) => e.otherKey, 'otherKey', 'login_title')
+              .having((e) => e.name, 'name', 'login_title')
+              .having((e) => e.bundleName, 'bundleName', 'general.json')
+              .having(
+                (e) => e.otherBundleName,
+                'otherBundleName',
+                'feature_a.json',
+              ),
+        );
+        expect(errors.single.toString(), contains('"feature_a.json"'));
+      });
+
+      test('prefix on: different split of the same name is one error', () {
+        final errors = generationUseCase.validateBundles(prefixSettings, [
+          localizationDto.copyWith(
+            name: 'foo_bar.json',
+            keys: [loginTitleKey.copyWith(key: 'x')],
+          ),
+          localizationDto.copyWith(
+            name: 'foo.json',
+            keys: [loginTitleKey.copyWith(key: 'bar_x')],
+          ),
+        ]);
+
+        expect(errors, hasLength(1));
+        expect(
+          errors.single,
+          isA<DuplicateResourceNameException>()
+              .having((e) => e.name, 'name', 'foo_bar_x')
+              .having((e) => e.key, 'key', 'x')
+              .having((e) => e.otherKey, 'otherKey', 'bar_x')
+              .having((e) => e.bundleName, 'bundleName', 'foo_bar.json')
+              .having((e) => e.otherBundleName, 'otherBundleName', 'foo.json'),
+        );
+      });
+
+      test('prefix on: same key in two bundles is no error', () {
+        final errors = generationUseCase.validateBundles(prefixSettings, [
+          featureA,
+          general,
+        ]);
+
+        expect(errors, isEmpty);
+      });
+
+      test(
+        'same-bundle duplicate is not repeated, cross clash is kept',
+        () async {
+          final first = localizationDto.copyWith(
+            name: 'feature_a.json',
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              loginMessageKey.copyWith(key: 'my_key'),
+              loginTitleKey,
+            ],
+          );
+          final second = localizationDto.copyWith(
+            name: 'general.json',
+            keys: [loginTitleKey],
+          );
+
+          final errors = generationUseCase.validateBundles(noPrefixSettings, [
+            first,
+            second,
+          ]);
+
+          expect(errors, hasLength(1));
+          expect(
+            errors.single,
+            isA<DuplicateResourceNameException>()
+                .having((e) => e.key, 'key', 'login_title')
+                .having((e) => e.bundleName, 'bundleName', 'general.json'),
+          );
+          // The same-bundle duplicate is still reported by the bundle itself.
+          final build = await generationUseCase(noPrefixSettings, first);
+          expect(build.exception, isA<DuplicateResourceNameException>());
+          expect(
+            (build.exception as DuplicateResourceNameException).otherBundleName,
+            isNull,
+          );
+        },
+      );
+
+      test('bundle order does not change the errors', () {
+        final forward = generationUseCase.validateBundles(noPrefixSettings, [
+          featureA,
+          general,
+        ]);
+        final reversed = generationUseCase.validateBundles(noPrefixSettings, [
+          general,
+          featureA,
+        ]);
+
+        expect(forward, hasLength(1));
+        expect(reversed, equals(forward));
+      });
+
+      test('no Android settings gives no errors', () {
+        final errors = generationUseCase.validateBundles(
+          settingsDtoWithoutAndroid,
+          [featureA, general],
+        );
+
+        expect(errors, isEmpty);
+      });
     });
 
     group('invalid resource names', () {

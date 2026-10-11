@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:mocktail/mocktail.dart';
 import 'package:share_localization/code_generation/build_report.dart';
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
+import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/batch_code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
@@ -317,6 +318,65 @@ void main() {
         tempDir.deleteSync(recursive: true);
       }
     });
+
+    test('cross-bundle duplicate blocks only the Android builder', () async {
+      final tempDir = Directory.systemTemp.createTempSync('share_loc_n13a_');
+      try {
+        // Prefixes off, so the key "title" gives "title" in both bundles.
+        final json =
+            jsonDecode(File('example/settings.json').readAsStringSync())
+                  as Map<String, dynamic>
+              ..['android'] = {
+                'destination_folder': '../example/results/android/values',
+                'use_camel_case': false,
+                'use_file_prefix_for_keys': false,
+              };
+        final settingsFile = File('${tempDir.path}/settings.json')
+          ..writeAsStringSync(jsonEncode(json));
+        final featureBundle = File('${tempDir.path}/feature_a.json')
+          ..writeAsStringSync(_bundleJson('title'));
+        final generalBundle = File('${tempDir.path}/general.json')
+          ..writeAsStringSync(_bundleJson('title'));
+        when(() {
+          return fileService.getFilesInDirectory(
+            path: any(named: 'path'),
+            extension: any(named: 'extension'),
+          );
+        }).thenAnswer((_) async => [featureBundle, generalBundle]);
+
+        final result = await generationUseCase(settingsFile.path);
+
+        expect(result.succeeded, isTrue);
+        expect(result.data.hasErrors, isTrue);
+        expect(result.data.errors, hasLength(1));
+        expect(
+          result.data.errors.single,
+          isA<DuplicateResourceNameException>()
+              .having((e) => e.platform, 'platform', ResourcePlatform.android)
+              .having((e) => e.otherBundleName, 'otherBundleName', isNotNull),
+        );
+        final paths = virtualFiles.map((f) => f.path).toList();
+        expect(paths.where((p) => p.contains('/android/')), isEmpty);
+        expect(paths.where((p) => p.contains('/flutter/')), hasLength(6));
+        expect(paths.where((p) => p.contains('/ios/')), hasLength(4));
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+  });
+}
+
+/// A bundle with one key "key" and the English and Ukrainian messages.
+String _bundleJson(String key) {
+  return jsonEncode({
+    'languages': ['en', 'ua'],
+    'keys': {
+      key: {
+        'comment': 'A title.',
+        'arguments': [],
+        'localizations': {'en': 'Title', 'ua': 'Заголовок'},
+      },
+    },
   });
 }
 

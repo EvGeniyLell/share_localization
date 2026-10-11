@@ -14,9 +14,9 @@
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
 | Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog N13 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
+| Backlog N16, N17 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
 
-**Verification now:** `dart test` 239/239 green. `dart analyze lib test` reports 1 info that
+**Verification now:** `dart test` 246/246 green. `dart analyze lib test` reports 1 info that
 is not from this plan (the type parameter name in `platform_settings_dto.dart`).
 Not yet verified on a real device or terminal: the Android `%%` rule (see B2), `\u0020` for edge spaces (N4), and R7 colour in a real TTY (`2> file`, `| tee`, `NO_COLOR=1`).
 
@@ -30,7 +30,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** N13 (the last backlog item), optionally R11 first. R7 is done in the working tree (owner commits); R10 is committed (`8ba8121`). Optional R11: the last analyze info (`platform_settings_dto.dart`, type parameter name). N4 is committed (`a5e46a2`). N7 is committed (`4d0968c`). N10 was checked with swiftc and closed: not a bug. N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
+**Next task:** none required; backlog left: N16 and N17 (both Low), optional R11. N13 is done in the working tree (owner commits); R7 is committed (`aa3e842`). Optional R11: the last analyze info (`platform_settings_dto.dart`, type parameter name). N4 is committed (`a5e46a2`). N7 is committed (`4d0968c`). N10 was checked with swiftc and closed: not a bug. N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
 done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
 `-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
 and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
@@ -237,7 +237,9 @@ Found while doing N8 (observation, not run):
 |---|---|---|---|
 | N11 ✅ working tree | `iosXCSTranslationEscape` | Control characters U+0000–U+001F other than tab, newline and `\r` (`\b`, `\f`, NUL) are still written raw, which is invalid JSON. Fixed: remaining U+0000–U+001F → `\u00xx` (lowercase hex) after the other steps; DEL stays raw (valid JSON). The raw file used to be invalid JSON while the build reported success. | Low |
 | N12 ✅ working tree | `android_code_generation_use_case.dart` `_validateResourceNames` | Android names are not checked for an empty key base (with `use_file_prefix_for_keys` a key without ASCII letters collapses to the bare prefix) or for duplicates inside a bundle (`my-key` and `my_key` both give `my_key`, also without a prefix). Fixed: `InvalidResourceNameReason.emptyKeyBase` and new `DuplicateResourceNameException` (`platform` field, names both keys); one error per key, all reported together. | Standard |
-| N13 | `batch_code_generation_use_case.dart` | Duplicate Android names ACROSS bundles (same key in two bundles, prefix off) are not checked; Android merges all `values/*.xml`. Needs a batch-level check. Not started. | Low |
+| N13 ✅ working tree | `batch_code_generation_use_case.dart` | Duplicate Android names ACROSS bundles (same key in two bundles, prefix off) are not checked; Android merges all `values/*.xml`. Fixed: hook `CodeGenerationUseCase.validateBundles`, Android override (bundles sorted by name, clash only against a different bundle); a builder with a clash is skipped for ALL bundles while the others still run; `DuplicateResourceNameException.otherBundleName`. 7 new tests. | Low |
+| N16 | `lib/common/services/file_service.dart:18` | `getFilesInDirectory` returns files in `listSync()` order, which depends on the file system. Bundle order is therefore not deterministic across machines: the order of errors and warnings (R8), the "first holder" in duplicate reports (N12) and the order of generated output can differ. Fix idea: sort the files by path. N13 sorts bundles by name inside its own check as a stop-gap. Not started. | Low |
+| N17 | `batch_code_generation_use_case.dart` (N13 skip) | When Android is skipped because of a cross-bundle clash, its per-bundle checks (N3, N12) do not run, so a same-bundle duplicate or invalid name in the same run is reported only after the clash is fixed (errors arrive in two rounds). Fix idea: run the per-bundle validation for a skipped builder too, without writing files. Not started. | Low |
 | N14 ✅ working tree | `flutter_code_generation_use_case.dart` | Flutter: duplicate or empty/invalid `camelCase()` names (`my-key` + `my_key`, `ключ`) were written as duplicate getters and `String get ;`. Fixed with the shared validator; reserved words (`class`) and `Object` member clashes (`hashCode`) are NOT checked. | Standard |
 | N15 ✅ working tree | `ios_code_generation_use_case.dart` | iOS: same defect in Swift (`static var myKey` twice, `static var :`) and xcstrings (duplicate `"myKey"`, `""`). Fixed with the shared validator. Duplicate identity on iOS = `iosXCStringKey()` (camelCase base + argument types): `var foo`, `func foo(String)` and `func foo(Int)` are allowed (checked with swiftc), same base and same types is an error. `ResourceNameEntry.identity` carries it. | Standard |
 
@@ -250,7 +252,7 @@ Found while doing N8 (observation, not run):
 
 ```bash
 dart analyze lib test           # 4 pre-existing infos, see Status
-dart test                       # 239 green
+dart test                       # 246 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart

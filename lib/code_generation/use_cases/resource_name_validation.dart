@@ -33,6 +33,13 @@ class ResourceNameEntry {
   String get identity => _identity ?? name;
 }
 
+/// Whether [entry] can take part in a duplicate check: its name passes the
+/// identifier rule and its base is not empty. Other entries are reported by
+/// [validateResourceNames] for their own bundle instead.
+bool isDuplicateCheckable(ResourceNameEntry entry) {
+  return _validResourceName.hasMatch(entry.name) && entry.baseName.isNotEmpty;
+}
+
 /// Throws before any file is written if a key gives an invalid resource
 /// name, or if two entries have the same [ResourceNameEntry.identity] (a
 /// duplicate). Names are checked against the identifier rule, identities
