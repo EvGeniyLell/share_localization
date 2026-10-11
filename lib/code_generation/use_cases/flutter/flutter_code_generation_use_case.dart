@@ -62,8 +62,15 @@ extension StringToFlutter on String {
   /// placeholder is followed by a character that can continue an identifier
   /// (`{size}MB`), the braces form `${size}MB` is used so Dart does not read
   /// `$sizeMB` as one name.
+  ///
+  /// A literal `$` is written as `\$`, otherwise it would start an
+  /// interpolation. It is escaped before the placeholders are replaced, so the
+  /// `$` added for them stays as is.
   String flutterEscape() {
-    return replaceAll("'", r"\'").replaceAll('\n', r'\n').replaceAllMapped(
+    return replaceAll("'", r"\'")
+        .replaceAll('\n', r'\n')
+        .replaceAll(r'$', r'\$')
+        .replaceAllMapped(
       RegExp(r'{(\w+)}'),
       (match) {
         final name = match.group(1)!.camelCase();

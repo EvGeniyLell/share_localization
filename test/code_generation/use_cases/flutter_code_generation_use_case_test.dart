@@ -147,27 +147,25 @@ void main() {
         );
       });
 
-      group('text right after a placeholder', () {
-        String getterFor(String message) {
-          final key = LocalizationKeyDto(
-            key: 'total',
-            comment: 'This is a total.',
-            arguments: const [
-              LocalizationKeyArgumentDto(
+      String getterFor(String message, {bool withArgument = true}) {
+        final key = LocalizationKeyDto(
+          key: 'total',
+          comment: 'This is a total.',
+          arguments: [
+            if (withArgument)
+              const LocalizationKeyArgumentDto(
                 name: 'size',
                 type: LocalizationKeyDtoType.double,
               ),
-            ],
-            translations: [
-              LocalizationKeyTranslationDto(
-                languageKey: 'en',
-                message: message,
-              ),
-            ],
-          );
-          return generationUseCase.buildLocaleItemGetter(key, 'en');
-        }
+          ],
+          translations: [
+            LocalizationKeyTranslationDto(languageKey: 'en', message: message),
+          ],
+        );
+        return generationUseCase.buildLocaleItemGetter(key, 'en');
+      }
 
+      group('text right after a placeholder', () {
         // Dart reads `$sizeMB` as one identifier, so braces are required.
         test('uses braces when a letter follows', () {
           expect(
@@ -210,6 +208,38 @@ void main() {
           expect(
             getterFor('Total {size}МБ'),
             r"String total(double size) => 'Total $sizeМБ';",
+          );
+        });
+      });
+
+      // A literal `$` in the text would otherwise start an interpolation.
+      group('literal dollar sign', () {
+        test('is escaped next to a name', () {
+          expect(
+            getterFor(r'Use $HOME for {size}'),
+            r"String total(double size) => 'Use \$HOME for $size';",
+          );
+        });
+
+        test('is escaped before a digit and at the end', () {
+          expect(
+            getterFor(r'Only $5 or $', withArgument: false),
+            r"String get total => 'Only \$5 or \$';",
+          );
+        });
+
+        // `{value}` is a placeholder, so `${value}` is a `$` and a placeholder.
+        test('is escaped before a placeholder', () {
+          expect(
+            getterFor(r'Cost ${value} for {size}'),
+            r"String total(double size) => 'Cost \$$value for $size';",
+          );
+        });
+
+        test('does not touch the placeholder substitution', () {
+          expect(
+            getterFor(r'$ {size}MB $'),
+            r"String total(double size) => '\$ ${size}MB \$';",
           );
         });
       });
