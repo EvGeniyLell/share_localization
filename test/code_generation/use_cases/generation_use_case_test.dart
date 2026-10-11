@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:mocktail/mocktail.dart';
+import 'package:share_localization/code_generation/build_report.dart';
 import 'package:share_localization/code_generation/use_cases/batch_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
@@ -46,6 +47,8 @@ void main() {
     test('builder with settings', () async {
       final result = await generationUseCase('example/settings.json');
       expect(result.succeeded, isTrue);
+      expect(result.data, isA<BuildReport>());
+      expect(result.data.errors, isEmpty);
       expect(virtualFiles.length, 14);
       expect(virtualFiles.map((f) => f.path), [
         'example/results/flutter/feature_a_localization.dart',

@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:share_localization/code_generation/build_report.dart';
 import 'package:share_localization/code_generation/use_cases/android/android_code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
@@ -40,17 +41,14 @@ class BatchCodeGenerationUseCase {
     );
   }
 
-  Task<void> call(String settingsFilepath) {
+  Task<BuildReport> call(String settingsFilepath) {
     return runAppTaskSafely(() async {
       final (settings, localizations) = await load(settingsFilepath);
-      final exceptions = <AppException>{};
+      final all = <AppException>[];
       for (final localization in localizations) {
-        final subExceptions = await build(settings, localization);
-        exceptions.addAll(subExceptions);
+        all.addAll(await build(settings, localization));
       }
-      if (exceptions.isNotEmpty) {
-        throw CompositeException(exceptions.toList());
-      }
+      return BuildReport(all);
     });
   }
 
