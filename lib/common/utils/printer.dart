@@ -17,10 +17,13 @@ class Printer {
 
   const Printer._private();
 
+  /// Prints error details (with the stack trace) to stderr in debug mode only.
+  ///
+  /// The user-facing error message is printed once by the caller via [err],
+  /// otherwise nested tasks would repeat it at every level.
   void logError(Object error, {required StackTrace stackTrace}) {
-    errorOutput('Error: $error');
     if (debug) {
-      errorOutput('Stack trace: $stackTrace');
+      err('Error: $error\nStack trace: $stackTrace');
     }
   }
 
