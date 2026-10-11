@@ -14,7 +14,7 @@
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
 | Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog N16, N17 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
+| Backlog N16, N17, N19 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
 
 **Verification now:** `dart test` 246/246 green. `dart analyze lib test bin` reports no issues (R11 removed the last info).
 Not yet verified on a real device or terminal: the Android `%%` rule (see B2), `\u0020` for edge spaces (N4), and R7 colour in a real TTY (`2> file`, `| tee`, `NO_COLOR=1`).
@@ -239,6 +239,8 @@ Found while doing N8 (observation, not run):
 | N13 ✅ working tree | `batch_code_generation_use_case.dart` | Duplicate Android names ACROSS bundles (same key in two bundles, prefix off) are not checked; Android merges all `values/*.xml`. Fixed: hook `CodeGenerationUseCase.validateBundles`, Android override (bundles sorted by name, clash only against a different bundle); a builder with a clash is skipped for ALL bundles while the others still run; `DuplicateResourceNameException.otherBundleName`. 7 new tests. | Low |
 | N16 | `lib/common/services/file_service.dart:18` | `getFilesInDirectory` returns files in `listSync()` order, which depends on the file system. Bundle order is therefore not deterministic across machines: the order of errors and warnings (R8), the "first holder" in duplicate reports (N12) and the order of generated output can differ. Fix idea: sort the files by path. N13 sorts bundles by name inside its own check as a stop-gap. Not started. | Low |
 | N17 | `batch_code_generation_use_case.dart` (N13 skip) | When Android is skipped because of a cross-bundle clash, its per-bundle checks (N3, N12) do not run, so a same-bundle duplicate or invalid name in the same run is reported only after the clash is fixed (errors arrive in two rounds). Fix idea: run the per-bundle validation for a skipped builder too, without writing files. Not started. | Low |
+| N18 ✅ working tree | `lib/common/utils/task_result.dart` | `TaskResult<R, E>`, `TaskSucceeded` and `TaskFailed` have an unbounded `E`, although it is always `AppException` (fixed by the typedefs in `task.dart`; the raw classes are not exported). Fixed: `E extends AppException` on all three (proved in a scratch copy: `TaskResult<int, String>` fails with `type_argument_not_matching_bounds`). | Low |
+| N19 | `settings_loader_use_case.dart:31`, `localization_loader_use_case.dart:23` | The builder maps are `Map<Type, Function>`: the raw `Function` type means the compiler does not check the builder signatures. Fix idea: a typed builder, e.g. `Dto Function(JsonData)`. Not started. | Low |
 | N14 ✅ working tree | `flutter_code_generation_use_case.dart` | Flutter: duplicate or empty/invalid `camelCase()` names (`my-key` + `my_key`, `ключ`) were written as duplicate getters and `String get ;`. Fixed with the shared validator; reserved words (`class`) and `Object` member clashes (`hashCode`) are NOT checked. | Standard |
 | N15 ✅ working tree | `ios_code_generation_use_case.dart` | iOS: same defect in Swift (`static var myKey` twice, `static var :`) and xcstrings (duplicate `"myKey"`, `""`). Fixed with the shared validator. Duplicate identity on iOS = `iosXCStringKey()` (camelCase base + argument types): `var foo`, `func foo(String)` and `func foo(Int)` are allowed (checked with swiftc), same base and same types is an error. `ResourceNameEntry.identity` carries it. | Standard |
 
