@@ -28,11 +28,12 @@
 | Backlog N6, N10 | ↪ Closed, not a bug | checked by running / by `swiftc` |
 | N16 | ✅ Done | `getFilesInDirectory` sorted by path (committed by the owner) |
 | N19 | ✅ Done | builder maps typed `Object Function(JsonData)` (committed by the owner) |
-| N17 | ✅ Done, uncommitted (249/249, analyze clean) | skipped builder still runs `validateBundle` |
+| N17 | ✅ Done `39ec96c` | skipped builder still runs `validateBundle` |
+| N20 | ✅ Done, uncommitted (251/251, analyze clean) | Android values with edge or repeated spaces are wrapped in double quotes; `\u0020` (N4) did not work in aapt2 |
 
 **Verification now:** `dart test` 246/246 green. `dart analyze lib test bin` reports no issues.
-Not yet verified on a real device or terminal: the Android `%%` rule (see B2), `\u0020` for edge
-spaces (N4), and R7 colour in a real TTY (`2> file`, `| tee`, `NO_COLOR=1`).
+Checked with aapt2 (build-tools 37), not on a device: the Android `%%` rule (see B2) and the quoting of
+values with edge or repeated spaces (N20). R7 colour was checked by the owner in a real terminal.
 
 Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 
@@ -44,8 +45,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** none required. The hardening backlog is empty: N16, N17 and N19 are done. Before a release, by hand: the Android `%%` and `\u0020`
-rules on a device. R7 colour was checked by the owner in a real terminal: green on success, red on
+**Next task:** none required. The hardening backlog is empty: N16, N17 and N19 are done. Before a release, by hand: the Android `%%` and quoting rules on a device (they are checked with aapt2 only). R7 colour was checked by the owner in a real terminal: green on success, red on
 error, none with `NO_COLOR=1`, no escape codes in a redirected stderr. The old worktree and branch
 `claude/cli-stderr-errors-d3067c` no longer exist.
 
@@ -234,7 +234,7 @@ the tool):
 | N1 ✅ `6cc70b7` | `android_code_generation_use_case_xml.dart` | The description goes into `<!-- $description -->`; `--` or `-->` in it breaks the XML. | Standard |
 | N2 ✅ `86af022` (committed under the R8 message) | same | `"` was not escaped (aapt drops it). Fixed: `"` → `\"` after the backslash step. | Low |
 | N3 ✅ `fbb1314` | same | A key that gives an invalid resource name (starts with a digit, characters outside `[a-z0-9_]`) was not validated. Fixed: error `InvalidResourceNameException` (regex `^[A-Za-z_][A-Za-z0-9_]*$` on the final name), all bad keys of a bundle reported together. Open caveat: with `use_file_prefix_for_keys` a key with no ASCII letters collapses to the bare prefix (valid but wrong, duplicates possible). | Low |
-| N4 ✅ `a5e46a2` | same | Leading, trailing and repeated spaces, and a literal tab, are collapsed by Android into one space: valid output, different from the source (`Name:<tab>Value` shows as `Name: Value`; iOS and Flutter keep the tab). Fixed: tab → `\t`; leading, trailing and repeated spaces → `\u0020` (regex `^ | $|(?<= ) `). Not run on a device: confirm aapt accepts `\u0020` in the real build. | Low |
+| N4 ✅ `a5e46a2` (the `\u0020` part superseded by N20) | same | Leading, trailing and repeated spaces, and a literal tab, are collapsed by Android into one space: valid output, different from the source (`Name:<tab>Value` shows as `Name: Value`; iOS and Flutter keep the tab). Fixed: tab → `\t`; leading, trailing and repeated spaces → `\u0020` (regex `^ | $|(?<= ) `). Not run on a device: confirm aapt accepts `\u0020` in the real build. | Low |
 
 Found while doing R5 (from the agent's report, not yet reproduced by running the tool):
 
@@ -265,6 +265,7 @@ Found while doing N8 (observation, not run):
 | N17 | `batch_code_generation_use_case.dart` (N13 skip) | When Android is skipped because of a cross-bundle clash, its per-bundle checks (N3, N12) do not run, so a same-bundle duplicate or invalid name in the same run is reported only after the clash is fixed (errors arrive in two rounds). Fix idea: run the per-bundle validation for a skipped builder too, without writing files. **Done (uncommitted):** new hook `CodeGenerationUseCase.validateBundle` (null by default, Android overrides it); `build()` calls it for a skipped builder, so the cross-bundle clash and the bundle's own errors arrive in one run. Test `skipped Android builder still reports per-bundle errors` failed first with actual `{Duplicate}`; mutation (hook call removed) fails it again. | Low |
 | N18 ✅ `47192b1` | `lib/common/utils/task_result.dart` | `TaskResult<R, E>`, `TaskSucceeded` and `TaskFailed` have an unbounded `E`, although it is always `AppException` (fixed by the typedefs in `task.dart`; the raw classes are not exported). Fixed: `E extends AppException` on all three (proved in a scratch copy: `TaskResult<int, String>` fails with `type_argument_not_matching_bounds`). | Low |
 | N19 | `settings_loader_use_case.dart:31`, `localization_loader_use_case.dart:23` | The builder maps are `Map<Type, Function>`: the raw `Function` type means the compiler does not check the builder signatures. **Done (uncommitted):** both maps are `Map<Type, Object Function(JsonData)>`. Proof in a scratch copy: an entry with the wrong signature gave no type error before, and `map_value_type_not_assignable` after. No runtime test is possible, the check is compile-time. | Low |
+| N20 | `android_code_generation_use_case.dart` `androidTranslationEscape` | The N4 rule wrote leading, trailing and repeated spaces as `\u0020`, but aapt2 still trims and collapses them (`\u0020x` became `x`, `a\u0020\u0020b` became `a b`). Found while checking the rule with aapt2. **Done (uncommitted):** the whole value is wrapped in double quotes when it starts or ends with a space or has two in a row; `\"`, `\'`, `\n`, `\t`, `%1$d` and a leading `@` work inside quotes (the `@` prefix is skipped there). Tests failed first with the old `\u0020` forms; mutation (quote branch removed) fails them again; the output of the real function was compiled and linked with aapt2 and every space survived. Not checked on a device. | Medium |
 
 **Suggested order (updated):** backlog empty; the by-hand checks from "Status" come first before a release.
 

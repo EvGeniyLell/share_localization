@@ -181,12 +181,18 @@ extension StringToAndroid on String {
   /// Makes a translation valid XML text and safe as a string resource.
   ///
   /// `&` must be replaced before `<`, otherwise the `&` of the new `&lt;`
-  /// would be escaped again. A leading `@` or `?` is prefixed with a backslash,
-  /// because Android reads it as a resource or theme attribute reference.
-  /// A `"` becomes `\"`, because an unescaped quote is dropped from the output.
-  /// Android collapses whitespace in unquoted values, so a tab becomes `\t` and
-  /// leading, trailing or repeated spaces become `\u0020`. This is the
-  /// Android resource rule and was not verified on a device.
+  /// would be escaped again. A `"` becomes `\"`, because an unescaped quote is
+  /// dropped from the output. A tab becomes `\t` and a newline becomes `\n`.
+  ///
+  /// aapt trims leading and trailing spaces and collapses repeated spaces in
+  /// unquoted values. If the escaped text starts with a space, ends with a
+  /// space, or has two spaces in a row, the whole value is wrapped in double
+  /// quotes, which keeps those spaces. Quotes preserve whitespace, verified
+  /// with aapt2 (build-tools 37), not on a device.
+  ///
+  /// Otherwise a leading `@` or `?` is prefixed with a backslash, because
+  /// Android reads it as a resource or theme attribute reference. A quoted
+  /// value skips this, since a leading `@` stays a literal inside quotes.
   String androidTranslationEscape() {
     // Backslash must come first, or the `\` added by the later replacements
     // would be doubled too.
@@ -196,8 +202,10 @@ extension StringToAndroid on String {
         .replaceAll('<', '&lt;')
         .replaceAll("'", r"\'")
         .replaceAll('\n', r'\n')
-        .replaceAll('\t', r'\t')
-        .replaceAll(RegExp(r'^ | $|(?<= ) '), r'\u0020');
+        .replaceAll('\t', r'\t');
+    if (RegExp(r'^ | $|  ').hasMatch(escaped)) {
+      return '"$escaped"';
+    }
     if (escaped.startsWith('@') || escaped.startsWith('?')) {
       return '\\$escaped';
     }
