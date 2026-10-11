@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:mocktail/mocktail.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
 import '../../common/mocks.dart';
+import '../../helpers/mock_file_service_helper.dart';
 import '../../localizations/mocks.dart';
 import '../../settings/mocks.dart';
 
@@ -20,14 +20,7 @@ void main() {
     fileService = MockFileService();
     generationUseCase = FlutterCodeGenerationUseCase(fileService);
 
-    when(() {
-      return fileService.createFile(
-        path: any(named: 'path'),
-        content: any(named: 'content'),
-      );
-    }).thenAnswer((invocation) async {
-      virtualFiles.add(InvocationCreateFile(invocation));
-    });
+    setUpMockFileService(fileService, virtualFiles);
   });
 
   group('FlutterCodeGenerationUseCase', () {

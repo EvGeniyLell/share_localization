@@ -6,6 +6,7 @@ import 'package:share_localization/code_generation/use_cases/batch_code_generati
 import 'package:test/test.dart';
 
 import '../../common/mocks.dart';
+import '../../helpers/mock_file_service_helper.dart';
 
 void main() {
   // Printer.debug = true;
@@ -21,14 +22,7 @@ void main() {
       fileService: fileService,
     );
 
-    when(() {
-      return fileService.createFile(
-        path: any(named: 'path'),
-        content: any(named: 'content'),
-      );
-    }).thenAnswer((invocation) async {
-      virtualFiles.add(InvocationCreateFile(invocation));
-    });
+    setUpMockFileService(fileService, virtualFiles);
 
     when(() {
       return fileService.getFilesInDirectory(
