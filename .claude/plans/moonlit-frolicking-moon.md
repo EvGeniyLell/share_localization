@@ -1,6 +1,6 @@
 # Plan: Production Hardening — share_localization
 
-## Status (branch `moonlit-frolicking-moon`, tip `72bcc0e`, everything committed)
+## Status (branch `moonlit-frolicking-moon`, tip `47192b1`, everything committed)
 
 | Phase | Status | Commits |
 |---|---|---|
@@ -12,12 +12,25 @@
 | Requested additions | ✅ Done | `448ff77` |
 | Backlog R1, R2, R4, R5, N0 | ✅ Done | `8e25f71`, `1239cea`, `40295ef`, `06338d1`, `72bcc0e` |
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
-| Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
-| Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog N16, N17, N19 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
+| Backlog N5, N9 | ✅ Done | `40c258c` |
+| Backlog N1 | ✅ Done | `6cc70b7` |
+| Backlog R3 | ✅ Done | `a231c21` |
+| Backlog R8 | ✅ Done | `62d39d3` (`86af022` has the same message but holds N2) |
+| Backlog N2 | ✅ Done | `86af022` |
+| Backlog N3 | ✅ Done | `fbb1314` |
+| Backlog N12, N14, N15 (shared name validator, one commit) | ✅ Done | `99506e7` (the message only mentions Android) |
+| Backlog N4 | ✅ Done | `a5e46a2` |
+| Backlog N7 | ✅ Done | `4d0968c` |
+| Backlog N11 | ✅ Done | `7e1ae7b` |
+| Backlog R9, R10, R7 | ✅ Done | `47f7fae`, `8ba8121`, `aa3e842` |
+| Backlog N13 | ✅ Done | `da987f1` |
+| Backlog R11, N18 | ✅ Done | `f146952`, `47192b1` |
+| Backlog N6, N10 | ↪ Closed, not a bug | checked by running / by `swiftc` |
+| Backlog N16, N17, N19 | ⏳ Open (all Low) | see "Open backlog" |
 
-**Verification now:** `dart test` 246/246 green. `dart analyze lib test bin` reports no issues (R11 removed the last info).
-Not yet verified on a real device or terminal: the Android `%%` rule (see B2), `\u0020` for edge spaces (N4), and R7 colour in a real TTY (`2> file`, `| tee`, `NO_COLOR=1`).
+**Verification now:** `dart test` 246/246 green. `dart analyze lib test bin` reports no issues.
+Not yet verified on a real device or terminal: the Android `%%` rule (see B2), `\u0020` for edge
+spaces (N4), and R7 colour in a real TTY (`2> file`, `| tee`, `NO_COLOR=1`).
 
 Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 
@@ -29,18 +42,20 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** none required; backlog left: N16 and N17 (both Low). R11 is done in the working tree (owner commits): type parameter of `PlatformSettingsDto` renamed `PlatformOptionsDto` → `Options extends PlatformOptionsDto` (the bound limits it to the three platform option classes; proved with a scratch copy: `PlatformSettingsDto<String>` fails with `type_argument_not_matching_bounds`), `dart analyze` is clean. N13 and R7 are committed. N4 is committed (`a5e46a2`). N7 is committed (`4d0968c`). N10 was checked with swiftc and closed: not a bug. N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
-done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
-`-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
-and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
-the xcstrings JSON and through `iosSwiftTranslationEscape` (now also real CR → `\r`) in the Swift
-`///`; a `"` in a Swift doc comment now shows as `\"`, same as the translation text there. R6 and N8 are committed (`9e8f0cb`: iOS `%` → `%%` for
-keys with arguments, applied before the placeholder substitution; xcstrings JSON value escapes `\`
-first, then `"`, newline, tab, `\r`). N5 (Flutter real `\r` → `\r`, after the backslash step) is done
-in the working tree; the owner commits it. Done so far: skipped
-verification errors are warnings in `BuildReport` (`VerificationLocalizationException` counts as a
-warning), equal warnings are shown once, Android escapes `&` before `<`, a leading `@` / `?` and
-`\`, Flutter escapes `\` first. In all escape functions the backslash step must stay FIRST.
+**Next task:** none required. Open, all Low: N16 (sort `getFilesInDirectory`, so the bundle order
+and the order of errors are the same on every machine), N17 (Android per-bundle checks also run
+when Android is skipped for a cross-bundle clash), N19 (typed builders instead of the raw
+`Function` in the two `buildDto` maps). Before a release, by hand: the Android `%%` and `\u0020`
+rules on a device, and the R7 colour in a real terminal. Housekeeping: remove the old worktree and
+branch `claude/cli-stderr-errors-d3067c`.
+
+**What the backlog changed (so you do not redo it):** every escape function keeps the backslash
+step FIRST. Name validation is shared: `resource_name_validation.dart` (`validateResourceNames`,
+`ResourceNameEntry` with `identity`) used by Android, Flutter and iOS before any file is written;
+errors are `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`,
+`otherBundleName` for clashes across bundles, found by the hook
+`CodeGenerationUseCase.validateBundles`). Load and verify errors of all bundles are reported
+together. Colour is decided per stream and `NO_COLOR` is honoured.
 
 **Commits:** the owner commits by hand. Do not run `git commit` / `git add` / `git reset` unless
 asked; leave fixes and tests in the working tree and list the changed files.
@@ -62,7 +77,7 @@ asked; leave fixes and tests in the working tree and list the changed files.
   but single words keep goldens small).
 - `dart analyze` on the whole repo shows ~95 errors, almost all in `example/results/flutter/`
   because Flutter is not installed. Only `Undefined name` for **our own argument names** is a real
-  generator bug. `lib/` has 5 known infos (see Status).
+  generator bug. `dart analyze lib test bin` is clean.
 - `SettingsDto.copyWith` cannot reset a field to null; build the DTO directly (see
   `settingsDtoWithoutIos` in `test/settings/mocks.dart`).
 
@@ -71,7 +86,14 @@ asked; leave fixes and tests in the working tree and list the changed files.
 - Android: `%` → `%%` only for keys **with** arguments; keys without arguments stay as they are.
 - Flutter: `$` → `\$`; `{size}MB` → `${size}MB`; placeholder names go through `camelCase()`.
 - A failing builder does not fail the task; it is listed in `BuildReport.errors`.
-- Hand-written parser in `bin/`, no `args` dependency.
+- Hand-written parser in `bin/`, no `args` dependency. `--settings <path>` refuses a value that starts
+  with `-`; `--settings=<path>` is supported (an empty value is an error).
+- Resource names are validated (error, exit 1, no file written) instead of being silently
+  sanitised; invalid, empty-base and duplicate names are errors on every platform.
+- iOS duplicate identity = camelCase base + argument types (`iosXCStringKey()`), because Swift
+  allows `var foo` next to `func foo(_:)` (checked with `swiftc`).
+- A builder with a cross-bundle clash is skipped for all bundles; the other builders still run.
+- Colour per stream (stdout for warnings/success, stderr for errors); a non-empty `NO_COLOR` wins.
 
 **Not verified yet:** the Android `%%` rule was not run on a device. Check once in Android Studio.
 
@@ -132,7 +154,7 @@ dependency. Usage errors exit 1. ⏳ See R10: `--settings` takes the next token 
 
 ### 2d. User-friendly exception wrappers — ✅ `edb6e54`
 `SettingsNotFoundException`, `InvalidJsonException`, wrapped in `JsonData.fromFile`.
-✅ See R3 (working tree): wrong message for bundle files and non-"not found" I/O errors.
+✅ See R3 (`a231c21`): wrong message for bundle files and non-"not found" I/O errors.
 
 ---
 
@@ -194,14 +216,15 @@ Ordered by impact. R1–R3 were reproduced by running the tool; the rest come fr
 |---|---|---|---|
 | R1 ✅ `8e25f71` | `verification_localization_use_case.dart:16` | Errors in `skipErrorTypes` vanish. CLAUDE.md says they become a warning. Reproduced: unused argument → "Build completed successfully", no warning. | Standard |
 | R2 ✅ `1239cea` | `batch_code_generation_use_case.dart:47` | `Set` replaced by `List`: the same warning repeats once per bundle (reproduced: 2 bundles, 2 identical warnings). | Standard |
-| R3 ✅ working tree | `json_data.dart:30` | Any `FileSystemException` is reported as `SettingsNotFoundException`, also for bundles (reproduced with an unreadable bundle). Invalid UTF-8 gave the same wrong message (not `UnexpectedException`). Fix: missing file → `SettingsNotFoundException`, other read errors → new `FileReadException`. | Standard |
+| R3 ✅ `a231c21` | `json_data.dart:30` | Any `FileSystemException` is reported as `SettingsNotFoundException`, also for bundles (reproduced with an unreadable bundle). Invalid UTF-8 gave the same wrong message (not `UnexpectedException`). Fix: missing file → `SettingsNotFoundException`, other read errors → new `FileReadException`. | Standard |
 | R4 (B5) ✅ `40295ef` | `android_code_generation_use_case.dart:60` | `&` (and a leading `@` / `?`) not escaped: invalid Android XML. | Standard |
 | R5 (B6) ✅ `06338d1` | `flutter_code_generation_use_case.dart:72` | Backslash not escaped in the Dart string. | Standard |
 | R6 (B7) ✅ `9e8f0cb` | `ios_code_generation_use_case.dart:85` | Literal `%` not escaped in xcstrings values of keys with arguments (same defect as B2). | Standard |
-| R7 ✅ working tree | `build_report_printer.dart:12` | ANSI decided by `stdout` but written to `stderr`; `NO_COLOR` ignored. Fixed: colour decided per stream (log lines by stdout, error lines by stderr), non-empty `NO_COLOR` disables it; constructor seam `stdoutAnsi`/`stderrAnsi`/`environment`; 13 new tests. NOT run in a real TTY (no pty in the agent sandbox). | Low |
+| R7 ✅ `aa3e842` | `build_report_printer.dart:12` | ANSI decided by `stdout` but written to `stderr`; `NO_COLOR` ignored. Fixed: colour decided per stream (log lines by stdout, error lines by stderr), non-empty `NO_COLOR` disables it; constructor seam `stdoutAnsi`/`stderrAnsi`/`environment`; 13 new tests. NOT run in a real TTY (no pty in the agent sandbox). | Low |
 | R8 ✅ `62d39d3` | `batch_code_generation_use_case.dart:78` | `Future.wait` keeps only the first load/verify error across bundles. Fixed: all collected, flattened `CompositeException` in file order. | Low |
-| R9 ✅ working tree | `build_report_printer.dart:4` | 3 lines over 80 chars: fixed with a `_count` helper, output pinned by 8 new characterisation tests. The "deep import" no longer exists (sibling files of the same module are imported directly, like in the other generators). | Low |
-| R10 ✅ working tree | `bin/share_localization.dart:23` | `--settings --verbose` took `--verbose` as the path; `--settings=path` was rejected; no CLI test for `InvalidJsonException`. Fixed: a `-`-prefixed next argument is "requires a path"; `--settings=<path>` supported (empty value is an error, `--settings=-x` keeps the value); 7 new real-process tests incl. `InvalidJsonException`. | Low |
+| R9 ✅ `47f7fae` | `build_report_printer.dart:4` | 3 lines over 80 chars: fixed with a `_count` helper, output pinned by 8 new characterisation tests. The "deep import" no longer exists (sibling files of the same module are imported directly, like in the other generators). | Low |
+| R10 ✅ `8ba8121` | `bin/share_localization.dart:23` | `--settings --verbose` took `--verbose` as the path; `--settings=path` was rejected; no CLI test for `InvalidJsonException`. Fixed: a `-`-prefixed next argument is "requires a path"; `--settings=<path>` supported (empty value is an error, `--settings=-x` keeps the value); 7 new real-process tests incl. `InvalidJsonException`. | Low |
+| R11 ✅ `f146952` | `platform_settings_dto.dart:11` | The type parameter `PlatformOptionsDto` shadowed the class of the same name (the last analyze info). Fixed: `Options extends PlatformOptionsDto`, so only the three platform option classes can be used (proved in a scratch copy: `PlatformSettingsDto<String>` fails with `type_argument_not_matching_bounds`). | Low |
 
 Found while doing R4 (from reading the code and the agent's report, not reproduced by running
 the tool):
@@ -209,10 +232,10 @@ the tool):
 | ID | Where | Problem | Class of service |
 |---|---|---|---|
 | N0 ✅ `72bcc0e` | `android_code_generation_use_case.dart` `androidTranslationEscape` | A literal `\` is passed through; aapt reads it as an escape sequence (`C:\dir`, `\d`) and the build can fail. Same family as R5, other rules. | Standard |
-| N1 ✅ uncommitted | `android_code_generation_use_case_xml.dart` | The description goes into `<!-- $description -->`; `--` or `-->` in it breaks the XML. | Standard |
+| N1 ✅ `6cc70b7` | `android_code_generation_use_case_xml.dart` | The description goes into `<!-- $description -->`; `--` or `-->` in it breaks the XML. | Standard |
 | N2 ✅ `86af022` (committed under the R8 message) | same | `"` was not escaped (aapt drops it). Fixed: `"` → `\"` after the backslash step. | Low |
 | N3 ✅ `fbb1314` | same | A key that gives an invalid resource name (starts with a digit, characters outside `[a-z0-9_]`) was not validated. Fixed: error `InvalidResourceNameException` (regex `^[A-Za-z_][A-Za-z0-9_]*$` on the final name), all bad keys of a bundle reported together. Open caveat: with `use_file_prefix_for_keys` a key with no ASCII letters collapses to the bare prefix (valid but wrong, duplicates possible). | Low |
-| N4 ✅ working tree | same | Leading, trailing and repeated spaces, and a literal tab, are collapsed by Android into one space: valid output, different from the source (`Name:<tab>Value` shows as `Name: Value`; iOS and Flutter keep the tab). Fixed: tab → `\t`; leading, trailing and repeated spaces → `\u0020` (regex `^ | $|(?<= ) `). Not run on a device: confirm aapt accepts `\u0020` in the real build. | Low |
+| N4 ✅ `a5e46a2` | same | Leading, trailing and repeated spaces, and a literal tab, are collapsed by Android into one space: valid output, different from the source (`Name:<tab>Value` shows as `Name: Value`; iOS and Flutter keep the tab). Fixed: tab → `\t`; leading, trailing and repeated spaces → `\u0020` (regex `^ | $|(?<= ) `). Not run on a device: confirm aapt accepts `\u0020` in the real build. | Low |
 
 Found while doing R5 (from the agent's report, not yet reproduced by running the tool):
 
@@ -220,7 +243,7 @@ Found while doing R5 (from the agent's report, not yet reproduced by running the
 |---|---|---|---|
 | N5 ✅ `40c258c` | `flutter_code_generation_use_case.dart` `flutterEscape` | A real `\r` is not escaped: a raw carriage return lands inside a single-quoted Dart string. Probably the same on Android and iOS (check). | Standard |
 | N6 ✅ not a bug | same | A placeholder `{unknown}` that is not a declared argument: reproduced with the tool, verification stops the build first (`Missing argument "unknown"`, exit 1, no files written; covered by `failed with missingArgument` in `verification_localization_use_case_test.dart`). Nothing to fix. | closed |
-| N7 ✅ working tree | `flutterDocCommentEscape` (was `flutterDescriptionEscape`) | Text in a `///` comment: `\r` in the description ended the line and the rest became Dart code, and `key.comment` was not escaped at all (`\n` or `\r` there also injected code). Fixed: one escape (`\n`, `\r` as two characters) for both comment and description. | Low |
+| N7 ✅ `4d0968c` | `flutterDocCommentEscape` (was `flutterDescriptionEscape`) | Text in a `///` comment: `\r` in the description ended the line and the rest became Dart code, and `key.comment` was not escaped at all (`\n` or `\r` there also injected code). Fixed: one escape (`\n`, `\r` as two characters) for both comment and description. | Low |
 
 Found while doing R6 (confirmed by reading the code, not run):
 
@@ -234,25 +257,24 @@ Found while doing N8 (observation, not run):
 
 | ID | Where | Problem | Class of service |
 |---|---|---|---|
-| N11 ✅ working tree | `iosXCSTranslationEscape` | Control characters U+0000–U+001F other than tab, newline and `\r` (`\b`, `\f`, NUL) are still written raw, which is invalid JSON. Fixed: remaining U+0000–U+001F → `\u00xx` (lowercase hex) after the other steps; DEL stays raw (valid JSON). The raw file used to be invalid JSON while the build reported success. | Low |
-| N12 ✅ working tree | `android_code_generation_use_case.dart` `_validateResourceNames` | Android names are not checked for an empty key base (with `use_file_prefix_for_keys` a key without ASCII letters collapses to the bare prefix) or for duplicates inside a bundle (`my-key` and `my_key` both give `my_key`, also without a prefix). Fixed: `InvalidResourceNameReason.emptyKeyBase` and new `DuplicateResourceNameException` (`platform` field, names both keys); one error per key, all reported together. | Standard |
-| N13 ✅ working tree | `batch_code_generation_use_case.dart` | Duplicate Android names ACROSS bundles (same key in two bundles, prefix off) are not checked; Android merges all `values/*.xml`. Fixed: hook `CodeGenerationUseCase.validateBundles`, Android override (bundles sorted by name, clash only against a different bundle); a builder with a clash is skipped for ALL bundles while the others still run; `DuplicateResourceNameException.otherBundleName`. 7 new tests. | Low |
+| N11 ✅ `7e1ae7b` | `iosXCSTranslationEscape` | Control characters U+0000–U+001F other than tab, newline and `\r` (`\b`, `\f`, NUL) are still written raw, which is invalid JSON. Fixed: remaining U+0000–U+001F → `\u00xx` (lowercase hex) after the other steps; DEL stays raw (valid JSON). The raw file used to be invalid JSON while the build reported success. | Low |
+| N12 ✅ `99506e7` | `android_code_generation_use_case.dart` `_validateResourceNames` | Android names are not checked for an empty key base (with `use_file_prefix_for_keys` a key without ASCII letters collapses to the bare prefix) or for duplicates inside a bundle (`my-key` and `my_key` both give `my_key`, also without a prefix). Fixed: `InvalidResourceNameReason.emptyKeyBase` and new `DuplicateResourceNameException` (`platform` field, names both keys); one error per key, all reported together. | Standard |
+| N13 ✅ `da987f1` | `batch_code_generation_use_case.dart` | Duplicate Android names ACROSS bundles (same key in two bundles, prefix off) are not checked; Android merges all `values/*.xml`. Fixed: hook `CodeGenerationUseCase.validateBundles`, Android override (bundles sorted by name, clash only against a different bundle); a builder with a clash is skipped for ALL bundles while the others still run; `DuplicateResourceNameException.otherBundleName`. 7 new tests. | Low |
+| N14 ✅ `99506e7` | `flutter_code_generation_use_case.dart` | Flutter: duplicate or empty/invalid `camelCase()` names (`my-key` + `my_key`, `ключ`) were written as duplicate getters and `String get ;`. Fixed with the shared validator; reserved words (`class`) and `Object` member clashes (`hashCode`) are NOT checked. | Standard |
+| N15 ✅ `99506e7` | `ios_code_generation_use_case.dart` | iOS: same defect in Swift (`static var myKey` twice, `static var :`) and xcstrings (duplicate `"myKey"`, `""`). Fixed with the shared validator. Duplicate identity on iOS = `iosXCStringKey()` (camelCase base + argument types): `var foo`, `func foo(String)` and `func foo(Int)` are allowed (checked with swiftc), same base and same types is an error. `ResourceNameEntry.identity` carries it. | Standard |
 | N16 | `lib/common/services/file_service.dart:18` | `getFilesInDirectory` returns files in `listSync()` order, which depends on the file system. Bundle order is therefore not deterministic across machines: the order of errors and warnings (R8), the "first holder" in duplicate reports (N12) and the order of generated output can differ. Fix idea: sort the files by path. N13 sorts bundles by name inside its own check as a stop-gap. Not started. | Low |
 | N17 | `batch_code_generation_use_case.dart` (N13 skip) | When Android is skipped because of a cross-bundle clash, its per-bundle checks (N3, N12) do not run, so a same-bundle duplicate or invalid name in the same run is reported only after the clash is fixed (errors arrive in two rounds). Fix idea: run the per-bundle validation for a skipped builder too, without writing files. Not started. | Low |
-| N18 ✅ working tree | `lib/common/utils/task_result.dart` | `TaskResult<R, E>`, `TaskSucceeded` and `TaskFailed` have an unbounded `E`, although it is always `AppException` (fixed by the typedefs in `task.dart`; the raw classes are not exported). Fixed: `E extends AppException` on all three (proved in a scratch copy: `TaskResult<int, String>` fails with `type_argument_not_matching_bounds`). | Low |
+| N18 ✅ `47192b1` | `lib/common/utils/task_result.dart` | `TaskResult<R, E>`, `TaskSucceeded` and `TaskFailed` have an unbounded `E`, although it is always `AppException` (fixed by the typedefs in `task.dart`; the raw classes are not exported). Fixed: `E extends AppException` on all three (proved in a scratch copy: `TaskResult<int, String>` fails with `type_argument_not_matching_bounds`). | Low |
 | N19 | `settings_loader_use_case.dart:31`, `localization_loader_use_case.dart:23` | The builder maps are `Map<Type, Function>`: the raw `Function` type means the compiler does not check the builder signatures. Fix idea: a typed builder, e.g. `Dto Function(JsonData)`. Not started. | Low |
-| N14 ✅ working tree | `flutter_code_generation_use_case.dart` | Flutter: duplicate or empty/invalid `camelCase()` names (`my-key` + `my_key`, `ключ`) were written as duplicate getters and `String get ;`. Fixed with the shared validator; reserved words (`class`) and `Object` member clashes (`hashCode`) are NOT checked. | Standard |
-| N15 ✅ working tree | `ios_code_generation_use_case.dart` | iOS: same defect in Swift (`static var myKey` twice, `static var :`) and xcstrings (duplicate `"myKey"`, `""`). Fixed with the shared validator. Duplicate identity on iOS = `iosXCStringKey()` (camelCase base + argument types): `var foo`, `func foo(String)` and `func foo(Int)` are allowed (checked with swiftc), same base and same types is an error. `ResourceNameEntry.identity` carries it. | Standard |
 
-**Suggested order (updated):** R7, then the low items
-(R7, R9, R10, N2–N4, N7, N10, N11). Single-word argument names in new fixtures.
+**Suggested order (updated):** N16, then N19 and N17 (all Low); the by-hand checks from "Status" come first before a release.
 
 ---
 
 ## Verification
 
 ```bash
-dart analyze lib test           # 4 pre-existing infos, see Status
+dart analyze lib test bin       # no issues
 dart test                       # 246 green
 
 # End-to-end happy path
