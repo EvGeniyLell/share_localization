@@ -146,6 +146,73 @@ void main() {
           r"'The $fileName is $currentSize MB';",
         );
       });
+
+      group('text right after a placeholder', () {
+        String getterFor(String message) {
+          final key = LocalizationKeyDto(
+            key: 'total',
+            comment: 'This is a total.',
+            arguments: const [
+              LocalizationKeyArgumentDto(
+                name: 'size',
+                type: LocalizationKeyDtoType.double,
+              ),
+            ],
+            translations: [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: message,
+              ),
+            ],
+          );
+          return generationUseCase.buildLocaleItemGetter(key, 'en');
+        }
+
+        // Dart reads `$sizeMB` as one identifier, so braces are required.
+        test('uses braces when a letter follows', () {
+          expect(
+            getterFor('Total {size}MB'),
+            r"String total(double size) => 'Total ${size}MB';",
+          );
+        });
+
+        test('uses braces when a digit follows', () {
+          expect(
+            getterFor('Total {size}2'),
+            r"String total(double size) => 'Total ${size}2';",
+          );
+        });
+
+        test('uses braces when an underscore follows', () {
+          expect(
+            getterFor('Total {size}_x'),
+            r"String total(double size) => 'Total ${size}_x';",
+          );
+        });
+
+        test('keeps the short form when a space or punctuation follows', () {
+          expect(
+            getterFor('Total {size} MB'),
+            r"String total(double size) => 'Total $size MB';",
+          );
+          expect(
+            getterFor('Total {size}.'),
+            r"String total(double size) => 'Total $size.';",
+          );
+          expect(
+            getterFor('Total {size}'),
+            r"String total(double size) => 'Total $size';",
+          );
+        });
+
+        test('keeps the short form before a non-ASCII letter', () {
+          // Dart identifiers are ASCII only, so `$sizeМБ` is `$size` + `МБ`.
+          expect(
+            getterFor('Total {size}МБ'),
+            r"String total(double size) => 'Total $sizeМБ';",
+          );
+        });
+      });
     });
   });
 }

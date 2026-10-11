@@ -58,12 +58,21 @@ extension StringToFlutter on String {
   /// Escapes the text and turns `{argument_name}` into `$argumentName`.
   ///
   /// The name goes through the same `camelCase()` as the generated parameter,
-  /// otherwise the body would refer to a name that does not exist.
+  /// otherwise the body would refer to a name that does not exist. When the
+  /// placeholder is followed by a character that can continue an identifier
+  /// (`{size}MB`), the braces form `${size}MB` is used so Dart does not read
+  /// `$sizeMB` as one name.
   String flutterEscape() {
     return replaceAll("'", r"\'").replaceAll('\n', r'\n').replaceAllMapped(
       RegExp(r'{(\w+)}'),
-      (math) {
-        return '\$${math.group(1)!.camelCase()}';
+      (match) {
+        final name = match.group(1)!.camelCase();
+        final next = match.end < match.input.length
+            ? match.input[match.end]
+            : '';
+        // Dart identifiers are ASCII only.
+        final continuesIdentifier = RegExp('[A-Za-z0-9_]').hasMatch(next);
+        return continuesIdentifier ? '\${$name}' : '\$$name';
       },
     );
   }
