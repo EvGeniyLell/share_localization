@@ -3,10 +3,14 @@ import 'dart:io';
 import 'package:mocktail/mocktail.dart';
 import 'package:share_localization/code_generation/build_report.dart';
 import 'package:share_localization/code_generation/use_cases/batch_code_generation_use_case.dart';
+import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
+import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
 import '../../common/mocks.dart';
 import '../../helpers/mock_file_service_helper.dart';
+import '../../localizations/mocks.dart';
+import '../../settings/mocks.dart';
 
 void main() {
   // Printer.debug = true;
@@ -70,5 +74,52 @@ void main() {
         );
       }
     });
+
+    test('failed when the settings file does not exist', () async {
+      final result = await generationUseCase('example/does_not_exist.json');
+
+      expect(result.failed, isTrue);
+      expect(result.exception, isA<SettingsNotFoundException>());
+      expect(virtualFiles, isEmpty);
+    });
+
+    test('reports a failed builder and still runs the others', () async {
+      final useCase = BatchCodeGenerationUseCase(
+        generationUseCase.settingsLoader,
+        generationUseCase.localizationLoader,
+        generationUseCase.verificationLocalization,
+        [
+          _FailingCodeGenerationUseCase(fileService),
+          FlutterCodeGenerationUseCase(fileService),
+        ],
+        fileService,
+      );
+
+      final result = await useCase('example/settings.json');
+
+      // A failing builder is reported, it does not fail the whole task.
+      expect(result.succeeded, isTrue);
+      expect(result.data.hasErrors, isTrue);
+      // One failure per localization (feature_a and general).
+      expect(result.data.errors, hasLength(2));
+      for (final error in result.data.errors) {
+        expect(error, isA<UnexpectedException>());
+        expect(error.toString(), contains('builder failed'));
+      }
+      // The builder after the failing one still wrote its files.
+      expect(virtualFiles, hasLength(6));
+      for (final file in virtualFiles) {
+        expect(file.path, startsWith('example/results/flutter/'));
+      }
+    });
   });
+}
+
+class _FailingCodeGenerationUseCase extends CodeGenerationUseCase {
+  const _FailingCodeGenerationUseCase(super.fileService);
+
+  @override
+  Task<void> call(SettingsDto settings, LocalizationDto localization) async {
+    return TaskFailed<void>(UnexpectedException('builder failed'));
+  }
 }
