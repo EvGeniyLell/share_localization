@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:mocktail/mocktail.dart';
@@ -110,6 +111,61 @@ void main() {
       expect(virtualFiles, hasLength(6));
       for (final file in virtualFiles) {
         expect(file.path, startsWith('example/results/flutter/'));
+      }
+    });
+
+    test('warns about an unused argument and still writes files', () async {
+      final tempDir = Directory.systemTemp.createTempSync('share_loc_r1_');
+      try {
+        final settingsFile = File('${tempDir.path}/settings.json')
+          ..writeAsStringSync(File('example/settings.json').readAsStringSync());
+        // "unused" is declared but never used in the messages, so the
+        // verification reports it once per translation (en and ua).
+        final bundleFile = File('${tempDir.path}/greeting.json')
+          ..writeAsStringSync(
+            jsonEncode({
+              'languages': ['en', 'ua'],
+              'keys': {
+                'greeting': {
+                  'comment': 'A greeting.',
+                  'arguments': [
+                    {'name': 'name', 'type': 'String'},
+                    {'name': 'unused', 'type': 'String'},
+                  ],
+                  'localizations': {
+                    'en': 'Hello {name}',
+                    'ua': 'Привіт {name}',
+                  },
+                },
+              },
+            }),
+          );
+        when(() {
+          return fileService.getFilesInDirectory(
+            path: any(named: 'path'),
+            extension: any(named: 'extension'),
+          );
+        }).thenAnswer((_) async => [bundleFile]);
+
+        final result = await generationUseCase(settingsFile.path);
+
+        expect(result.succeeded, isTrue);
+        final report = result.data;
+        expect(report.hasErrors, isFalse);
+        expect(report.warnings, hasLength(2));
+        expect(
+          report.warnings,
+          everyElement(
+            isA<VerificationLocalizationExtraArgumentException>().having(
+              (e) => e.argument,
+              'argument',
+              'unused',
+            ),
+          ),
+        );
+        expect(virtualFiles, isNotEmpty);
+      } finally {
+        tempDir.deleteSync(recursive: true);
       }
     });
   });

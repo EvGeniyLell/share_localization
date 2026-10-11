@@ -8,6 +8,13 @@ import 'package:share_localization/common/common.dart';
 import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
 
+/// Settings, loaded localizations and the skipped verification exceptions.
+typedef LoadResult = (
+  SettingsDto,
+  List<LocalizationDto>,
+  List<VerificationLocalizationException>,
+);
+
 class BatchCodeGenerationUseCase {
   final SettingsLoaderUseCase settingsLoader;
   final LocalizationLoaderUseCase localizationLoader;
@@ -43,8 +50,8 @@ class BatchCodeGenerationUseCase {
 
   Task<BuildReport> call(String settingsFilepath) {
     return runAppTaskSafely(() async {
-      final (settings, localizations) = await load(settingsFilepath);
-      final all = <AppException>[];
+      final (settings, localizations, skipped) = await load(settingsFilepath);
+      final all = <AppException>[...skipped];
       for (final localization in localizations) {
         all.addAll(await build(settings, localization));
       }
@@ -53,9 +60,7 @@ class BatchCodeGenerationUseCase {
   }
 
   @visibleForTesting
-  Future<(SettingsDto, List<LocalizationDto>)> load(
-    String settingsFilepath,
-  ) async {
+  Future<LoadResult> load(String settingsFilepath) async {
     final settingsTask = await settingsLoader(settingsFilepath);
     if (settingsTask.failed) {
       throw settingsTask.exception;
@@ -77,7 +82,7 @@ class BatchCodeGenerationUseCase {
 
     final localizations = await Future.wait(localizationsTasks);
 
-    await Future.wait(localizations.map((localization) async {
+    final skipped = await Future.wait(localizations.map((localization) async {
       final verificationTask = await verificationLocalization(
         settings,
         localization,
@@ -85,9 +90,10 @@ class BatchCodeGenerationUseCase {
       if (verificationTask.failed) {
         throw verificationTask.exception;
       }
+      return verificationTask.data;
     }));
 
-    return (settings, localizations);
+    return (settings, localizations, skipped.expand((e) => e).toList());
   }
 
   @visibleForTesting

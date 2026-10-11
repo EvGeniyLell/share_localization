@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:share_localization/code_generation/build_report.dart';
+import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
 import 'package:share_localization/common/common.dart';
-import 'package:share_localization/common/exceptions/app_exception.dart';
+import 'package:share_localization/localizations/localizations.dart';
 
 class BuildReportPrinter {
   static const _reset = '\x1B[0m';
@@ -16,7 +17,7 @@ class BuildReportPrinter {
 
   void print(BuildReport report) {
     for (final w in report.warnings) {
-      Printer().log(_colour(_yellow, '  ⚠  ${w.message ?? w.toString()}'));
+      Printer().log(_colour(_yellow, '  ⚠  ${_warningText(w)}'));
     }
     for (final e in report.errors) {
       Printer().err(_colour(_red, '  ✗  $e'));
@@ -33,6 +34,14 @@ class BuildReportPrinter {
     } else {
       Printer().log(_colour(_green, '✓  Build completed successfully'));
     }
+  }
+
+  String _warningText(AppException warning) {
+    return switch (warning) {
+      VerificationLocalizationException(:final message) => message,
+      BuildLocalizationException(:final message) => message ?? '$warning',
+      _ => '$warning',
+    };
   }
 
   void printError(AppException exception) {

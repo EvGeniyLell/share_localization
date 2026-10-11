@@ -10,21 +10,45 @@ class VerificationLocalizationUseCase {
 
   const VerificationLocalizationUseCase({this.skipErrorTypes = const []});
 
-  Task<void> call(SettingsDto settings, LocalizationDto localization) {
+  Task<List<VerificationLocalizationException>> call(
+    SettingsDto settings,
+    LocalizationDto localization,
+  ) {
     return runAppTaskSafely(() async {
-      final localizationExceptions = checkLocalization(settings, localization)
-          .where((e) => !skipErrorTypes.contains(e.runtimeType))
-          .toList();
+      final skipped = <VerificationLocalizationException>[];
+      final localizationExceptions = _collectErrors(
+        checkLocalization(settings, localization),
+        skipped,
+      );
       if (localizationExceptions.isNotEmpty) {
         throw CompositeException(localizationExceptions);
       }
-      final keyExceptions = checkKeys(settings, localization)
-          .where((e) => !skipErrorTypes.contains(e.runtimeType))
-          .toList();
+      final keyExceptions = _collectErrors(
+        checkKeys(settings, localization),
+        skipped,
+      );
       if (keyExceptions.isNotEmpty) {
         throw CompositeException(keyExceptions);
       }
+      return skipped;
     });
+  }
+
+  /// Returns the exceptions that are not in [skipErrorTypes] and adds the
+  /// skipped ones to [skipped], so they can be reported as warnings.
+  List<VerificationLocalizationException> _collectErrors(
+    List<VerificationLocalizationException> exceptions,
+    List<VerificationLocalizationException> skipped,
+  ) {
+    final errors = <VerificationLocalizationException>[];
+    for (final exception in exceptions) {
+      if (skipErrorTypes.contains(exception.runtimeType)) {
+        skipped.add(exception);
+      } else {
+        errors.add(exception);
+      }
+    }
+    return errors;
   }
 
   @visibleForTesting

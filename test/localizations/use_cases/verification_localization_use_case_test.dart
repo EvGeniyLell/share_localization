@@ -261,6 +261,31 @@ void main() {
         expect(task.succeeded, true);
       });
 
+      test('returns skipped extraArgument exceptions as data', () async {
+        const skippingVerification = VerificationLocalizationUseCase(
+          skipErrorTypes: [VerificationLocalizationExtraArgumentException],
+        );
+
+        final task = await skippingVerification(
+          settingsDto,
+          withExtraArgument,
+        );
+
+        expect(task.succeeded, true);
+        expect(task.data, hasLength(2));
+        expect(
+          task.data,
+          everyElement(isA<VerificationLocalizationExtraArgumentException>()),
+        );
+      });
+
+      test('returns an empty list when nothing is skipped', () async {
+        final task = await verification(settingsDto, localizationDto);
+
+        expect(task.succeeded, true);
+        expect(task.data, isEmpty);
+      });
+
       test('skipErrorTypes does not hide other error types', () async {
         const skippingVerification = VerificationLocalizationUseCase(
           skipErrorTypes: [VerificationLocalizationExtraArgumentException],
