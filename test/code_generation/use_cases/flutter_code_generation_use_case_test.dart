@@ -261,6 +261,16 @@ void main() {
           );
         });
       });
+
+      // A real carriage return is a line terminator in Dart, so it must be
+      // written as the two characters `\r` inside a single-quoted string.
+      group('carriage return', () {
+        test('is escaped in the getter', () {
+          final line = getterFor('Line\r{size}');
+          expect(line, r"String total(double size) => 'Line\r$size';");
+          expect(line.contains('\r'), isFalse);
+        });
+      });
     });
 
     group('flutterEscape', () {
@@ -283,6 +293,27 @@ void main() {
 
       test('escapes a backslash before a placeholder', () {
         expect(r'\{name}'.flutterEscape(), r'\\$name');
+      });
+
+      test('escapes a carriage return', () {
+        expect('\r'.flutterEscape(), r'\r');
+      });
+
+      test('escapes a CRLF pair as two escapes', () {
+        expect('\r\n'.flutterEscape(), r'\r\n');
+      });
+
+      test('keeps a literal backslash-r apart from a real carriage return', () {
+        expect(r'a\rb'.flutterEscape(), r'a\\rb');
+        expect('a\rb'.flutterEscape(), r'a\rb');
+      });
+
+      test('escapes a carriage return next to a placeholder', () {
+        expect('{name}\r'.flutterEscape(), r'$name\r');
+      });
+
+      test('escapes a carriage return before a quote', () {
+        expect("\r'".flutterEscape(), r"\r\'");
       });
 
       test('returns an empty string for empty input', () {

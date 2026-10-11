@@ -259,5 +259,93 @@ void main() {
         );
       }
     });
+
+    group('comment escaping (N9)', () {
+      IosSettingsDto iosSettings() => settingsDto.toPlatformSettingsDto()!;
+
+      LocalizationKeyDto keyWithComment(String comment) {
+        return LocalizationKeyDto(
+          key: 'commented_message',
+          comment: comment,
+          arguments: const [],
+          translations: const [
+            LocalizationKeyTranslationDto(languageKey: 'en', message: 'Hello'),
+          ],
+        );
+      }
+
+      test('xcstrings comment with quote, backslash, newline, tab and CR '
+          'is escaped and round-trips through JSON', () {
+        const comment = 'say "hi" \\ x\nnext\tt\rcr';
+        final key = keyWithComment(comment);
+        final item = BuildIosLocalizationUseCaseXCStrings(
+          generationUseCase,
+        ).buildXCStringsItem(key);
+
+        expect(item, contains(r'"comment" : "say \"hi\" \\ x\nnext\tt\rcr",'));
+        final decoded = jsonDecode('{$item}') as Map<String, dynamic>;
+        final value = decoded['commentedMessage'] as Map<String, dynamic>;
+        expect(value['comment'], comment);
+      });
+
+      test('xcstrings plain and empty comments are unchanged', () {
+        expect(
+          BuildIosLocalizationUseCaseXCStrings(
+            generationUseCase,
+          ).buildXCStringsItem(keyWithComment('Plain comment.')),
+          contains('"comment" : "Plain comment.",'),
+        );
+        expect(
+          BuildIosLocalizationUseCaseXCStrings(
+            generationUseCase,
+          ).buildXCStringsItem(keyWithComment('')),
+          contains('"comment" : "",'),
+        );
+      });
+
+      test('swift comment with real newline stays inside the doc comment', () {
+        final language = iosSettings().languages.first;
+        final key = keyWithComment('line one\nline two');
+        final result = BuildIosLocalizationUseCaseSwift(
+          generationUseCase,
+        ).buildXCStringsItemTranslation(language, key, key.translations.first);
+
+        expect(result, contains(r'  /// line one\nline two'));
+        final lines = result.split('\n').map((line) => line.trim());
+        expect(lines, isNot(contains('line two')));
+      });
+
+      test('swift comment with real CR has no raw CR character', () {
+        final language = iosSettings().languages.first;
+        final key = keyWithComment('a\rb');
+        final result = BuildIosLocalizationUseCaseSwift(
+          generationUseCase,
+        ).buildXCStringsItemTranslation(language, key, key.translations.first);
+
+        expect(result, contains(r'  /// a\rb'));
+        expect(result.contains('\r'), isFalse);
+      });
+
+      test('swift plain and empty comments are unchanged', () {
+        final language = iosSettings().languages.first;
+        final plainKey = keyWithComment('Plain comment.');
+        final plain = BuildIosLocalizationUseCaseSwift(generationUseCase)
+            .buildXCStringsItemTranslation(
+              language,
+              plainKey,
+              plainKey.translations.first,
+            );
+        expect(plain, startsWith('  /// Plain comment.\n'));
+
+        final emptyKey = keyWithComment('');
+        final empty = BuildIosLocalizationUseCaseSwift(generationUseCase)
+            .buildXCStringsItemTranslation(
+              language,
+              emptyKey,
+              emptyKey.translations.first,
+            );
+        expect(empty.split('\n').first, '  /// ');
+      });
+    });
   });
 }

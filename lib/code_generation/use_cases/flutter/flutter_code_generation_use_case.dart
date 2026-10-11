@@ -74,6 +74,7 @@ extension StringToFlutter on String {
     return replaceAll(RegExp(r'\\'), r'\\')
         .replaceAll("'", r"\'")
         .replaceAll('\n', r'\n')
+        .replaceAll('\r', r'\r')
         .replaceAll(r'$', r'\$')
         .replaceAllMapped(
       RegExp(r'{(\w+)}'),

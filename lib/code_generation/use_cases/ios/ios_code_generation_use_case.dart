@@ -112,7 +112,14 @@ extension StringToIos on String {
         .replaceAll('\r', r'\r');
   }
 
+  /// Escapes text for use inside a Swift `///` doc comment.
+  ///
+  /// A real newline or carriage return ends the `///` line in Swift, so both
+  /// are written as the two-character sequences `\n` and `\r`.
   String iosSwiftTranslationEscape() {
-    return replaceAll('"', r'\"').replaceAll('\n', r'\n');
+    return replaceAll(
+      '"',
+      r'\"',
+    ).replaceAll('\n', r'\n').replaceAll('\r', r'\r');
   }
 }

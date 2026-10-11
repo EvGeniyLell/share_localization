@@ -26,7 +26,7 @@ $stringsItems
         .join(',\n');
     return '''
     "${key.iosXCStringKey()}" : {
-      "comment" : "${key.comment}",
+      "comment" : "${key.comment.iosXCSTranslationEscape()}",
       "extractionState" : "manual",
       "localizations" : {
 $translations

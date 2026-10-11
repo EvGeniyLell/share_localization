@@ -52,7 +52,7 @@ $getters
     LocalizationKeyDto key,
     LocalizationKeyTranslationDto translation,
   ) {
-    final comment = key.comment;
+    final comment = key.comment.iosSwiftTranslationEscape();
     final defaultLanguage = language.key;
     final translation = key.translations
         .firstWhere((translation) {
