@@ -57,11 +57,20 @@ extension LocalizationKeyDtoTypeToAndroid on LocalizationKeyDtoType {
 }
 
 extension StringToAndroid on String {
+  /// Makes a translation valid XML text and safe as a string resource.
+  ///
+  /// `&` must be replaced before `<`, otherwise the `&` of the new `&lt;`
+  /// would be escaped again. A leading `@` or `?` is prefixed with a backslash,
+  /// because Android reads it as a resource or theme attribute reference.
   String androidTranslationEscape() {
-    return replaceAll(
-      '<',
-      '&lt;',
-    ).replaceAll("'", r"\'").replaceAll('\n', r'\n');
+    final escaped = replaceAll(
+      '&',
+      '&amp;',
+    ).replaceAll('<', '&lt;').replaceAll("'", r"\'").replaceAll('\n', r'\n');
+    if (escaped.startsWith('@') || escaped.startsWith('?')) {
+      return '\\$escaped';
+    }
+    return escaped;
   }
 
   String androidDescriptionEscape() {

@@ -138,6 +138,74 @@ void main() {
       },
     );
 
+    group('androidTranslationEscape', () {
+      // Each row: input -> expected output. Android XML must not contain a
+      // bare `&` or `<`, and a leading `@` or `?` is read as a reference.
+      final cases = <String, String>{
+        'Tom & Jerry': 'Tom &amp; Jerry',
+        'a & b < c': 'a &amp; b &lt; c',
+        '&lt;': '&amp;lt;',
+        '@home': r'\@home',
+        '?attr': r'\?attr',
+        '@': r'\@',
+        '?': r'\?',
+        'mail@host?x': 'mail@host?x',
+        '': '',
+        "it's <b>": r"it\'s &lt;b>",
+      };
+      for (final entry in cases.entries) {
+        test('escapes ${entry.key.isEmpty ? '<empty>' : entry.key}', () {
+          expect(entry.key.androidTranslationEscape(), entry.value);
+        });
+      }
+    });
+
+    group('buildLocaleItemGetter', () {
+      test('produces a valid string element for an ampersand', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginTitleKey.copyWith(
+            key: 'tom',
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: 'Tom & Jerry',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        expect(result, contains('>Tom &amp; Jerry</string>'));
+      });
+
+      test('keeps placeholders working next to a leading ampersand', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginMessageKey.copyWith(
+            key: 'greet',
+            arguments: const [
+              LocalizationKeyArgumentDto(
+                name: 'name',
+                type: LocalizationKeyDtoType.string,
+              ),
+            ],
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: '@{name} & more',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        expect(result, contains(r'>\@%1$s &amp; more</string>'));
+      });
+    });
+
     group('androidArgumentsEscape', () {
       const fileName = LocalizationKeyArgumentDto(
         name: 'file_name',
