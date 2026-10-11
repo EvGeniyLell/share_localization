@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:share_localization/code_generation/build_report.dart';
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
 import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
+import 'package:share_localization/code_generation/exceptions/invalid_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/batch_code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
@@ -359,6 +360,55 @@ void main() {
         expect(paths.where((p) => p.contains('/android/')), isEmpty);
         expect(paths.where((p) => p.contains('/flutter/')), hasLength(6));
         expect(paths.where((p) => p.contains('/ios/')), hasLength(4));
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('skipped Android builder still reports per-bundle errors', () async {
+      final tempDir = Directory.systemTemp.createTempSync('share_loc_n17_');
+      try {
+        final json =
+            jsonDecode(File('example/settings.json').readAsStringSync())
+                  as Map<String, dynamic>
+              ..['android'] = {
+                'destination_folder': '../example/results/android/values',
+                'use_camel_case': false,
+                'use_file_prefix_for_keys': false,
+              };
+        final settingsFile = File('${tempDir.path}/settings.json')
+          ..writeAsStringSync(jsonEncode(json));
+        final featureBundle = File('${tempDir.path}/feature_a.json')
+          ..writeAsStringSync(_bundleJson('title'));
+        final generalBundle = File('${tempDir.path}/general.json')
+          ..writeAsStringSync(_bundleJson('title'));
+        // "1bad" is not a valid resource name on any platform.
+        final badBundle = File('${tempDir.path}/zeta.json')
+          ..writeAsStringSync(_bundleJson('1bad'));
+        when(() {
+          return fileService.getFilesInDirectory(
+            path: any(named: 'path'),
+            extension: any(named: 'extension'),
+          );
+        }).thenAnswer((_) async => [featureBundle, generalBundle, badBundle]);
+
+        final result = await generationUseCase(settingsFile.path);
+
+        expect(result.succeeded, isTrue);
+        final android = result.data.errors.where((e) {
+          return (e is DuplicateResourceNameException &&
+                  e.platform == ResourcePlatform.android) ||
+              (e is InvalidResourceNameException &&
+                  e.platform == ResourcePlatform.android);
+        });
+        expect(android.map((e) => e.runtimeType).toSet(), {
+          DuplicateResourceNameException,
+          InvalidResourceNameException,
+        });
+        expect(
+          virtualFiles.where((f) => f.path.contains('/android/')),
+          isEmpty,
+        );
       } finally {
         tempDir.deleteSync(recursive: true);
       }

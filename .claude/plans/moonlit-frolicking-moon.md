@@ -27,8 +27,8 @@
 | Backlog R11, N18 | ✅ Done | `f146952`, `47192b1` |
 | Backlog N6, N10 | ↪ Closed, not a bug | checked by running / by `swiftc` |
 | N16 | ✅ Done | `getFilesInDirectory` sorted by path (committed by the owner) |
-| N19 | ✅ Done, uncommitted (248/248, analyze clean) | builder maps typed `Object Function(JsonData)` |
-| Backlog N17 | ⏳ Open (Low) | see "Open backlog" |
+| N19 | ✅ Done | builder maps typed `Object Function(JsonData)` (committed by the owner) |
+| N17 | ✅ Done, uncommitted (249/249, analyze clean) | skipped builder still runs `validateBundle` |
 
 **Verification now:** `dart test` 246/246 green. `dart analyze lib test bin` reports no issues.
 Not yet verified on a real device or terminal: the Android `%%` rule (see B2), `\u0020` for edge
@@ -44,8 +44,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** none required. Open, Low: N17 (Android per-bundle checks also run
-when Android is skipped for a cross-bundle clash). N16 and N19 are done. Before a release, by hand: the Android `%%` and `\u0020`
+**Next task:** none required. The hardening backlog is empty: N16, N17 and N19 are done. Before a release, by hand: the Android `%%` and `\u0020`
 rules on a device, and the R7 colour in a real terminal. Housekeeping: remove the old worktree and
 branch `claude/cli-stderr-errors-d3067c`.
 
@@ -263,11 +262,11 @@ Found while doing N8 (observation, not run):
 | N14 ✅ `99506e7` | `flutter_code_generation_use_case.dart` | Flutter: duplicate or empty/invalid `camelCase()` names (`my-key` + `my_key`, `ключ`) were written as duplicate getters and `String get ;`. Fixed with the shared validator; reserved words (`class`) and `Object` member clashes (`hashCode`) are NOT checked. | Standard |
 | N15 ✅ `99506e7` | `ios_code_generation_use_case.dart` | iOS: same defect in Swift (`static var myKey` twice, `static var :`) and xcstrings (duplicate `"myKey"`, `""`). Fixed with the shared validator. Duplicate identity on iOS = `iosXCStringKey()` (camelCase base + argument types): `var foo`, `func foo(String)` and `func foo(Int)` are allowed (checked with swiftc), same base and same types is an error. `ResourceNameEntry.identity` carries it. | Standard |
 | N16 | `lib/common/services/file_service.dart:18` | `getFilesInDirectory` returns files in `listSync()` order, which depends on the file system. Bundle order is therefore not deterministic across machines: the order of errors and warnings (R8), the "first holder" in duplicate reports (N12) and the order of generated output can differ. Fix idea: sort the files by path. N13 sorts bundles by name inside its own check as a stop-gap. **Done (uncommitted):** the method returns `List<File>` sorted by path; test `test/common/services/file_service_test.dart` failed first with `[mid, beta, gamma, zeta, alpha]`; mutation (sort removed) fails it again. The N13 sort stays as defence in depth. | Low |
-| N17 | `batch_code_generation_use_case.dart` (N13 skip) | When Android is skipped because of a cross-bundle clash, its per-bundle checks (N3, N12) do not run, so a same-bundle duplicate or invalid name in the same run is reported only after the clash is fixed (errors arrive in two rounds). Fix idea: run the per-bundle validation for a skipped builder too, without writing files. Not started. | Low |
+| N17 | `batch_code_generation_use_case.dart` (N13 skip) | When Android is skipped because of a cross-bundle clash, its per-bundle checks (N3, N12) do not run, so a same-bundle duplicate or invalid name in the same run is reported only after the clash is fixed (errors arrive in two rounds). Fix idea: run the per-bundle validation for a skipped builder too, without writing files. **Done (uncommitted):** new hook `CodeGenerationUseCase.validateBundle` (null by default, Android overrides it); `build()` calls it for a skipped builder, so the cross-bundle clash and the bundle's own errors arrive in one run. Test `skipped Android builder still reports per-bundle errors` failed first with actual `{Duplicate}`; mutation (hook call removed) fails it again. | Low |
 | N18 ✅ `47192b1` | `lib/common/utils/task_result.dart` | `TaskResult<R, E>`, `TaskSucceeded` and `TaskFailed` have an unbounded `E`, although it is always `AppException` (fixed by the typedefs in `task.dart`; the raw classes are not exported). Fixed: `E extends AppException` on all three (proved in a scratch copy: `TaskResult<int, String>` fails with `type_argument_not_matching_bounds`). | Low |
 | N19 | `settings_loader_use_case.dart:31`, `localization_loader_use_case.dart:23` | The builder maps are `Map<Type, Function>`: the raw `Function` type means the compiler does not check the builder signatures. **Done (uncommitted):** both maps are `Map<Type, Object Function(JsonData)>`. Proof in a scratch copy: an entry with the wrong signature gave no type error before, and `map_value_type_not_assignable` after. No runtime test is possible, the check is compile-time. | Low |
 
-**Suggested order (updated):** N17 (all Low); the by-hand checks from "Status" come first before a release.
+**Suggested order (updated):** backlog empty; the by-hand checks from "Status" come first before a release.
 
 ---
 

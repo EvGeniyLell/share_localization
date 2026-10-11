@@ -454,9 +454,7 @@ void main() {
       test('reports an invalid and a duplicate key in key order', () async {
         final dtoTask = await generationUseCase(
           settingsDto,
-          localizationDto.copyWith(
-            keys: [cyrillicKey, dashKey, underscoreKey],
-          ),
+          localizationDto.copyWith(keys: [cyrillicKey, dashKey, underscoreKey]),
         );
 
         expect(dtoTask.failed, isTrue);

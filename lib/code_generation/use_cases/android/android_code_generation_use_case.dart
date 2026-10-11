@@ -65,6 +65,23 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
     );
   }
 
+  @override
+  AppException? validateBundle(
+    SettingsDto settings,
+    LocalizationDto localization,
+  ) {
+    final AndroidSettingsDto? pSettings = settings.toPlatformSettingsDto();
+    if (pSettings == null) {
+      return null;
+    }
+    try {
+      _validateResourceNames(pSettings, localization);
+    } on AppException catch (error) {
+      return error;
+    }
+    return null;
+  }
+
   /// All bundles share one Android resource namespace, so a name taken by
   /// one bundle cannot be used by another. Bundles are checked in name
   /// order, so the first holder of a name is the same on every run. Same-

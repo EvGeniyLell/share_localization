@@ -32,9 +32,18 @@ void main() {
     test('invalid UTF-8 file throws FileReadException', () {
       final path = '${tempDir.path}/invalid_utf8.json';
       // {"a":"\xff\xfe"}
-      File(path).writeAsBytesSync(
-        [0x7b, 0x22, 0x61, 0x22, 0x3a, 0x22, 0xff, 0xfe, 0x22, 0x7d],
-      );
+      File(path).writeAsBytesSync([
+        0x7b,
+        0x22,
+        0x61,
+        0x22,
+        0x3a,
+        0x22,
+        0xff,
+        0xfe,
+        0x22,
+        0x7d,
+      ]);
 
       expect(
         () => JsonData.fromFile(path, buildDto: _unusedBuildDto),
@@ -42,19 +51,15 @@ void main() {
       );
     });
 
-    test(
-      'unreadable file throws FileReadException',
-      () async {
-        final path = '${tempDir.path}/unreadable.json';
-        File(path).writeAsStringSync('{"a": "b"}');
-        await Process.run('chmod', ['000', path]);
+    test('unreadable file throws FileReadException', () async {
+      final path = '${tempDir.path}/unreadable.json';
+      File(path).writeAsStringSync('{"a": "b"}');
+      await Process.run('chmod', ['000', path]);
 
-        expect(
-          () => JsonData.fromFile(path, buildDto: _unusedBuildDto),
-          throwsA(isA<FileReadException>()),
-        );
-      },
-      skip: Platform.isWindows,
-    );
+      expect(
+        () => JsonData.fromFile(path, buildDto: _unusedBuildDto),
+        throwsA(isA<FileReadException>()),
+      );
+    }, skip: Platform.isWindows);
   });
 }

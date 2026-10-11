@@ -44,11 +44,11 @@ class LocalizationKeyDto {
 
   @override
   int get hashCode => Object.hash(
-        key,
-        comment,
-        Object.hashAll(arguments),
-        Object.hashAll(translations),
-      );
+    key,
+    comment,
+    Object.hashAll(arguments),
+    Object.hashAll(translations),
+  );
 
   @override
   String toString() {

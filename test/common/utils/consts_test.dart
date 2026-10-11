@@ -14,7 +14,8 @@ void main() {
     expect(
       appVersion,
       equals(pubspecVersion),
-      reason: 'Update appVersion in lib/common/utils/consts.dart '
+      reason:
+          'Update appVersion in lib/common/utils/consts.dart '
           'to match the version in pubspec.yaml.',
     );
   });

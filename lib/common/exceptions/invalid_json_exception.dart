@@ -7,6 +7,5 @@ class InvalidJsonException implements AppException {
   const InvalidJsonException(this.path, this.detail);
 
   @override
-  String toString() =>
-      'InvalidJsonException: failed to parse "$path": $detail';
+  String toString() => 'InvalidJsonException: failed to parse "$path": $detail';
 }

@@ -37,11 +37,8 @@ class LocalizationDto {
           keys.equals(other.keys);
 
   @override
-  int get hashCode => Object.hash(
-        name,
-        Object.hashAll(languages),
-        Object.hashAll(keys),
-      );
+  int get hashCode =>
+      Object.hash(name, Object.hashAll(languages), Object.hashAll(keys));
 
   @override
   String toString() {

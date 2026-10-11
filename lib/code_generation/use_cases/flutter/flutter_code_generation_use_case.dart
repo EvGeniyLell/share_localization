@@ -26,13 +26,15 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
         path: filePath(pSettings, null, localization),
         content: common,
       );
-      await Future.wait(pSettings.languages.map((language) async {
-        final locale = generateLocale(pSettings, language, localization);
-        await fileService.createFile(
-          path: filePath(pSettings, language, localization),
-          content: locale,
-        );
-      }));
+      await Future.wait(
+        pSettings.languages.map((language) async {
+          final locale = generateLocale(pSettings, language, localization);
+          await fileService.createFile(
+            path: filePath(pSettings, language, localization),
+            content: locale,
+          );
+        }),
+      );
     });
   }
 
@@ -96,18 +98,15 @@ extension StringToFlutter on String {
         .replaceAll('\n', r'\n')
         .replaceAll('\r', r'\r')
         .replaceAll(r'$', r'\$')
-        .replaceAllMapped(
-      RegExp(r'{(\w+)}'),
-      (match) {
-        final name = match.group(1)!.camelCase();
-        final next = match.end < match.input.length
-            ? match.input[match.end]
-            : '';
-        // Dart identifiers are ASCII only.
-        final continuesIdentifier = RegExp('[A-Za-z0-9_]').hasMatch(next);
-        return continuesIdentifier ? '\${$name}' : '\$$name';
-      },
-    );
+        .replaceAllMapped(RegExp(r'{(\w+)}'), (match) {
+          final name = match.group(1)!.camelCase();
+          final next = match.end < match.input.length
+              ? match.input[match.end]
+              : '';
+          // Dart identifiers are ASCII only.
+          final continuesIdentifier = RegExp('[A-Za-z0-9_]').hasMatch(next);
+          return continuesIdentifier ? '\${$name}' : '\$$name';
+        });
   }
 
   /// Escapes text written into a `///` doc comment line, such as the comment

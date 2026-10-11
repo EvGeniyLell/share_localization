@@ -149,6 +149,11 @@ class BatchCodeGenerationUseCase {
     final exceptions = <AppException>[];
     for (final builder in builders) {
       if (skip.contains(builder)) {
+        // Nothing is written, but the bundle's own errors are still reported.
+        final error = builder.validateBundle(settings, localization);
+        if (error != null) {
+          exceptions.add(error);
+        }
         continue;
       }
       final buildTask = await builder(settings, localization);

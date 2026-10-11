@@ -4,7 +4,7 @@ class CompositeException implements AppException {
   final List<AppException> exceptions;
 
   CompositeException(List<AppException> exceptions)
-      : exceptions = List.unmodifiable(exceptions);
+    : exceptions = List.unmodifiable(exceptions);
 
   @override
   String toString() {

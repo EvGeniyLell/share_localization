@@ -237,14 +237,10 @@ void main() {
         expect(task.failed, true);
         expect(
           task.exception,
-          isA<CompositeException>().having(
-            (e) => e.exceptions,
-            'exceptions',
-            [
-              isA<VerificationLocalizationExtraArgumentException>(),
-              isA<VerificationLocalizationExtraArgumentException>(),
-            ],
-          ),
+          isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
+            isA<VerificationLocalizationExtraArgumentException>(),
+            isA<VerificationLocalizationExtraArgumentException>(),
+          ]),
         );
       });
 
@@ -253,10 +249,7 @@ void main() {
           skipErrorTypes: [VerificationLocalizationExtraArgumentException],
         );
 
-        final task = await skippingVerification(
-          settingsDto,
-          withExtraArgument,
-        );
+        final task = await skippingVerification(settingsDto, withExtraArgument);
 
         expect(task.succeeded, true);
       });
@@ -266,10 +259,7 @@ void main() {
           skipErrorTypes: [VerificationLocalizationExtraArgumentException],
         );
 
-        final task = await skippingVerification(
-          settingsDto,
-          withExtraArgument,
-        );
+        final task = await skippingVerification(settingsDto, withExtraArgument);
 
         expect(task.succeeded, true);
         expect(task.data, hasLength(2));
@@ -299,19 +289,15 @@ void main() {
         expect(task.failed, true);
         expect(
           task.exception,
-          isA<CompositeException>().having(
-            (e) => e.exceptions,
-            'exceptions',
-            [
-              isA<VerificationLocalizationMissingTranslationException>()
-                  .having((e) => e.key, 'key', loginMessageKey.key)
-                  .having(
-                    (e) => e.language,
-                    'language',
-                    localizationDeLanguage.key,
-                  ),
-            ],
-          ),
+          isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
+            isA<VerificationLocalizationMissingTranslationException>()
+                .having((e) => e.key, 'key', loginMessageKey.key)
+                .having(
+                  (e) => e.language,
+                  'language',
+                  localizationDeLanguage.key,
+                ),
+          ]),
         );
       });
     });

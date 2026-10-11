@@ -82,10 +82,7 @@ const fileReportKey = LocalizationKeyDto(
       name: 'size',
       type: LocalizationKeyDtoType.double,
     ),
-    LocalizationKeyArgumentDto(
-      name: 'pages',
-      type: LocalizationKeyDtoType.int,
-    ),
+    LocalizationKeyArgumentDto(name: 'pages', type: LocalizationKeyDtoType.int),
   ],
   translations: [
     LocalizationKeyTranslationDto(
