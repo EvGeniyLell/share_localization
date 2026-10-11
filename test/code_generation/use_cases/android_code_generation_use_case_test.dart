@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
 import 'package:share_localization/code_generation/use_cases/android/android_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
@@ -119,5 +120,22 @@ void main() {
         }
       });
     });
+
+    test(
+      'failed with missingAndroidSettings when android block is absent',
+      () async {
+        final dtoTask = await generationUseCase(
+          settingsDtoWithoutAndroid,
+          localizationDto,
+        );
+
+        expect(dtoTask.failed, true);
+        expect(
+          dtoTask.exception,
+          const BuildLocalizationException.missingAndroidSettings(),
+        );
+        expect(virtualFiles, isEmpty);
+      },
+    );
   });
 }

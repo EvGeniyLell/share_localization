@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
 import 'package:share_localization/code_generation/use_cases/ios/ios_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
@@ -102,6 +103,20 @@ void main() {
           reason: file.toString(),
         );
       }
+    });
+
+    test('failed with missingIosSettings when ios block is absent', () async {
+      final dtoTask = await generationUseCase(
+        settingsDtoWithoutIos,
+        localizationDto,
+      );
+
+      expect(dtoTask.failed, true);
+      expect(
+        dtoTask.exception,
+        const BuildLocalizationException.missingIosSettings(),
+      );
+      expect(virtualFiles, isEmpty);
     });
   });
 }

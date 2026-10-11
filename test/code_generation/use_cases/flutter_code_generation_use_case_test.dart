@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
@@ -71,5 +72,22 @@ void main() {
         );
       }
     });
+
+    test(
+      'failed with missingFlutterSettings when flutter block is absent',
+      () async {
+        final dtoTask = await generationUseCase(
+          settingsDtoWithoutFlutter,
+          localizationDto,
+        );
+
+        expect(dtoTask.failed, true);
+        expect(
+          dtoTask.exception,
+          const BuildLocalizationException.missingFlutterSettings(),
+        );
+        expect(virtualFiles, isEmpty);
+      },
+    );
   });
 }
