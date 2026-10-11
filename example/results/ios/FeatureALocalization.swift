@@ -1,3 +1,5 @@
+import Foundation
+
 class FeatureALocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "FeatureALocalization", bundle: .sdkResource)

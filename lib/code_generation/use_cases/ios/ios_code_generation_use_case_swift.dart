@@ -35,6 +35,8 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
         })
         .join('\n\n');
     return '''
+import Foundation
+
 ${classAccessLevel}class $localizationName {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "$localizationName"$localizationBundle)
