@@ -16,7 +16,7 @@
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
 | Backlog R7–R10 and N2–N4, N7, N10, N11 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
 
-**Verification now:** `dart test` 151/151 green. `dart analyze lib test` reports 4 infos that
+**Verification now:** `dart test` 154/154 green. `dart analyze lib test` reports 4 infos that
 are not from this plan (3x line length in `build_report_printer.dart`, 1x type parameter name).
 Not yet verified on a real device: the Android `%%` rule (see B2).
 
@@ -30,7 +30,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** R8 (`Future.wait` keeps only the first error). R3 is done in the working tree (`FileReadException` for non-"not found" read errors incl. invalid UTF-8; owner commits). N1 is
+**Next task:** R7 (ANSI colour decided by stdout but written to stderr; `NO_COLOR`). R3 is committed. R8 is done in the working tree (`load()` collects every load and verify error: one error thrown as is, several as one flattened `CompositeException` in file order; owner commits). N1 is
 done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
 `-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
 and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
@@ -200,7 +200,7 @@ Ordered by impact. R1–R3 were reproduced by running the tool; the rest come fr
 | R5 (B6) ✅ `06338d1` | `flutter_code_generation_use_case.dart:72` | Backslash not escaped in the Dart string. | Standard |
 | R6 (B7) ✅ `9e8f0cb` | `ios_code_generation_use_case.dart:85` | Literal `%` not escaped in xcstrings values of keys with arguments (same defect as B2). | Standard |
 | R7 | `build_report_printer.dart:12` | ANSI decided by `stdout` but written to `stderr`; `NO_COLOR` ignored. | Low |
-| R8 | `batch_code_generation_use_case.dart:78` | `Future.wait` keeps only the first load/verify error across bundles. | Low |
+| R8 ✅ working tree | `batch_code_generation_use_case.dart:78` | `Future.wait` keeps only the first load/verify error across bundles. Fixed: all collected, flattened `CompositeException` in file order. | Low |
 | R9 | `build_report_printer.dart:4` | Redundant deep import (CLAUDE.md: import the barrel); 3 lines over 80 chars. | Low |
 | R10 | `bin/share_localization.dart:23` | `--settings --verbose` takes `--verbose` as the path; `--settings=path` rejected. No tests for `InvalidJsonException` or `BuildReportPrinter`. | Low |
 
@@ -237,7 +237,7 @@ Found while doing N8 (observation, not run):
 |---|---|---|---|
 | N11 | `iosXCSTranslationEscape` | Control characters U+0000–U+001F other than tab, newline and `\r` (`\b`, `\f`, NUL) are still written raw, which is invalid JSON. Needs a `\uXXXX` escape per code point. Unlikely in real translations. | Low |
 
-**Suggested order (updated):** R8, then the low items
+**Suggested order (updated):** R7, then the low items
 (R7, R9, R10, N2–N4, N7, N10, N11). Single-word argument names in new fixtures.
 
 ---
@@ -246,7 +246,7 @@ Found while doing N8 (observation, not run):
 
 ```bash
 dart analyze lib test           # 4 pre-existing infos, see Status
-dart test                       # 151 green
+dart test                       # 154 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart

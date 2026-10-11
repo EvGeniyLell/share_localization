@@ -72,28 +72,51 @@ class BatchCodeGenerationUseCase {
       extension: '.json',
     );
 
-    final localizationsTasks = sourceFiles.map((file) async {
-      final localizationTask = await localizationLoader(file.path);
-      if (localizationTask.failed) {
-        throw localizationTask.exception;
+    final localizationsTasks = await Future.wait(
+      sourceFiles.map((file) => localizationLoader(file.path)),
+    );
+    final (localizations, loadErrors) = _splitTasks(localizationsTasks);
+    _throwErrors(loadErrors);
+
+    final verificationTasks = await Future.wait(
+      localizations.map((localization) {
+        return verificationLocalization(settings, localization);
+      }),
+    );
+    final (skippedLists, verificationErrors) = _splitTasks(verificationTasks);
+    _throwErrors(verificationErrors);
+
+    return (settings, localizations, skippedLists.expand((e) => e).toList());
+  }
+
+  /// Splits [results] into the data of the succeeded tasks and the exceptions
+  /// of the failed ones, both in input order.
+  (List<T>, List<AppException>) _splitTasks<T>(List<TaskResult<T>> results) {
+    final data = <T>[];
+    final errors = <AppException>[];
+    for (final result in results) {
+      if (result.failed) {
+        errors.add(result.exception);
+      } else {
+        data.add(result.data);
       }
-      return localizationTask.data;
-    });
+    }
+    return (data, errors);
+  }
 
-    final localizations = await Future.wait(localizationsTasks);
-
-    final skipped = await Future.wait(localizations.map((localization) async {
-      final verificationTask = await verificationLocalization(
-        settings,
-        localization,
-      );
-      if (verificationTask.failed) {
-        throw verificationTask.exception;
-      }
-      return verificationTask.data;
-    }));
-
-    return (settings, localizations, skipped.expand((e) => e).toList());
+  /// Throws the only error as is, or all of them as one [CompositeException]
+  /// with nested composites flattened, so every error is reported.
+  void _throwErrors(List<AppException> errors) {
+    if (errors.isEmpty) {
+      return;
+    }
+    if (errors.length == 1) {
+      throw errors.single;
+    }
+    throw CompositeException([
+      for (final error in errors)
+        if (error is CompositeException) ...error.exceptions else error,
+    ]);
   }
 
   @visibleForTesting

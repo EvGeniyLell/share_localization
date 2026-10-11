@@ -7,6 +7,7 @@ import 'package:share_localization/code_generation/exceptions/build_localization
 import 'package:share_localization/code_generation/use_cases/batch_code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
+import 'package:share_localization/localizations/localizations.dart';
 import 'package:test/test.dart';
 
 import '../../common/mocks.dart';
@@ -176,7 +177,7 @@ void main() {
         // Same settings as the example, without the "ios" block.
         final json =
             jsonDecode(File('example/settings.json').readAsStringSync())
-                as Map<String, dynamic>
+                  as Map<String, dynamic>
               ..remove('ios');
         final settingsFile = File('${tempDir.path}/settings.json')
           ..writeAsStringSync(jsonEncode(json));
@@ -192,6 +193,126 @@ void main() {
               w.type == BuildLocalizationExceptionType.missingIosSettings,
         );
         expect(iosWarnings, hasLength(1));
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('reports every invalid bundle in file order', () async {
+      final tempDir = Directory.systemTemp.createTempSync('share_loc_r3_');
+      try {
+        final settingsFile = File('${tempDir.path}/settings.json')
+          ..writeAsStringSync(File('example/settings.json').readAsStringSync());
+        final firstBundle = File('${tempDir.path}/a_broken.json')
+          ..writeAsStringSync('{ not json');
+        final secondBundle = File('${tempDir.path}/b_broken.json')
+          ..writeAsStringSync('{ not json');
+        when(() {
+          return fileService.getFilesInDirectory(
+            path: any(named: 'path'),
+            extension: any(named: 'extension'),
+          );
+        }).thenAnswer((_) async => [firstBundle, secondBundle]);
+
+        final result = await generationUseCase(settingsFile.path);
+
+        expect(result.failed, isTrue);
+        expect(
+          result.exception,
+          isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
+            isA<InvalidJsonException>().having(
+              (e) => e.path,
+              'path',
+              firstBundle.path,
+            ),
+            isA<InvalidJsonException>().having(
+              (e) => e.path,
+              'path',
+              secondBundle.path,
+            ),
+          ]),
+        );
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('reports every failed verification in file order', () async {
+      final tempDir = Directory.systemTemp.createTempSync('share_loc_r4_');
+      try {
+        final settingsFile = File('${tempDir.path}/settings.json')
+          ..writeAsStringSync(File('example/settings.json').readAsStringSync());
+        // Both bundles miss the "ua" language required by the settings.
+        final firstBundle = File('${tempDir.path}/a_partial.json')
+          ..writeAsStringSync(
+            jsonEncode({
+              'languages': ['en'],
+              'keys': {},
+            }),
+          );
+        final secondBundle = File('${tempDir.path}/b_partial.json')
+          ..writeAsStringSync(
+            jsonEncode({
+              'languages': ['en'],
+              'keys': {},
+            }),
+          );
+        when(() {
+          return fileService.getFilesInDirectory(
+            path: any(named: 'path'),
+            extension: any(named: 'extension'),
+          );
+        }).thenAnswer((_) async => [firstBundle, secondBundle]);
+
+        final result = await generationUseCase(settingsFile.path);
+
+        expect(result.failed, isTrue);
+        expect(
+          result.exception,
+          isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
+            isA<VerificationLocalizationMissingLanguageException>().having(
+              (e) => e.sourceName,
+              'sourceName',
+              'a_partial.json',
+            ),
+            isA<VerificationLocalizationMissingLanguageException>().having(
+              (e) => e.sourceName,
+              'sourceName',
+              'b_partial.json',
+            ),
+          ]),
+        );
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('throws a single load error as is next to a valid bundle', () async {
+      final tempDir = Directory.systemTemp.createTempSync('share_loc_r5_');
+      try {
+        final settingsFile = File('${tempDir.path}/settings.json')
+          ..writeAsStringSync(File('example/settings.json').readAsStringSync());
+        final brokenBundle = File('${tempDir.path}/a_broken.json')
+          ..writeAsStringSync('{ not json');
+        final validBundle = File('${tempDir.path}/b_valid.json')
+          ..writeAsStringSync(
+            jsonEncode({
+              'languages': ['en', 'ua'],
+              'keys': {},
+            }),
+          );
+        when(() {
+          return fileService.getFilesInDirectory(
+            path: any(named: 'path'),
+            extension: any(named: 'extension'),
+          );
+        }).thenAnswer((_) async => [brokenBundle, validBundle]);
+
+        final result = await generationUseCase(settingsFile.path);
+
+        expect(result.failed, isTrue);
+        expect(result.exception, isA<InvalidJsonException>());
+        expect(virtualFiles, isEmpty);
       } finally {
         tempDir.deleteSync(recursive: true);
       }
