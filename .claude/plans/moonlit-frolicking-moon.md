@@ -14,9 +14,9 @@
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
 | Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog R7–R10 and N4, N7, N10, N11, N13 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
+| Backlog R7–R10 and N7, N10, N11, N13 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
 
-**Verification now:** `dart test` 187/187 green. `dart analyze lib test` reports 4 infos that
+**Verification now:** `dart test` 199/199 green. `dart analyze lib test` reports 4 infos that
 are not from this plan (3x line length in `build_report_printer.dart`, 1x type parameter name).
 Not yet verified on a real device: the Android `%%` rule (see B2).
 
@@ -30,7 +30,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** N4 (Android whitespace and tab). N12, N14 and N15 are done in the working tree, to be committed together: shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
+**Next task:** R7 (ANSI colour by stderr, `NO_COLOR`), then R9, R10, N7, N10, N11, N13. N4 is done in the working tree (owner commits). N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
 done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
 `-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
 and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
@@ -213,7 +213,7 @@ the tool):
 | N1 ✅ uncommitted | `android_code_generation_use_case_xml.dart` | The description goes into `<!-- $description -->`; `--` or `-->` in it breaks the XML. | Standard |
 | N2 ✅ `86af022` (committed under the R8 message) | same | `"` was not escaped (aapt drops it). Fixed: `"` → `\"` after the backslash step. | Low |
 | N3 ✅ `fbb1314` | same | A key that gives an invalid resource name (starts with a digit, characters outside `[a-z0-9_]`) was not validated. Fixed: error `InvalidResourceNameException` (regex `^[A-Za-z_][A-Za-z0-9_]*$` on the final name), all bad keys of a bundle reported together. Open caveat: with `use_file_prefix_for_keys` a key with no ASCII letters collapses to the bare prefix (valid but wrong, duplicates possible). | Low |
-| N4 | same | Leading, trailing and repeated spaces, and a literal tab, are collapsed by Android into one space: valid output, different from the source (`Name:<tab>Value` shows as `Name: Value`; iOS and Flutter keep the tab). Fix idea: write `\t`, and quote the value or use ` `. Not run on a device. | Low |
+| N4 ✅ working tree | same | Leading, trailing and repeated spaces, and a literal tab, are collapsed by Android into one space: valid output, different from the source (`Name:<tab>Value` shows as `Name: Value`; iOS and Flutter keep the tab). Fixed: tab → `\t`; leading, trailing and repeated spaces → `\u0020` (regex `^ | $|(?<= ) `). Not run on a device: confirm aapt accepts `\u0020` in the real build. | Low |
 
 Found while doing R5 (from the agent's report, not yet reproduced by running the tool):
 
@@ -250,7 +250,7 @@ Found while doing N8 (observation, not run):
 
 ```bash
 dart analyze lib test           # 4 pre-existing infos, see Status
-dart test                       # 187 green
+dart test                       # 199 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart

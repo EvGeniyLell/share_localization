@@ -206,6 +206,68 @@ void main() {
       test('doubles a backslash before a double quote', () {
         expect(r'\"'.androidTranslationEscape(), r'\\\"');
       });
+
+      // aapt collapses whitespace in unquoted values: a tab becomes a space,
+      // and leading, trailing and repeated spaces are trimmed or merged.
+      // Those spaces are written as ` `. This is the Android resource
+      // rule; it cannot be checked on a device here.
+      test(r'escapes a literal tab as \\t', () {
+        expect('\t'.androidTranslationEscape(), r'\t');
+      });
+
+      test('escapes a tab between a name and a value', () {
+        expect('Name:\tValue'.androidTranslationEscape(), r'Name:\tValue');
+      });
+
+      test('escapes a leading space', () {
+        expect(' Hi'.androidTranslationEscape(), r'\u0020Hi');
+      });
+
+      test('escapes a trailing space', () {
+        expect('Hi '.androidTranslationEscape(), r'Hi\u0020');
+      });
+
+      test('escapes the second space of a double space inside', () {
+        expect('a  b'.androidTranslationEscape(), r'a \u0020b');
+      });
+
+      test('escapes the second and third space of a triple space', () {
+        expect('a   b'.androidTranslationEscape(), r'a \u0020\u0020b');
+      });
+
+      test('escapes every space when the value is only spaces', () {
+        expect('   '.androidTranslationEscape(), r'\u0020\u0020\u0020');
+      });
+
+      test('keeps a single inner space unchanged', () {
+        expect('a b'.androidTranslationEscape(), 'a b');
+      });
+
+      test('escapes spaces next to a placeholder', () {
+        const name = LocalizationKeyArgumentDto(
+          name: 'name',
+          type: LocalizationKeyDtoType.string,
+        );
+        final result = 'Hi  {name} '
+            .androidTranslationEscape()
+            .androidArgumentsEscape([name]);
+        expect(result, r'Hi \u0020%1$s\u0020');
+      });
+
+      test('doubles a backslash before a tab and escapes the tab', () {
+        expect('a\\\tb'.androidTranslationEscape(), r'a\\\tb');
+      });
+
+      test('keeps a @ after a leading space as plain text', () {
+        expect(' @home'.androidTranslationEscape(), r'\u0020@home');
+      });
+
+      test('escapes a mixed value with tab, spaces and quotes', () {
+        expect(
+          ' a\tb  "c" '.androidTranslationEscape(),
+          r'\u0020a\tb \u0020\"c\"\u0020',
+        );
+      });
     });
 
     group('androidDescriptionEscape', () {

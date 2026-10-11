@@ -115,6 +115,9 @@ extension StringToAndroid on String {
   /// would be escaped again. A leading `@` or `?` is prefixed with a backslash,
   /// because Android reads it as a resource or theme attribute reference.
   /// A `"` becomes `\"`, because an unescaped quote is dropped from the output.
+  /// Android collapses whitespace in unquoted values, so a tab becomes `\t` and
+  /// leading, trailing or repeated spaces become `\u0020`. This is the
+  /// Android resource rule and was not verified on a device.
   String androidTranslationEscape() {
     // Backslash must come first, or the `\` added by the later replacements
     // would be doubled too.
@@ -123,7 +126,9 @@ extension StringToAndroid on String {
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
         .replaceAll("'", r"\'")
-        .replaceAll('\n', r'\n');
+        .replaceAll('\n', r'\n')
+        .replaceAll('\t', r'\t')
+        .replaceAll(RegExp(r'^ | $|(?<= ) '), r'\u0020');
     if (escaped.startsWith('@') || escaped.startsWith('?')) {
       return '\\$escaped';
     }
