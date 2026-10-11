@@ -1,13 +1,13 @@
 import 'package:share_localization/code_generation/code_generation.dart';
-import 'package:share_localization/common/common.dart';
 
-final builder = BatchCodeGenerationUseCase.all();
-
-Future<void> run() async {
-  final buildTask = await builder('settings.json');
-  Printer().log('Build task finished');
+Future<bool> run({String settingsPath = 'settings.json'}) async {
+  final builder = BatchCodeGenerationUseCase.all();
+  final buildTask = await builder(settingsPath);
   if (buildTask.failed) {
-    Printer().log('with:\n${buildTask.exception}');
-    return;
+    BuildReportPrinter().printError(buildTask.exception);
+    return false;
   }
+  final report = buildTask.data;
+  BuildReportPrinter().print(report);
+  return !report.hasErrors;
 }

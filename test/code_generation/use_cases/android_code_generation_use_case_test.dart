@@ -1,10 +1,13 @@
 import 'dart:io';
 
-import 'package:mocktail/mocktail.dart';
+import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
+import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
+import 'package:share_localization/code_generation/exceptions/invalid_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/android/android_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
 import '../../common/mocks.dart';
+import '../../helpers/mock_file_service_helper.dart';
 import '../../localizations/mocks.dart';
 import '../../settings/mocks.dart';
 
@@ -20,17 +23,10 @@ void main() {
     fileService = MockFileService();
     generationUseCase = AndroidCodeGenerationUseCase(fileService);
 
-    when(() {
-      return fileService.createFile(
-        path: any(named: 'path'),
-        content: any(named: 'content'),
-      );
-    }).thenAnswer((invocation) async {
-      virtualFiles.add(InvocationCreateFile(invocation));
-    });
+    setUpMockFileService(fileService, virtualFiles);
   });
 
-  group('FlutterCodeGenerationUseCase', () {
+  group('AndroidCodeGenerationUseCase', () {
     late SettingsDto customSettingsDto;
 
     group('useCamelCase: true', () {
@@ -124,6 +120,828 @@ void main() {
             reason: file.toString(),
           );
         }
+      });
+    });
+
+    test(
+      'failed with missingAndroidSettings when android block is absent',
+      () async {
+        final dtoTask = await generationUseCase(
+          settingsDtoWithoutAndroid,
+          localizationDto,
+        );
+
+        expect(dtoTask.failed, true);
+        expect(
+          dtoTask.exception,
+          const BuildLocalizationException.missingAndroidSettings(),
+        );
+        expect(virtualFiles, isEmpty);
+      },
+    );
+
+    group('androidTranslationEscape', () {
+      // Each row: input -> expected output. Android XML must not contain a
+      // bare `&` or `<`, and a leading `@` or `?` is read as a reference.
+      final cases = <String, String>{
+        'Tom & Jerry': 'Tom &amp; Jerry',
+        'a & b < c': 'a &amp; b &lt; c',
+        '&lt;': '&amp;lt;',
+        '@home': r'\@home',
+        '?attr': r'\?attr',
+        '@': r'\@',
+        '?': r'\?',
+        'mail@host?x': 'mail@host?x',
+        '': '',
+        "it's <b>": r"it\'s &lt;b>",
+      };
+      for (final entry in cases.entries) {
+        test('escapes ${entry.key.isEmpty ? '<empty>' : entry.key}', () {
+          expect(entry.key.androidTranslationEscape(), entry.value);
+        });
+      }
+
+      // aapt reads `\` as an escape character, so a literal backslash must be
+      // written as `\\`. Without this, `C:\dir` fails the build and a typed
+      // backslash followed by `n` would become a newline.
+      test('doubles a literal backslash in a path', () {
+        expect(r'C:\dir'.androidTranslationEscape(), r'C:\\dir');
+      });
+
+      test('doubles a backslash before n but keeps a real newline', () {
+        expect(r'\n'.androidTranslationEscape(), r'\\n');
+        expect('\n'.androidTranslationEscape(), r'\n');
+      });
+
+      test('doubles a backslash before a quote and escapes the quote', () {
+        expect(r"\'".androidTranslationEscape(), r"\\\'");
+      });
+
+      test('doubles a lone backslash', () {
+        expect(r'\'.androidTranslationEscape(), r'\\');
+      });
+
+      test('does not add a second prefix after a backslash before @', () {
+        expect(r'\@home'.androidTranslationEscape(), r'\\@home');
+      });
+
+      test('prefixes a leading @ after a backslash is escaped', () {
+        expect(r'@\x'.androidTranslationEscape(), r'\@\\x');
+      });
+
+      test('doubles a backslash alongside & and <', () {
+        expect(r'a\&<'.androidTranslationEscape(), r'a\\&amp;&lt;');
+      });
+
+      test('keeps an empty string empty', () {
+        expect(''.androidTranslationEscape(), '');
+      });
+
+      // An unescaped `"` toggles quote mode in aapt and is dropped from the
+      // output, so `Say "hi"` would render as `Say hi`.
+      test('escapes a literal double quote', () {
+        expect('Say "hi"'.androidTranslationEscape(), r'Say \"hi\"');
+      });
+
+      test('doubles a backslash before a double quote', () {
+        expect(r'\"'.androidTranslationEscape(), r'\\\"');
+      });
+
+      // aapt trims leading and trailing spaces and collapses repeated spaces
+      // in unquoted values. Wrapping the whole value in double quotes keeps
+      // them. Verified with aapt2 (build-tools 37), not on a device.
+      test(r'escapes a literal tab as \\t', () {
+        expect('\t'.androidTranslationEscape(), r'\t');
+      });
+
+      test('escapes a tab between a name and a value', () {
+        expect('Name:\tValue'.androidTranslationEscape(), r'Name:\tValue');
+      });
+
+      test('keeps a tab inside a value unquoted', () {
+        expect('a\tb'.androidTranslationEscape(), r'a\tb');
+      });
+
+      test('wraps a leading space in quotes', () {
+        expect(' Hi'.androidTranslationEscape(), '" Hi"');
+      });
+
+      test('wraps a trailing space in quotes', () {
+        expect('Hi '.androidTranslationEscape(), '"Hi "');
+      });
+
+      test('wraps a double space inside in quotes', () {
+        expect('a  b'.androidTranslationEscape(), '"a  b"');
+      });
+
+      test('wraps a triple space inside in quotes', () {
+        expect('a   b'.androidTranslationEscape(), '"a   b"');
+      });
+
+      test('wraps a value that is only spaces in quotes', () {
+        expect('   '.androidTranslationEscape(), '"   "');
+      });
+
+      test('keeps a single inner space unchanged', () {
+        expect('a b'.androidTranslationEscape(), 'a b');
+      });
+
+      test('wraps spaces next to a placeholder in quotes', () {
+        const name = LocalizationKeyArgumentDto(
+          name: 'name',
+          type: LocalizationKeyDtoType.string,
+        );
+        final result = 'Hi  {name} '
+            .androidTranslationEscape()
+            .androidArgumentsEscape([name]);
+        expect(result, r'"Hi  %1$s "');
+      });
+
+      test('doubles a backslash before a tab and escapes the tab', () {
+        expect('a\\\tb'.androidTranslationEscape(), r'a\\\tb');
+      });
+
+      test('keeps a @ after a leading space as plain text inside quotes', () {
+        expect(' @home'.androidTranslationEscape(), '" @home"');
+      });
+
+      test('keeps a @ inside quotes without a backslash prefix', () {
+        expect('@ x  y'.androidTranslationEscape(), '"@ x  y"');
+      });
+
+      test('wraps a mixed value with tab, spaces and quotes in quotes', () {
+        expect(' a\tb  "c" '.androidTranslationEscape(), r'" a\tb  \"c\" "');
+      });
+
+      // aapt2 turns a raw CR into a space and has no `\r` escape, so a CR is
+      // written as `\u000d`. Verified with aapt2 (build-tools 37), not on a
+      // device.
+      test(r'escapes a carriage return as \u000d', () {
+        expect('\r'.androidTranslationEscape(), r'\u000d');
+      });
+
+      test(r'escapes a carriage return inside a value as \u000d', () {
+        expect('a\rb'.androidTranslationEscape(), r'a\u000db');
+      });
+
+      test(r'escapes a CRLF pair as \u000d followed by \n', () {
+        expect('a\r\nb'.androidTranslationEscape(), r'a\u000d\nb');
+      });
+
+      test(r'wraps a leading space and trailing CR in quotes as \u000d', () {
+        expect(' a\r'.androidTranslationEscape(), r'" a\u000d"');
+      });
+    });
+
+    group('androidDescriptionEscape', () {
+      // Each row: input -> expected output. An XML comment must not contain
+      // `--`, so every hyphen followed by another hyphen gets a space after it.
+      final cases = <String, String>{
+        'a -- b': 'a - - b',
+        'x --> y': 'x - -> y',
+        '---': '- - -',
+        '----': '- - - -',
+        'well-known': 'well-known',
+        '-start': '-start',
+        'end-': 'end-',
+        'a\nb': r'a\nb',
+        '': '',
+      };
+      for (final entry in cases.entries) {
+        test('escapes ${entry.key.isEmpty ? '<empty>' : entry.key}', () {
+          expect(entry.key.androidDescriptionEscape(), entry.value);
+        });
+      }
+
+      test(r'escapes a carriage return as \r', () {
+        expect('a\rb'.androidDescriptionEscape(), r'a\rb');
+      });
+    });
+
+    group('buildLocaleItemGetter', () {
+      test('keeps the comment free of -- while the value keeps it', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginTitleKey.copyWith(
+            key: 'dash',
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: 'Use -- or --> here & more',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        final comment = RegExp(
+          '<!--(.*?)-->',
+          dotAll: true,
+        ).firstMatch(result)!.group(1)!;
+        expect(comment.contains('--'), isFalse, reason: result);
+        expect(result, contains('>Use -- or --> here &amp; more</string>'));
+      });
+
+      test('produces a valid string element for an ampersand', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginTitleKey.copyWith(
+            key: 'tom',
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: 'Tom & Jerry',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        expect(result, contains('>Tom &amp; Jerry</string>'));
+      });
+
+      test('keeps placeholders working next to a leading ampersand', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginMessageKey.copyWith(
+            key: 'greet',
+            arguments: const [
+              LocalizationKeyArgumentDto(
+                name: 'name',
+                type: LocalizationKeyDtoType.string,
+              ),
+            ],
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: '@{name} & more',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        expect(result, contains(r'>\@%1$s &amp; more</string>'));
+      });
+
+      test('doubles a literal backslash in the string element', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginTitleKey.copyWith(
+            key: 'path',
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: r'Path C:\dir',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        expect(result, contains(r'>Path C:\\dir</string>'));
+      });
+
+      test('doubles a literal backslash next to a placeholder', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginMessageKey.copyWith(
+            key: 'dir',
+            arguments: const [
+              LocalizationKeyArgumentDto(
+                name: 'name',
+                type: LocalizationKeyDtoType.string,
+              ),
+            ],
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: r'C:\{name}',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        expect(result, contains(r'>C:\\%1$s</string>'));
+      });
+    });
+
+    group('androidArgumentsEscape', () {
+      const fileName = LocalizationKeyArgumentDto(
+        name: 'file_name',
+        type: LocalizationKeyDtoType.string,
+      );
+      const size = LocalizationKeyArgumentDto(
+        name: 'size',
+        type: LocalizationKeyDtoType.double,
+      );
+      const count = LocalizationKeyArgumentDto(
+        name: 'count',
+        type: LocalizationKeyDtoType.int,
+      );
+
+      test('keeps declared positions and types', () {
+        final result = '{file_name} is {size}'.androidArgumentsEscape([
+          fileName,
+          size,
+        ]);
+
+        expect(result, r'%1$s is %2$f');
+      });
+
+      test('uses declared position and type when order differs', () {
+        final result = '{size} for {file_name}'.androidArgumentsEscape([
+          fileName,
+          size,
+        ]);
+
+        expect(result, r'%2$f for %1$s');
+      });
+
+      test('reuses the same position for a repeated placeholder', () {
+        final result = '{count} of {count}'.androidArgumentsEscape([count]);
+
+        expect(result, r'%1$d of %1$d');
+      });
+
+      test('leaves an unknown placeholder untouched', () {
+        final result = '{nope} and {size}'.androidArgumentsEscape([
+          fileName,
+          size,
+        ]);
+
+        expect(result, r'{nope} and %2$f');
+      });
+
+      // A string with arguments is a format string, so `%` must be `%%`.
+      test('escapes a literal percent when the key has arguments', () {
+        final result = '100% of {size}'.androidArgumentsEscape([size]);
+
+        expect(result, r'100%% of %1$f');
+      });
+
+      test('escapes a percent next to a placeholder', () {
+        final result = 'Save {size}%'.androidArgumentsEscape([size]);
+
+        expect(result, r'Save %1$f%%');
+      });
+
+      // Without arguments the string is read with getString(id), which does
+      // not format, so `%%` would be shown twice.
+      test('keeps a literal percent when the key has no arguments', () {
+        final result = '100% complete'.androidArgumentsEscape([]);
+
+        expect(result, '100% complete');
+      });
+    });
+
+    test('generationUseCase with int and double arguments', () async {
+      final dtoTask = await generationUseCase(
+        settingsDto.copyWith(
+          android: const AndroidOptionsDto(
+            useCamelCase: false,
+            useFilePrefixForKeys: true,
+            destinationFolder: 'example/test_results/android/values',
+          ),
+        ),
+        numericLocalizationDto,
+      );
+
+      expect(dtoTask.succeeded, true);
+      expect(virtualFiles.map((f) => f.path), [
+        'example/test_results/android/values/test_numbers.xml',
+        'example/test_results/android/values-de/test_numbers.xml',
+      ]);
+      for (final file in virtualFiles) {
+        final expectedContent = await File(file.path).readAsString();
+        expect(
+          file.content.tremContent(),
+          expectedContent.tremContent(),
+          reason: file.toString(),
+        );
+      }
+    });
+
+    group('cross-bundle resource names', () {
+      const noPrefix = AndroidOptionsDto(
+        useCamelCase: false,
+        useFilePrefixForKeys: false,
+        destinationFolder: 'example/test_results/android/values',
+      );
+      const withPrefix = AndroidOptionsDto(
+        useCamelCase: false,
+        useFilePrefixForKeys: true,
+        destinationFolder: 'example/test_results/android/values',
+      );
+      final noPrefixSettings = settingsDto.copyWith(android: noPrefix);
+      final prefixSettings = settingsDto.copyWith(android: withPrefix);
+      final featureA = localizationDto.copyWith(
+        name: 'feature_a.json',
+        keys: [loginTitleKey],
+      );
+      final general = localizationDto.copyWith(
+        name: 'general.json',
+        keys: [loginTitleKey],
+      );
+
+      test('prefix off: same key in two bundles is one error', () {
+        final errors = generationUseCase.validateBundles(noPrefixSettings, [
+          featureA,
+          general,
+        ]);
+
+        expect(errors, hasLength(1));
+        expect(
+          errors.single,
+          isA<DuplicateResourceNameException>()
+              .having((e) => e.key, 'key', 'login_title')
+              .having((e) => e.otherKey, 'otherKey', 'login_title')
+              .having((e) => e.name, 'name', 'login_title')
+              .having((e) => e.bundleName, 'bundleName', 'general.json')
+              .having(
+                (e) => e.otherBundleName,
+                'otherBundleName',
+                'feature_a.json',
+              ),
+        );
+        expect(errors.single.toString(), contains('"feature_a.json"'));
+      });
+
+      test('prefix on: different split of the same name is one error', () {
+        final errors = generationUseCase.validateBundles(prefixSettings, [
+          localizationDto.copyWith(
+            name: 'foo_bar.json',
+            keys: [loginTitleKey.copyWith(key: 'x')],
+          ),
+          localizationDto.copyWith(
+            name: 'foo.json',
+            keys: [loginTitleKey.copyWith(key: 'bar_x')],
+          ),
+        ]);
+
+        expect(errors, hasLength(1));
+        expect(
+          errors.single,
+          isA<DuplicateResourceNameException>()
+              .having((e) => e.name, 'name', 'foo_bar_x')
+              .having((e) => e.key, 'key', 'x')
+              .having((e) => e.otherKey, 'otherKey', 'bar_x')
+              .having((e) => e.bundleName, 'bundleName', 'foo_bar.json')
+              .having((e) => e.otherBundleName, 'otherBundleName', 'foo.json'),
+        );
+      });
+
+      test('prefix on: same key in two bundles is no error', () {
+        final errors = generationUseCase.validateBundles(prefixSettings, [
+          featureA,
+          general,
+        ]);
+
+        expect(errors, isEmpty);
+      });
+
+      test(
+        'same-bundle duplicate is not repeated, cross clash is kept',
+        () async {
+          final first = localizationDto.copyWith(
+            name: 'feature_a.json',
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              loginMessageKey.copyWith(key: 'my_key'),
+              loginTitleKey,
+            ],
+          );
+          final second = localizationDto.copyWith(
+            name: 'general.json',
+            keys: [loginTitleKey],
+          );
+
+          final errors = generationUseCase.validateBundles(noPrefixSettings, [
+            first,
+            second,
+          ]);
+
+          expect(errors, hasLength(1));
+          expect(
+            errors.single,
+            isA<DuplicateResourceNameException>()
+                .having((e) => e.key, 'key', 'login_title')
+                .having((e) => e.bundleName, 'bundleName', 'general.json'),
+          );
+          // The same-bundle duplicate is still reported by the bundle itself.
+          final build = await generationUseCase(noPrefixSettings, first);
+          expect(build.exception, isA<DuplicateResourceNameException>());
+          expect(
+            (build.exception as DuplicateResourceNameException).otherBundleName,
+            isNull,
+          );
+        },
+      );
+
+      test('bundle order does not change the errors', () {
+        final forward = generationUseCase.validateBundles(noPrefixSettings, [
+          featureA,
+          general,
+        ]);
+        final reversed = generationUseCase.validateBundles(noPrefixSettings, [
+          general,
+          featureA,
+        ]);
+
+        expect(forward, hasLength(1));
+        expect(reversed, equals(forward));
+      });
+
+      test('no Android settings gives no errors', () {
+        final errors = generationUseCase.validateBundles(
+          settingsDtoWithoutAndroid,
+          [featureA, general],
+        );
+
+        expect(errors, isEmpty);
+      });
+    });
+
+    group('invalid resource names', () {
+      const noPrefixSettings = AndroidOptionsDto(
+        useCamelCase: false,
+        useFilePrefixForKeys: false,
+        destinationFolder: 'example/test_results/android/values',
+      );
+      final badKey = loginTitleKey.copyWith(key: '1stKey');
+      final cyrillicKey = loginTitleKey.copyWith(key: 'ключ');
+
+      test(
+        'fails for a key starting with a digit and writes nothing',
+        () async {
+          final dtoTask = await generationUseCase(
+            settingsDto.copyWith(android: noPrefixSettings),
+            localizationDto.copyWith(keys: [badKey]),
+          );
+
+          expect(dtoTask.failed, isTrue);
+          expect(
+            dtoTask.exception,
+            isA<InvalidResourceNameException>().having(
+              (e) => e.name,
+              'name',
+              '1st_key',
+            ),
+          );
+          expect(virtualFiles, isEmpty);
+        },
+      );
+
+      test(
+        'fails for a key with no ASCII letters and writes nothing',
+        () async {
+          final dtoTask = await generationUseCase(
+            settingsDto.copyWith(android: noPrefixSettings),
+            localizationDto.copyWith(keys: [cyrillicKey]),
+          );
+
+          expect(dtoTask.failed, isTrue);
+          expect(virtualFiles, isEmpty);
+        },
+      );
+
+      test('reports every bad key in order as a composite', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(android: noPrefixSettings),
+          localizationDto.copyWith(keys: [badKey, cyrillicKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
+            const InvalidResourceNameException(
+              platform: ResourcePlatform.android,
+              key: '1stKey',
+              name: '1st_key',
+              bundleName: 'test_feature_A.json',
+            ),
+            const InvalidResourceNameException(
+              platform: ResourcePlatform.android,
+              key: 'ключ',
+              name: '',
+              bundleName: 'test_feature_A.json',
+            ),
+          ]),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test(
+        'a single bad key among valid keys fails and writes nothing',
+        () async {
+          final dtoTask = await generationUseCase(
+            settingsDto.copyWith(android: noPrefixSettings),
+            localizationDto.copyWith(
+              keys: [loginTitleKey, badKey, loginMessageKey],
+            ),
+          );
+
+          expect(dtoTask.failed, isTrue);
+          expect(dtoTask.exception, isA<InvalidResourceNameException>());
+          expect(virtualFiles, isEmpty);
+        },
+      );
+
+      test('camelCase keeps 1stKey and still fails', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: true,
+              useFilePrefixForKeys: false,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(keys: [badKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          isA<InvalidResourceNameException>().having(
+            (e) => e.name,
+            'name',
+            '1stKey',
+          ),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('a digit-leading bundle name with file prefix fails', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: false,
+              useFilePrefixForKeys: true,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(
+            name: '2fa_feature.json',
+            keys: [loginTitleKey],
+          ),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          isA<InvalidResourceNameException>().having(
+            (e) => e.name,
+            'name',
+            '2fa_feature_login_title',
+          ),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('"my-key" and "my key" succeed as my_key', () async {
+        for (final key in ['my-key', 'my key']) {
+          virtualFiles.clear();
+          final dtoTask = await generationUseCase(
+            settingsDto.copyWith(android: noPrefixSettings),
+            localizationDto.copyWith(keys: [loginTitleKey.copyWith(key: key)]),
+          );
+
+          expect(dtoTask.succeeded, isTrue, reason: key);
+          expect(virtualFiles, hasLength(2), reason: key);
+          expect(
+            virtualFiles.first.content,
+            contains('<string name="my_key">'),
+          );
+        }
+      });
+
+      test('prefix on and key "ключ" fails with empty base', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: false,
+              useFilePrefixForKeys: true,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(keys: [cyrillicKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(dtoTask.exception.toString(), contains('"ключ"'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('prefix off: "my-key" and "my_key" are duplicates', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(android: noPrefixSettings),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              loginMessageKey.copyWith(key: 'my_key'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        final message = dtoTask.exception.toString();
+        expect(message, contains('"my-key"'));
+        expect(message, contains('"my_key"'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('prefix on: duplicate final names are reported', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: false,
+              useFilePrefixForKeys: true,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              loginMessageKey.copyWith(key: 'my_key'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        final message = dtoTask.exception.toString();
+        expect(message, contains('"my-key"'));
+        expect(message, contains('"my_key"'));
+        expect(message, contains('Android'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('empty base and duplicate are two errors in key order', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: false,
+              useFilePrefixForKeys: true,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              cyrillicKey,
+              loginMessageKey.copyWith(key: 'my_key'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.exception, isA<CompositeException>());
+        final exceptions = (dtoTask.exception as CompositeException).exceptions;
+        expect(exceptions, hasLength(2));
+        expect(exceptions[0].toString(), contains('"ключ"'));
+        expect(exceptions[1].toString(), contains('"my_key"'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('every later duplicate is reported, not only the first', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(android: noPrefixSettings),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              loginMessageKey.copyWith(key: 'my_key'),
+              loginTitleKey.copyWith(key: 'my key'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.exception, isA<CompositeException>());
+        final exceptions = (dtoTask.exception as CompositeException).exceptions;
+        expect(exceptions, hasLength(2));
+        expect(exceptions[0].toString(), contains('"my_key"'));
+        expect(exceptions[1].toString(), contains('"my key"'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('"MyKey" and "mykey" are different and both succeed', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(android: noPrefixSettings),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'MyKey'),
+              loginMessageKey.copyWith(key: 'mykey'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.succeeded, isTrue);
+        expect(virtualFiles.first.content, contains('<string name="my_key">'));
+        expect(virtualFiles.first.content, contains('<string name="mykey">'));
       });
     });
   });

@@ -1,3 +1,5 @@
+import Foundation
+
 internal class TestFeatureALocalization {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "TestFeatureALocalization", bundle: .testBundle)

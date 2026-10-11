@@ -12,6 +12,31 @@ const settingsDto = SettingsDto(
   flutter: flutterOptionsDto,
 );
 
+// copyWith cannot reset a block to null, so these are built directly.
+const settingsDtoWithoutIos = SettingsDto(
+  languages: [settingsEnLanguageDto, settingsDeLanguageDto],
+  sourcesFolder: 'example/bundles',
+  ios: null,
+  android: androidOptionsDto,
+  flutter: flutterOptionsDto,
+);
+
+const settingsDtoWithoutAndroid = SettingsDto(
+  languages: [settingsEnLanguageDto, settingsDeLanguageDto],
+  sourcesFolder: 'example/bundles',
+  ios: iosOptionsDto,
+  android: null,
+  flutter: flutterOptionsDto,
+);
+
+const settingsDtoWithoutFlutter = SettingsDto(
+  languages: [settingsEnLanguageDto, settingsDeLanguageDto],
+  sourcesFolder: 'example/bundles',
+  ios: iosOptionsDto,
+  android: androidOptionsDto,
+  flutter: null,
+);
+
 const settingsEnLanguageDto = SettingsLanguageDto(key: 'en');
 const settingsDeLanguageDto = SettingsLanguageDto(key: 'de');
 const settingsUaLanguageDto = SettingsLanguageDto(key: 'ua');

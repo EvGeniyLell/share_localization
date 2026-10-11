@@ -2,6 +2,9 @@ library;
 
 export 'exceptions/app_exception.dart';
 export 'exceptions/composite_exception.dart';
+export 'exceptions/file_read_exception.dart';
+export 'exceptions/invalid_json_exception.dart';
+export 'exceptions/settings_not_found_exception.dart';
 export 'exceptions/unexpected_exception.dart';
 export 'services/file_service.dart';
 export 'utils/app_types.dart';

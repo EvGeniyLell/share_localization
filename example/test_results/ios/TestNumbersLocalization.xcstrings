@@ -1,0 +1,24 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "fileReport%@%lf%lld" : {
+      "comment" : "This is a report about a file.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File %1$@ has %3$lld pages and weighs %2$lf MB"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei %1$@ hat %3$lld Seiten und wiegt %2$lf MB"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

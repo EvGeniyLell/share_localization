@@ -7,10 +7,10 @@ class GeneralLocalizationEn extends GeneralLocalization {
   GeneralLocalizationEn([String locale = 'en']) : super(locale);
 
   @override
-  String fileSizeErrorBody(String fileName, double currentSize, double maximumSize) => 'The $file_name has size $current_size, it is biggest then maximum $maximum_size.';
+  String fileSizeErrorBody(String fileName, double currentSize, double maximumSize) => 'The $fileName has size $currentSize, it is biggest then maximum $maximumSize.';
       
   @override
-  String fileSizeAttention(int maximumSize) => 'File should be less or equal to $maximum_size MB.';
+  String fileSizeAttention(int maximumSize) => 'File should be less or equal to $maximumSize MB.';
       
   @override
   String get fileSizeTitle => 'Attention! The file size is too big.';

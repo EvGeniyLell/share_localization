@@ -15,14 +15,23 @@ class FileService {
     await file.writeAsString(content, flush: true);
   }
 
-  Future<Iterable<File>> getFilesInDirectory({
+  /// Returns the files in [path] whose path ends with [extension], sorted
+  /// ascending by [File.path].
+  ///
+  /// The order is made explicit because `listSync()` returns entries in
+  /// filesystem-dependent order, which would otherwise make bundle load order
+  /// (and therefore generated output) non-deterministic across machines.
+  Future<List<File>> getFilesInDirectory({
     required String path,
     required String extension,
   }) async {
     final currentPath = FileServiceHelper.getCurrentPath(path);
-    return Directory(currentPath).listSync().whereType<File>().where(
-      (file) => file.path.endsWith(extension),
-    );
+    return Directory(currentPath)
+        .listSync()
+        .whereType<File>()
+        .where((file) => file.path.endsWith(extension))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
   }
 }
 

@@ -58,15 +58,15 @@ extension BuildFlutterLocalizationUseCaseCommon
     final items = localization.keys
         .map((key) {
           final comment = key.comment;
-          final translation = key.translation.firstWhere((translation) {
+          final translation = key.translations.firstWhere((translation) {
             return translation.languageKey == defaultLanguage;
           }).message;
           final getter = buildCommonItemGetter(key);
           return '''
-  /// $comment
+  /// ${comment.flutterDocCommentEscape()}
   ///
   /// In $defaultLanguage, this message translates to:
-  /// **'${translation.flutterDescriptionEscape()}'**
+  /// **'${translation.flutterDocCommentEscape()}'**
   $getter
       ''';
         })
@@ -151,7 +151,7 @@ $className lookup$className(Locale locale) {
     // String get creatingDocumentBody;
     // or
     // String maxFileSizeError(String fileSize);
-    final itemName = key.key.camelCase();
+    final itemName = _flutterItemName(key);
     if (key.arguments.isEmpty) {
       return 'String get $itemName;';
     }

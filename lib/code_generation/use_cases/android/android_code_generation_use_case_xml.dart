@@ -6,11 +6,10 @@ extension BuildAndroidLocalizationUseCaseXml on AndroidCodeGenerationUseCase {
     SettingsLanguageDto language,
     LocalizationDto localization,
   ) {
-    final localizationKeyPrefix =
-        switch (settings.options.useFilePrefixForKeys) {
-          true => localization.name.baseFilename(),
-          false => '',
-        };
+    final localizationKeyPrefix = _localizationKeyPrefix(
+      settings,
+      localization,
+    );
     return '''
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
@@ -51,22 +50,16 @@ ${generateStrings(settings, localizationKeyPrefix, localization.keys, language.k
   ) {
     //   <string name="loginEmail">Email</string>
     //   <string name="welcomeMessages">Hello, %1$s! You have %2$d new messages.</string>
-    final useCamelCase = settings.options.useCamelCase;
-    final itemName = key.key.nullSafe((key) {
-      final fullKey = [localizationKeyPrefix, key]
-          .where((s) => s.isNotEmpty)
-          .join('_');
-      return useCamelCase ? fullKey.camelCase() : fullKey.snakeCase();
-    });
+    final itemName = _itemName(settings, localizationKeyPrefix, key.key);
 
-    final translation = key.translation
+    final translation = key.translations
         .firstWhere((translation) {
           return translation.languageKey == languageKey;
         })
         .message
         .androidTranslationEscape()
         .androidArgumentsEscape(key.arguments);
-    final description = key.translation
+    final description = key.translations
         .firstWhere((translation) {
           return translation.languageKey == settings.languages.first.key;
         })

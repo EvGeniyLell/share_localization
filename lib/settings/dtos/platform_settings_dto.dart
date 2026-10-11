@@ -8,11 +8,11 @@ typedef AndroidSettingsDto = PlatformSettingsDto<AndroidOptionsDto>;
 typedef FlutterSettingsDto = PlatformSettingsDto<FlutterOptionsDto>;
 
 @immutable
-class PlatformSettingsDto<PlatformOptionsDto> {
+class PlatformSettingsDto<Options extends PlatformOptionsDto> {
   final List<SettingsLanguageDto> languages;
   final String sourcesFolder;
 
-  final PlatformOptionsDto options;
+  final Options options;
 
   PlatformSettingsDto({required SettingsDto settings, required this.options})
     : languages = settings.languages,

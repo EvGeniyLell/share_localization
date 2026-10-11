@@ -24,7 +24,7 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
     });
     final getters = localization.keys
         .map((key) {
-          final translation = key.translation.firstWhere((translation) {
+          final translation = key.translations.firstWhere((translation) {
             return translation.languageKey == defaultLanguage.key;
           });
           return buildXCStringsItemTranslation(
@@ -35,6 +35,8 @@ extension BuildIosLocalizationUseCaseSwift on IosCodeGenerationUseCase {
         })
         .join('\n\n');
     return '''
+import Foundation
+
 ${classAccessLevel}class $localizationName {
   private static func l(_ key: String.LocalizationValue) -> String {
     return String(localized: key, table: "$localizationName"$localizationBundle)
@@ -50,9 +52,9 @@ $getters
     LocalizationKeyDto key,
     LocalizationKeyTranslationDto translation,
   ) {
-    final comment = key.comment;
+    final comment = key.comment.iosSwiftTranslationEscape();
     final defaultLanguage = language.key;
-    final translation = key.translation
+    final translation = key.translations
         .firstWhere((translation) {
           return translation.languageKey == defaultLanguage;
         })
@@ -73,7 +75,7 @@ $getter''';
     // static func loginMessage(_ name: String, _ pass: String) -> String {
     // or
     // static var testA: String {
-    final itemName = key.key.camelCase();
+    final itemName = _iosItemName(key);
     if (key.arguments.isEmpty) {
       return '''
   static var $itemName: String {

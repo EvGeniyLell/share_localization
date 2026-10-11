@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:share_localization/code_generation/build_report.dart';
 import 'package:share_localization/code_generation/use_cases/android/android_code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
@@ -6,6 +7,13 @@ import 'package:share_localization/code_generation/use_cases/ios/ios_code_genera
 import 'package:share_localization/common/common.dart';
 import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
+
+/// Settings, loaded localizations and the skipped verification exceptions.
+typedef LoadResult = (
+  SettingsDto,
+  List<LocalizationDto>,
+  List<VerificationLocalizationException>,
+);
 
 class BatchCodeGenerationUseCase {
   final SettingsLoaderUseCase settingsLoader;
@@ -40,24 +48,25 @@ class BatchCodeGenerationUseCase {
     );
   }
 
-  Task<void> call(String settingsFilepath) {
+  Task<BuildReport> call(String settingsFilepath) {
     return runAppTaskSafely(() async {
-      final (settings, localizations) = await load(settingsFilepath);
-      final exceptions = <AppException>{};
+      final (settings, localizations, skipped) = await load(settingsFilepath);
+      final all = <AppException>[...skipped];
+      // A builder with a cross-bundle clash is skipped for every bundle.
+      final clashes = _crossBundleErrors(settings, localizations);
+      for (final errors in clashes.values) {
+        all.addAll(errors);
+      }
+      final skippedBuilders = clashes.keys.toSet();
       for (final localization in localizations) {
-        final subExceptions = await build(settings, localization);
-        exceptions.addAll(subExceptions);
+        all.addAll(await build(settings, localization, skip: skippedBuilders));
       }
-      if (exceptions.isNotEmpty) {
-        throw CompositeException(exceptions.toList());
-      }
+      return BuildReport(all);
     });
   }
 
   @visibleForTesting
-  Future<(SettingsDto, List<LocalizationDto>)> load(
-    String settingsFilepath,
-  ) async {
+  Future<LoadResult> load(String settingsFilepath) async {
     final settingsTask = await settingsLoader(settingsFilepath);
     if (settingsTask.failed) {
       throw settingsTask.exception;
@@ -69,37 +78,84 @@ class BatchCodeGenerationUseCase {
       extension: '.json',
     );
 
-    final localizationsTasks = sourceFiles.map((file) async {
-      final localizationTask = await localizationLoader(file.path);
-      if (localizationTask.failed) {
-        throw localizationTask.exception;
+    final localizationsTasks = await Future.wait(
+      sourceFiles.map((file) => localizationLoader(file.path)),
+    );
+    final (localizations, loadErrors) = _splitTasks(localizationsTasks);
+    _throwErrors(loadErrors);
+
+    final verificationTasks = await Future.wait(
+      localizations.map((localization) {
+        return verificationLocalization(settings, localization);
+      }),
+    );
+    final (skippedLists, verificationErrors) = _splitTasks(verificationTasks);
+    _throwErrors(verificationErrors);
+
+    return (settings, localizations, skippedLists.expand((e) => e).toList());
+  }
+
+  /// Splits [results] into the data of the succeeded tasks and the exceptions
+  /// of the failed ones, both in input order.
+  (List<T>, List<AppException>) _splitTasks<T>(List<TaskResult<T>> results) {
+    final data = <T>[];
+    final errors = <AppException>[];
+    for (final result in results) {
+      if (result.failed) {
+        errors.add(result.exception);
+      } else {
+        data.add(result.data);
       }
-      return localizationTask.data;
-    });
+    }
+    return (data, errors);
+  }
 
-    final localizations = await Future.wait(localizationsTasks);
+  /// Throws the only error as is, or all of them as one [CompositeException]
+  /// with nested composites flattened, so every error is reported.
+  void _throwErrors(List<AppException> errors) {
+    if (errors.isEmpty) {
+      return;
+    }
+    if (errors.length == 1) {
+      throw errors.single;
+    }
+    throw CompositeException([
+      for (final error in errors)
+        if (error is CompositeException) ...error.exceptions else error,
+    ]);
+  }
 
-    localizations.forEach((localization) async {
-      final verificationTask = await verificationLocalization(
-        settings,
-        localization,
-      );
-      if (verificationTask.failed) {
-        throw verificationTask.exception;
+  /// The cross-bundle errors of each builder that has any.
+  Map<CodeGenerationUseCase, List<AppException>> _crossBundleErrors(
+    SettingsDto settings,
+    List<LocalizationDto> localizations,
+  ) {
+    final result = <CodeGenerationUseCase, List<AppException>>{};
+    for (final builder in builders) {
+      final errors = builder.validateBundles(settings, localizations);
+      if (errors.isNotEmpty) {
+        result[builder] = errors;
       }
-      return verificationTask.data;
-    });
-
-    return (settings, localizations);
+    }
+    return result;
   }
 
   @visibleForTesting
   Future<List<AppException>> build(
     SettingsDto settings,
-    LocalizationDto localization,
-  ) async {
+    LocalizationDto localization, {
+    Set<CodeGenerationUseCase> skip = const {},
+  }) async {
     final exceptions = <AppException>[];
     for (final builder in builders) {
+      if (skip.contains(builder)) {
+        // Nothing is written, but the bundle's own errors are still reported.
+        final error = builder.validateBundle(settings, localization);
+        if (error != null) {
+          exceptions.add(error);
+        }
+        continue;
+      }
       final buildTask = await builder(settings, localization);
       if (buildTask.failed) {
         exceptions.add(buildTask.exception);

@@ -18,3 +18,22 @@
 ## 0.0.5
 
 - Add support for `useFilePrefixForKeys` for android.
+
+## 0.0.6
+
+- **Breaking:** the CLI exits with code 1 when the build has errors, and an
+  unknown argument is rejected. Verification errors (missing language, missing
+  argument) now fail the run instead of being lost.
+- **Breaking:** library API: `LocalizationKeyDto.translation` is renamed to
+  `translations`, `run()` returns `Future<bool>`, `BatchCodeGenerationUseCase`
+  returns a `BuildReport`.
+- Fix escaping in generated files: backslash, `%`, `$`, `&`, `<`, quotes, tabs,
+  carriage returns, edge and repeated spaces (Android values are wrapped in
+  quotes), control characters in `.xcstrings`, line breaks in doc comments.
+- Generate `import Foundation` in iOS Swift files.
+- Fail with a clear error on invalid, empty or duplicate resource names, also
+  across Android bundles.
+- Report every load and verification error in one run; errors go to stderr,
+  colour is decided per stream and `NO_COLOR` is honoured.
+- Add `--settings=<path>`.
+- Sort bundle files by path so the output is the same on every machine.

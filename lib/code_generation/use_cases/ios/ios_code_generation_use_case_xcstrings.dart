@@ -19,14 +19,14 @@ $stringsItems
   }
 
   String buildXCStringsItem(LocalizationKeyDto key) {
-    final translations = key.translation
+    final translations = key.translations
         .map((translation) {
           return buildXCStringsItemTranslation(key, translation);
         })
         .join(',\n');
     return '''
     "${key.iosXCStringKey()}" : {
-      "comment" : "${key.comment}",
+      "comment" : "${key.comment.iosXCSTranslationEscape()}",
       "extractionState" : "manual",
       "localizations" : {
 $translations
