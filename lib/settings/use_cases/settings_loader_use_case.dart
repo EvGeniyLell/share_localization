@@ -28,7 +28,7 @@ extension SettingsLoaderUseCaseDtos on SettingsLoaderUseCase {
   ///
   /// If the type [R] is not implemented, it throws an [UnimplementedError].
   R buildDto<R extends Object>(JsonData data) {
-    final map = <Type, Function>{
+    final map = <Type, Object Function(JsonData)>{
       SettingsDto: buildSettingsDto,
       IosOptionsDto: buildIosOptionsDto,
       AndroidOptionsDto: buildAndroidOptionsDto,
