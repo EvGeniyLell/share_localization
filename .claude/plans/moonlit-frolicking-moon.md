@@ -45,8 +45,9 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
 **Next task:** none required. The hardening backlog is empty: N16, N17 and N19 are done. Before a release, by hand: the Android `%%` and `\u0020`
-rules on a device, and the R7 colour in a real terminal. Housekeeping: remove the old worktree and
-branch `claude/cli-stderr-errors-d3067c`.
+rules on a device. R7 colour was checked by the owner in a real terminal: green on success, red on
+error, none with `NO_COLOR=1`, no escape codes in a redirected stderr. The old worktree and branch
+`claude/cli-stderr-errors-d3067c` no longer exist.
 
 **What the backlog changed (so you do not redo it):** every escape function keeps the backslash
 step FIRST. Name validation is shared: `resource_name_validation.dart` (`validateResourceNames`,
@@ -104,8 +105,7 @@ asked; leave fixes and tests in the working tree and list the changed files.
   owner's call.
 
 **Housekeeping (owner: repo owner):**
-- Remove the old worktree and branch:
-  `git worktree remove .claude/worktrees/cli-stderr-errors-d3067c && git branch -d claude/cli-stderr-errors-d3067c`
+- Old worktree and branch: already removed.
 - Before release: run the Android `%%` check.
 
 ---
