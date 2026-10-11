@@ -72,8 +72,13 @@ extension StringToAndroid on String {
   ///
   /// The position and type come from the declared [arguments], looked up by
   /// name, so translations may reorder or repeat placeholders.
+  ///
+  /// A string with arguments is used as a format string, so a literal `%` is
+  /// written as `%%`. Without arguments it is read as plain text, where `%%`
+  /// would be shown twice, so it is left as is.
   String androidArgumentsEscape(List<LocalizationKeyArgumentDto> arguments) {
-    return replaceAllMapped(RegExp(r'{(\w+)}'), (match) {
+    final text = arguments.isEmpty ? this : replaceAll('%', '%%');
+    return text.replaceAllMapped(RegExp(r'{(\w+)}'), (match) {
       final index = arguments.indexWhere((a) => a.name == match.group(1));
       if (index == -1) {
         return match.group(0)!;

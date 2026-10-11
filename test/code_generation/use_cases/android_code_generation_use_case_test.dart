@@ -184,6 +184,27 @@ void main() {
 
         expect(result, r'{nope} and %2$f');
       });
+
+      // A string with arguments is a format string, so `%` must be `%%`.
+      test('escapes a literal percent when the key has arguments', () {
+        final result = '100% of {size}'.androidArgumentsEscape([size]);
+
+        expect(result, r'100%% of %1$f');
+      });
+
+      test('escapes a percent next to a placeholder', () {
+        final result = 'Save {size}%'.androidArgumentsEscape([size]);
+
+        expect(result, r'Save %1$f%%');
+      });
+
+      // Without arguments the string is read with getString(id), which does
+      // not format, so `%%` would be shown twice.
+      test('keeps a literal percent when the key has no arguments', () {
+        final result = '100% complete'.androidArgumentsEscape([]);
+
+        expect(result, '100% complete');
+      });
     });
 
     test('generationUseCase with int and double arguments', () async {
