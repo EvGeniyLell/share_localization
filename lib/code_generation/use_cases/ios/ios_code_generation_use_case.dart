@@ -135,13 +135,19 @@ extension StringToIos on String {
   /// Escapes text for use inside a JSON string value in `.xcstrings`.
   ///
   /// The backslash must be escaped first, otherwise the backslashes added by
-  /// the later steps would be doubled.
+  /// the later steps would be doubled. Other control characters U+0000..U+001F
+  /// are written as `\u00XX`, since raw ones make the JSON invalid.
   String iosXCSTranslationEscape() {
     return replaceAll(RegExp(r'\\'), r'\\')
         .replaceAll('"', r'\"')
         .replaceAll('\n', r'\n')
         .replaceAll('\t', r'\t')
-        .replaceAll('\r', r'\r');
+        .replaceAll('\r', r'\r')
+        .replaceAllMapped(
+          RegExp(r'[\x00-\x1F]'),
+          (match) =>
+              '\\u${match[0]!.codeUnitAt(0).toRadixString(16).padLeft(4, '0')}',
+        );
   }
 
   /// Escapes text for use inside a Swift `///` doc comment.

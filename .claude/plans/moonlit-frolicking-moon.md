@@ -14,9 +14,9 @@
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
 | Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog R7–R10 and N10, N11, N13 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
+| Backlog R7–R10 and N13 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
 
-**Verification now:** `dart test` 208/208 green. `dart analyze lib test` reports 4 infos that
+**Verification now:** `dart test` 211/211 green. `dart analyze lib test` reports 4 infos that
 are not from this plan (3x line length in `build_report_printer.dart`, 1x type parameter name).
 Not yet verified on a real device: the Android `%%` rule (see B2).
 
@@ -30,7 +30,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** N10 (Swift doc comment backslash), then N11, then the CLI block R7, R9, R10 and N13. N4 is committed (`a5e46a2`). N7 is done in the working tree (owner commits). N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
+**Next task:** the CLI block R9, R10, R7, then N13. N11 is done in the working tree (owner commits). N4 is committed (`a5e46a2`). N7 is committed (`4d0968c`). N10 was checked with swiftc and closed: not a bug. N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
 done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
 `-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
 and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
@@ -229,13 +229,13 @@ Found while doing R6 (confirmed by reading the code, not run):
 |---|---|---|---|
 | N8 ✅ `9e8f0cb` | `ios_code_generation_use_case.dart` `iosXCSTranslationEscape` | The xcstrings value is JSON: a literal `\` is not escaped (`C:\dir` is an invalid JSON escape, backslash+n becomes a newline); raw tab and `\r` are invalid JSON too (tab and `\r` inferred from the JSON spec). Same rule as N0 and R5: backslash step first. | Standard |
 | N9 ✅ `40c258c` | `ios_code_generation_use_case_xcstrings.dart:29`, `..._swift.dart:66` | `key.comment` is inserted unescaped into the xcstrings JSON (a `"`, backslash or newline breaks the JSON) and into the Swift `///` comment (a newline ends the block, the rest becomes Swift code). | Standard |
-| N10 | `iosSwiftTranslationEscape` | Same backslash gap, but the text goes into a doc comment, so the effect is small. | Low |
+| N10 ↪ closed, not a bug | `iosSwiftTranslationEscape` | Backslash in a Swift `///` comment. Checked with swiftc: `\`, `\"`, `\(x)`, `\u{ZZ}`, `*/` and a trailing `\` all typecheck, comments do not process escapes. Only cosmetic: `"` is shown as `\"` in the doc (left as is, see N9). | Low |
 
 Found while doing N8 (observation, not run):
 
 | ID | Where | Problem | Class of service |
 |---|---|---|---|
-| N11 | `iosXCSTranslationEscape` | Control characters U+0000–U+001F other than tab, newline and `\r` (`\b`, `\f`, NUL) are still written raw, which is invalid JSON. Needs a `\uXXXX` escape per code point. Unlikely in real translations. | Low |
+| N11 ✅ working tree | `iosXCSTranslationEscape` | Control characters U+0000–U+001F other than tab, newline and `\r` (`\b`, `\f`, NUL) are still written raw, which is invalid JSON. Fixed: remaining U+0000–U+001F → `\u00xx` (lowercase hex) after the other steps; DEL stays raw (valid JSON). The raw file used to be invalid JSON while the build reported success. | Low |
 | N12 ✅ working tree | `android_code_generation_use_case.dart` `_validateResourceNames` | Android names are not checked for an empty key base (with `use_file_prefix_for_keys` a key without ASCII letters collapses to the bare prefix) or for duplicates inside a bundle (`my-key` and `my_key` both give `my_key`, also without a prefix). Fixed: `InvalidResourceNameReason.emptyKeyBase` and new `DuplicateResourceNameException` (`platform` field, names both keys); one error per key, all reported together. | Standard |
 | N13 | `batch_code_generation_use_case.dart` | Duplicate Android names ACROSS bundles (same key in two bundles, prefix off) are not checked; Android merges all `values/*.xml`. Needs a batch-level check. Not started. | Low |
 | N14 ✅ working tree | `flutter_code_generation_use_case.dart` | Flutter: duplicate or empty/invalid `camelCase()` names (`my-key` + `my_key`, `ключ`) were written as duplicate getters and `String get ;`. Fixed with the shared validator; reserved words (`class`) and `Object` member clashes (`hashCode`) are NOT checked. | Standard |
@@ -250,7 +250,7 @@ Found while doing N8 (observation, not run):
 
 ```bash
 dart analyze lib test           # 4 pre-existing infos, see Status
-dart test                       # 208 green
+dart test                       # 211 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart

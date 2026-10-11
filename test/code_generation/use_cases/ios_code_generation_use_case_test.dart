@@ -160,6 +160,64 @@ void main() {
       },
     );
 
+    test('iosXCSTranslationEscape escapes other control characters', () {
+      final cases = <String, String>{
+        '\u0000': r'\u0000',
+        '\u0001': r'\u0001',
+        '\u0008': r'\u0008',
+        '\u000c': r'\u000c',
+        '\u001f': r'\u001f',
+        '\u007f': '\u007f',
+        '\\\u0001': r'\\\u0001',
+        '\n\t\r': r'\n\t\r',
+      };
+      for (final entry in cases.entries) {
+        expect(
+          entry.key.iosXCSTranslationEscape(),
+          entry.value,
+          reason: 'input: ${entry.key.codeUnits}',
+        );
+      }
+    });
+
+    test('iosXCSTranslationEscape round-trips every control character', () {
+      final controls = String.fromCharCodes([
+        for (var i = 0; i <= 0x1f; i++) i,
+      ]);
+      final message = '$controls\u007f "q" \\ end';
+      final escaped = message.iosXCSTranslationEscape();
+      expect(jsonDecode('"$escaped"'), message);
+    });
+
+    group('control characters (N11)', () {
+      test('generateXCStrings escapes control characters in value and '
+          'comment and round-trips through JSON', () {
+        const message = 'bell\u0007 nul\u0000 ff\u000c bs\u0008 us\u001f';
+        const comment = 'c\u0001 tab\t nl\n del\u007f';
+        const key = LocalizationKeyDto(
+          key: 'control_message',
+          comment: comment,
+          arguments: [],
+          translations: [
+            LocalizationKeyTranslationDto(languageKey: 'en', message: message),
+          ],
+        );
+        final result = generationUseCase.generateXCStrings(
+          settingsDto.toPlatformSettingsDto()!,
+          localizationDto.copyWith(keys: [key]),
+        );
+
+        final decoded = jsonDecode(result) as Map<String, dynamic>;
+        final strings = decoded['strings'] as Map<String, dynamic>;
+        final item = strings['controlMessage'] as Map<String, dynamic>;
+        expect(item['comment'], comment);
+        final localizations = item['localizations'] as Map<String, dynamic>;
+        final en = localizations['en'] as Map<String, dynamic>;
+        final unit = en['stringUnit'] as Map<String, dynamic>;
+        expect(unit['value'], message);
+      });
+    });
+
     test('iosKey', () {
       final keys = [loginMessageKey, loginTitleKey];
       for (final key in keys) {
