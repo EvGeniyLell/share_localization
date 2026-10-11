@@ -137,5 +137,53 @@ void main() {
         expect(virtualFiles, isEmpty);
       },
     );
+
+    group('androidArgumentsEscape', () {
+      const fileName = LocalizationKeyArgumentDto(
+        name: 'file_name',
+        type: LocalizationKeyDtoType.string,
+      );
+      const size = LocalizationKeyArgumentDto(
+        name: 'size',
+        type: LocalizationKeyDtoType.double,
+      );
+      const count = LocalizationKeyArgumentDto(
+        name: 'count',
+        type: LocalizationKeyDtoType.int,
+      );
+
+      test('keeps declared positions and types', () {
+        final result = '{file_name} is {size}'.androidArgumentsEscape([
+          fileName,
+          size,
+        ]);
+
+        expect(result, r'%1$s is %2$f');
+      });
+
+      test('uses declared position and type when order differs', () {
+        final result = '{size} for {file_name}'.androidArgumentsEscape([
+          fileName,
+          size,
+        ]);
+
+        expect(result, r'%2$f for %1$s');
+      });
+
+      test('reuses the same position for a repeated placeholder', () {
+        final result = '{count} of {count}'.androidArgumentsEscape([count]);
+
+        expect(result, r'%1$d of %1$d');
+      });
+
+      test('leaves an unknown placeholder untouched', () {
+        final result = '{nope} and {size}'.androidArgumentsEscape([
+          fileName,
+          size,
+        ]);
+
+        expect(result, r'{nope} and %2$f');
+      });
+    });
   });
 }

@@ -68,13 +68,17 @@ extension StringToAndroid on String {
     return replaceAll('\n', r'\n');
   }
 
+  /// Replaces `{name}` with a positional format specifier, e.g. `%2$d`.
+  ///
+  /// The position and type come from the declared [arguments], looked up by
+  /// name, so translations may reorder or repeat placeholders.
   String androidArgumentsEscape(List<LocalizationKeyArgumentDto> arguments) {
-    int index = 0;
-    return replaceAllMapped(RegExp(r'{(\w+)}'), (math) {
-      final argument =
-          arguments.elementAtOrNull(index++)?.type ??
-          LocalizationKeyDtoType.string;
-      return '%$index${argument.androidType}';
+    return replaceAllMapped(RegExp(r'{(\w+)}'), (match) {
+      final index = arguments.indexWhere((a) => a.name == match.group(1));
+      if (index == -1) {
+        return match.group(0)!;
+      }
+      return '%${index + 1}${arguments[index].type.androidType}';
     });
   }
 }
