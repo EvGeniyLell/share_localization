@@ -111,5 +111,41 @@ void main() {
         );
       }
     });
+
+    group('buildLocaleItemGetter', () {
+      const snakeCaseKey = LocalizationKeyDto(
+        key: 'file_size_body',
+        comment: 'This is a body of the file size message.',
+        arguments: [
+          LocalizationKeyArgumentDto(
+            name: 'file_name',
+            type: LocalizationKeyDtoType.string,
+          ),
+          LocalizationKeyArgumentDto(
+            name: 'current_size',
+            type: LocalizationKeyDtoType.double,
+          ),
+        ],
+        translations: [
+          LocalizationKeyTranslationDto(
+            languageKey: 'en',
+            message: 'The {file_name} is {current_size} MB',
+          ),
+        ],
+      );
+
+      test('uses the parameter names for snake_case arguments', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          snakeCaseKey,
+          'en',
+        );
+
+        expect(
+          result,
+          'String fileSizeBody(String fileName, double currentSize) => '
+          r"'The $fileName is $currentSize MB';",
+        );
+      });
+    });
   });
 }

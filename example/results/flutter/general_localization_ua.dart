@@ -7,10 +7,10 @@ class GeneralLocalizationUa extends GeneralLocalization {
   GeneralLocalizationUa([String locale = 'ua']) : super(locale);
 
   @override
-  String fileSizeErrorBody(String fileName, double currentSize, double maximumSize) => 'Цей $file_name має розмір $current_size, це більш ніж дозволений максимум $maximum_size.';
+  String fileSizeErrorBody(String fileName, double currentSize, double maximumSize) => 'Цей $fileName має розмір $currentSize, це більш ніж дозволений максимум $maximumSize.';
       
   @override
-  String fileSizeAttention(int maximumSize) => 'Файл повинен бути меншим або рівним $maximum_size МБ.';
+  String fileSizeAttention(int maximumSize) => 'Файл повинен бути меншим або рівним $maximumSize МБ.';
       
   @override
   String get fileSizeTitle => 'Увага! Розмір файлу занадто великий.';

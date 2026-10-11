@@ -55,11 +55,15 @@ extension LocalizationKeyDtoTypeToFlutter on LocalizationKeyDtoType {
 }
 
 extension StringToFlutter on String {
+  /// Escapes the text and turns `{argument_name}` into `$argumentName`.
+  ///
+  /// The name goes through the same `camelCase()` as the generated parameter,
+  /// otherwise the body would refer to a name that does not exist.
   String flutterEscape() {
     return replaceAll("'", r"\'").replaceAll('\n', r'\n').replaceAllMapped(
       RegExp(r'{(\w+)}'),
       (math) {
-        return '\$${math.group(1)}';
+        return '\$${math.group(1)!.camelCase()}';
       },
     );
   }
