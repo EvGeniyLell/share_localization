@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
@@ -37,6 +38,125 @@ void main() {
         );
       }
     });
+
+    test('iosMessage escapes literal percent when key has arguments', () {
+      const name = LocalizationKeyArgumentDto(
+        name: 'name',
+        type: LocalizationKeyDtoType.string,
+      );
+      const count = LocalizationKeyArgumentDto(
+        name: 'n',
+        type: LocalizationKeyDtoType.int,
+      );
+      const sure = LocalizationKeyTranslationDto(
+        languageKey: 'en',
+        message: '100% sure, {name}',
+      );
+      const done = LocalizationKeyTranslationDto(
+        languageKey: 'en',
+        message: '{n}% done',
+      );
+      const alreadyEscaped = LocalizationKeyTranslationDto(
+        languageKey: 'en',
+        message: '50%% already, {name}',
+      );
+      expect(sure.iosMessage([name]), r'100%% sure, %1$@');
+      expect(done.iosMessage([count]), r'%1$lld%% done');
+      expect(alreadyEscaped.iosMessage([name]), r'50%%%% already, %1$@');
+    });
+
+    test('iosMessage keeps literal percent when key has no arguments', () {
+      const translation = LocalizationKeyTranslationDto(
+        languageKey: 'en',
+        message: '100% sure',
+      );
+      expect(translation.iosMessage(const []), '100% sure');
+    });
+
+    test('iosMessage keeps placeholder-only message unchanged', () {
+      const name = LocalizationKeyArgumentDto(
+        name: 'name',
+        type: LocalizationKeyDtoType.string,
+      );
+      const translation = LocalizationKeyTranslationDto(
+        languageKey: 'en',
+        message: '{name}',
+      );
+      expect(translation.iosMessage([name]), r'%1$@');
+    });
+
+    test('xcstrings value escapes literal percent for key with arguments', () {
+      const name = LocalizationKeyArgumentDto(
+        name: 'name',
+        type: LocalizationKeyDtoType.string,
+      );
+      const translation = LocalizationKeyTranslationDto(
+        languageKey: 'en',
+        message: '100% sure, {name}',
+      );
+      const key = LocalizationKeyDto(
+        key: 'sure_message',
+        comment: 'Certainty message.',
+        arguments: [name],
+        translations: [translation],
+      );
+      final result = BuildIosLocalizationUseCaseXCStrings(
+        generationUseCase,
+      ).buildXCStringsItemTranslation(key, translation);
+      expect(result, contains(r'"value" : "100%% sure, %1$@"'));
+    });
+
+    test('xcstrings value escapes literal backslash', () {
+      const name = LocalizationKeyArgumentDto(
+        name: 'name',
+        type: LocalizationKeyDtoType.string,
+      );
+      const translation = LocalizationKeyTranslationDto(
+        languageKey: 'en',
+        message: r'C:\dir for {name}',
+      );
+      const key = LocalizationKeyDto(
+        key: 'path_message',
+        comment: 'Path message.',
+        arguments: [name],
+        translations: [translation],
+      );
+      final result = BuildIosLocalizationUseCaseXCStrings(
+        generationUseCase,
+      ).buildXCStringsItemTranslation(key, translation);
+      expect(result, contains(r'"value" : "C:\\dir for %1$@"'));
+    });
+
+    test('iosXCSTranslationEscape table', () {
+      final cases = <String, String>{
+        r'C:\dir': r'C:\\dir',
+        r'\n': r'\\n',
+        '\n': r'\n',
+        r'\"': r'\\\"',
+        String.fromCharCode(0x5C): r'\\',
+        '\t': r'\t',
+        '\r': r'\r',
+        '"': r'\"',
+        '': '',
+        r'a\b"c': r'a\\b\"c',
+      };
+      for (final entry in cases.entries) {
+        expect(
+          entry.key.iosXCSTranslationEscape(),
+          entry.value,
+          reason: 'input: ${entry.key}',
+        );
+      }
+    });
+
+    test(
+      'iosXCSTranslationEscape round-trips through JSON string decoding',
+      () {
+        const message = 'a\\b "q"\tt\rr\nn C:\\dir\\n';
+        final escaped = message.iosXCSTranslationEscape();
+        expect(jsonDecode('"$escaped"'), message);
+      },
+    );
 
     test('iosKey', () {
       final keys = [loginMessageKey, loginTitleKey];

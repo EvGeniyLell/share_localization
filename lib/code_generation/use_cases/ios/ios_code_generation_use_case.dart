@@ -82,8 +82,11 @@ extension IosLocalizationKeyDto on LocalizationKeyDto {
 @visibleForTesting
 extension IosLocalizationKeyTranslationDto on LocalizationKeyTranslationDto {
   /// return string aka "Hi %1$@! Number %2$lld from %3$@?"
+  ///
+  /// With arguments the message is a format string, so a literal `%` is
+  /// escaped as `%%` before placeholders are replaced.
   String iosMessage(List<LocalizationKeyArgumentDto> arguments) {
-    String result = message;
+    String result = arguments.isEmpty ? message : message.replaceAll('%', '%%');
     for (int i = 0; i < arguments.length; i++) {
       final argument = arguments[i];
       result = result.replaceAll(
@@ -97,8 +100,16 @@ extension IosLocalizationKeyTranslationDto on LocalizationKeyTranslationDto {
 }
 
 extension StringToIos on String {
+  /// Escapes text for use inside a JSON string value in `.xcstrings`.
+  ///
+  /// The backslash must be escaped first, otherwise the backslashes added by
+  /// the later steps would be doubled.
   String iosXCSTranslationEscape() {
-    return replaceAll('"', r'\"').replaceAll('\n', r'\n');
+    return replaceAll(RegExp(r'\\'), r'\\')
+        .replaceAll('"', r'\"')
+        .replaceAll('\n', r'\n')
+        .replaceAll('\t', r'\t')
+        .replaceAll('\r', r'\r');
   }
 
   String iosSwiftTranslationEscape() {
