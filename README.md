@@ -31,9 +31,38 @@ dart pub global activate --source git git@github.com:EvGeniyLell/share_localizat
 
 ## Usage
 
+### Command-line options
+
+```bash
+share_localization [options]
+```
+
+| Option | Meaning |
+|---|---|
+| `-h`, `--help` | Show the help and exit. |
+| `--version` | Show the tool version and exit. |
+| `--verbose` | Show stack traces with errors. |
+| `--settings <path>` or `--settings=<path>` | Path to the settings file (default `settings.json`). Use the `=` form for a path that starts with `-`. |
+
+An unknown option is an error and the tool exits with code 1.
+
+Paths inside the settings file (`sources_folder`, `destination_folder`) are
+resolved from the working directory, not from the folder of the settings file.
+
+### Exit code and output
+
+- The tool exits with code `1` if the build has errors, otherwise with `0`.
+- Warnings are printed but do not change the exit code, for example a platform
+  section missing from the settings, or an argument in a translation that the
+  key does not declare.
+- Messages are written to the error stream (stderr). Colour is used only when
+  the stream is a terminal; set a non-empty `NO_COLOR` variable to turn it off.
+- All load and verification errors are reported in one run, not only the first.
+
 ### Settings Options
 
-The command-line tool expects to find the `settings.json` file in the working directory.
+The command-line tool expects to find the `settings.json` file in the working directory
+(or the file given with `--settings`).
 
 The settings file should be formatted as follows:
 

@@ -7,7 +7,7 @@ Before this branch the tool could write output that did not compile or silently 
 ## Changes
 
 **Escaping (generated output changes)**
-- Android: backslash first, `&`, `<`, `"`, `'`, `\n`, `\t`; a literal `%` becomes `%%` only for strings with arguments; a leading `@` or `?` is escaped; a carriage return is written as `\u000d` (aapt2 has no `\r` escape); values with leading, trailing or repeated spaces are wrapped in double quotes (checked with aapt2, ` ` does not work); `--` is broken in description comments; argument positions follow the declared arguments when placeholders are reordered.
+- Android: backslash first, `&`, `<`, `"`, `'`, `\n`, `\t`; a literal `%` becomes `%%` only for strings with arguments; a leading `@` or `?` is escaped; a carriage return is written as `\u000d` (aapt2 has no `\r` escape); values with leading, trailing or repeated spaces are wrapped in double quotes (checked with aapt2, `\u0020` does not work); `--` is broken in description comments; argument positions follow the declared arguments when placeholders are reordered.
 - Flutter: backslash and literal `$` escaped; placeholders followed by an identifier character use `${name}`; snake_case arguments produce compiling code; line breaks in doc comments are written as `\n` / `\r`.
 - iOS: `import Foundation` generated in Swift files; `%` and JSON special characters escaped in `.xcstrings`; control characters written as `\u00xx`; key comments escaped.
 
@@ -30,6 +30,7 @@ Before this branch the tool could write output that did not compile or silently 
 **Tests and fixtures**
 - 256 tests (`dart test`), `dart analyze lib test bin` is clean. Each fix started with a failing test and was mutation-checked in a copy.
 - Added `test_numbers` goldens in `example/test_results/`; regenerated 4 files in `example/results/` (`import Foundation`, Flutter escapes).
+- `README.md`: new sections for the command-line options, the exit code and the output rules.
 - Repository notes added: `CLAUDE.md`, `.claude/plans/moonlit-frolicking-moon.md` (backlog and decisions), `.claude/agents/code-generator.md`, `.claude/skills/pr-description/`.
 - Formatting-only changes in a few files were kept in the commit that touched them (`39ec96c`).
 
@@ -38,7 +39,7 @@ Before this branch the tool could write output that did not compile or silently 
 - **Verification is enforced.** The old `load` ran verification in `forEach(async …)` without awaiting it, so missing-language and missing-argument errors were lost. They are now collected and fail the run (extra-argument errors stay warnings).
 - **Unknown CLI arguments** exit with 1; before they were ignored.
 - **Library API** (exported from the barrels): `LocalizationKeyDto.translation` is renamed to `translations`; `run()` returns `Future<bool>` and the top-level `builder` is removed; `BatchCodeGenerationUseCase.call` returns `Task<BuildReport>` and `load` returns a three-value record; `TaskResult` is bound to `E extends AppException`. New `CodeGenerationUseCase` methods have defaults, so existing subclasses still compile.
-- Version is `0.0.6` in `pubspec.yaml`, `consts.dart` (a test checks they match) and `CHANGELOG.md`, which has the release note. `README.md` does not yet mention `--settings`, `NO_COLOR` or the exit codes.
+- Version is `0.0.6` in `pubspec.yaml`, `consts.dart` (a test checks they match) and `CHANGELOG.md`, which has the release note. `README.md` now documents the options, exit codes and `NO_COLOR`.
 - **`--settings` moves only the settings file.** `sources_folder` and the destination folders are still resolved from the working directory (tracked as N22 in the plan).
 
 ## Risks and review focus
@@ -51,3 +52,4 @@ Before this branch the tool could write output that did not compile or silently 
 ## Before release
 - Android `%%` and quoted values on a device or emulator (verified with aapt2 only). Owner: repo owner.
 - R7 colour was checked by hand in a terminal (green, red, `NO_COLOR`, redirected stderr).
+- Open ideas (Low, in the plan): N22 resolve paths from the settings file's folder; N23 friendlier message for an unknown option.
