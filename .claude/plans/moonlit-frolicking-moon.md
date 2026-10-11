@@ -16,8 +16,7 @@
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
 | Backlog N16, N17 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
 
-**Verification now:** `dart test` 246/246 green. `dart analyze lib test` reports 1 info that
-is not from this plan (the type parameter name in `platform_settings_dto.dart`).
+**Verification now:** `dart test` 246/246 green. `dart analyze lib test bin` reports no issues (R11 removed the last info).
 Not yet verified on a real device or terminal: the Android `%%` rule (see B2), `\u0020` for edge spaces (N4), and R7 colour in a real TTY (`2> file`, `| tee`, `NO_COLOR=1`).
 
 Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
@@ -30,7 +29,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** none required; backlog left: N16 and N17 (both Low), optional R11. N13 is done in the working tree (owner commits); R7 is committed (`aa3e842`). Optional R11: the last analyze info (`platform_settings_dto.dart`, type parameter name). N4 is committed (`a5e46a2`). N7 is committed (`4d0968c`). N10 was checked with swiftc and closed: not a bug. N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
+**Next task:** none required; backlog left: N16 and N17 (both Low). R11 is done in the working tree (owner commits): type parameter of `PlatformSettingsDto` renamed `PlatformOptionsDto` → `Options extends PlatformOptionsDto` (the bound limits it to the three platform option classes; proved with a scratch copy: `PlatformSettingsDto<String>` fails with `type_argument_not_matching_bounds`), `dart analyze` is clean. N13 and R7 are committed. N4 is committed (`a5e46a2`). N7 is committed (`4d0968c`). N10 was checked with swiftc and closed: not a bug. N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
 done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
 `-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
 and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
