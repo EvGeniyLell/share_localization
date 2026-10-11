@@ -1,172 +1,207 @@
 # Plan: Production Hardening — share_localization
 
+## Status (branch `moonlit-frolicking-moon`, tip `448ff77`, everything merged)
+
+| Phase | Status | Commits |
+|---|---|---|
+| 1 Critical bug fixes | ✅ Done | `74ba3ae` |
+| 2 CLI UX | ✅ Done | `edb6e54`, `fe793ba`, `275b00a` |
+| 3 Code quality | ✅ Done | `edb6e54` |
+| 4 Test improvements | ✅ Done | `60810d8`, `41806a2`, `e901527`, `936e080`, `aa57390` |
+| Found while testing (not in the original plan) | ✅ Done | `7da889c`, `f7ce159`, `88f4ca0`, `c49c043`, `b4c2138` |
+| Requested additions | ✅ Done | `448ff77` |
+| Backlog from code review | ⏳ Open | see "Open backlog" |
+
+**Verification now:** `dart test` 77/77 green. `dart analyze` on `lib/` reports 5 infos that
+are not from this plan (3x line length in `build_report_printer.dart`, 1x type parameter name).
+Not yet verified on a real device: the Android `%%` rule (see B2).
+
+Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
+
+---
+
+## Resume here (handoff for a new session)
+
+**Start:** open the session in `/Users/evg/Work/share_localization` (the main folder, branch
+`moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
+first. Everything above is merged; nothing is uncommitted except this plan file (see "Housekeeping").
+
+**Next task:** R1 + R2 together (both live in how `BuildReport` is assembled in
+`batch_code_generation_use_case.dart`).
+- Decision still needed for R1: should an error in `skipErrorTypes` become a **warning** in
+  `BuildReport`? Recommended: yes (CLAUDE.md already says "downgrading it to a warning").
+- R2: de-duplicate equal warnings again (the old code used a `Set`; `BuildLocalizationException`
+  already implements `==`).
+
+**How we work (keep doing this):**
+1. One item at a time, WIP 1. Finish and commit before starting the next.
+2. TDD: write the test first and see it **red** with the wrong actual value, then fix, then green.
+3. Check the test really guards the fix: copy the project to the scratchpad, break the code there
+   (mutation), confirm the test fails. Never mutate the real tree.
+4. One commit per fix, message explains *why*. Run `dart analyze` (touched files) and `dart test`.
+5. Do not regenerate `example/results/` with the tool: it adds whitespace-only noise. Edit the
+   few expected lines by hand. `tremContent()` ignores per-line whitespace in the tests.
+
+**Repo facts that are easy to miss:**
+- `example/results/` is the live output **and** the expected content of the batch test. It is
+  committed, so it is circular: a wrong generator plus regenerated results still passes. Use
+  independent expectations (`example/test_results/` goldens written by hand, or inline strings).
+- Keep argument names in new fixtures as single words unless the test is about names (B1 is fixed,
+  but single words keep goldens small).
+- `dart analyze` on the whole repo shows ~95 errors, almost all in `example/results/flutter/`
+  because Flutter is not installed. Only `Undefined name` for **our own argument names** is a real
+  generator bug. `lib/` has 5 known infos (see Status).
+- `SettingsDto.copyWith` cannot reset a field to null; build the DTO directly (see
+  `settingsDtoWithoutIos` in `test/settings/mocks.dart`).
+
+**Decisions already taken (do not reopen):**
+- `logError` is debug-only; the user-facing error is printed once by `run()`.
+- Android: `%` → `%%` only for keys **with** arguments; keys without arguments stay as they are.
+- Flutter: `$` → `\$`; `{size}MB` → `${size}MB`; placeholder names go through `camelCase()`.
+- A failing builder does not fail the task; it is listed in `BuildReport.errors`.
+- Hand-written parser in `bin/`, no `args` dependency.
+
+**Not verified yet:** the Android `%%` rule was not run on a device. Check once in Android Studio.
+
+**Environment notes (from this session):**
+- A session started in a git worktree cannot edit the main folder and cannot move into it. Work
+  in the main folder directly, or merge with `git merge --ff-only <worktree-branch>`.
+- A GateGuard hook asks for "facts" before the first edit of each file and before `rm -rf`
+  commands. It is a local ECC hook; it can be relaxed with `ECC_DISABLED_HOOKS`, that is the
+  owner's call.
+
+**Housekeeping (owner: repo owner):**
+- This plan file is only staged, not committed. Commit it, otherwise a new worktree will not see it.
+- Remove the old worktree and branch:
+  `git worktree remove .claude/worktrees/cli-stderr-errors-d3067c && git branch -d claude/cli-stderr-errors-d3067c`
+- Before release: run the Android `%%` check and decide R1.
+
+---
+
 ## Context
 
 The project is functionally correct for the happy path but has **critical silent bugs**, missing CI/CD affordances (always exits 0), and no standard CLI UX. It cannot be reliably used in automated pipelines. This plan prepares it for production across four layers: bug fixes → CLI UX → code quality → test coverage. Each phase is independently shippable.
 
 ---
 
-## Phase 1: Critical Bug Fixes (P0) — ship first
+## Phase 1: Critical Bug Fixes (P0) — ✅ `74ba3ae`
 
-### 1a. Fix silent async verification (biggest risk)
+### 1a. Fix silent async verification — ✅
+`BatchCodeGenerationUseCase.load`, the Android generator and the Flutter locale generator now
+use `await Future.wait(... .map(...))` instead of `forEach(async ...)`.
 
-**File:** `lib/code_generation/use_cases/batch_code_generation_use_case.dart` lines 82–91
+### 1b. Implement `skipErrorTypes` filtering — ✅
+Filter applied in `VerificationLocalizationUseCase.call` for both the language and the key checks.
+Tested in 4c. ⏳ See R1: skipped errors are currently dropped without a warning.
 
-`localizations.forEach((l) async { ... })` does not await the async callback — every verification exception is swallowed. Replace with:
-```dart
-await Future.wait(localizations.map((localization) async {
-  final verificationTask = await verificationLocalization(settings, localization);
-  if (verificationTask.failed) throw verificationTask.exception;
-}));
-```
-Same pattern fix in:
-- `lib/code_generation/use_cases/android/android_code_generation_use_case.dart` — per-language `forEach` for file writes
-- `lib/code_generation/use_cases/flutter/flutter_code_generation_use_case_locale.dart` — same
+### 1c. Fix copy-paste bug — ✅
+Android now throws `missingAndroidSettings()`. Locked by a test in 4d.
 
-### 1b. Implement `skipErrorTypes` filtering
-
-**File:** `lib/localizations/use_cases/verification_localization_use_case.dart`
-
-The `skipErrorTypes` list is stored in the constructor but **never read**. Add a filter before throwing:
-```dart
-final filtered = exceptions.where((e) => !skipErrorTypes.contains(e.runtimeType)).toList();
-if (filtered.isNotEmpty) throw CompositeException(filtered);
-```
-
-### 1c. Fix copy-paste bug
-
-**File:** `lib/code_generation/use_cases/android/android_code_generation_use_case.dart`
-
-Throws `BuildLocalizationException.missingIosSettings()` — should be `missingAndroidSettings()`.
-
-### 1d. Fix CLI entry point
-
-**File:** `bin/share_localization.dart`
-- Make `main` `async` and `await run()`
-- Call `exit(1)` when the task fails
-
-**File:** `lib/share_localization.dart`
-- Move `BatchCodeGenerationUseCase.all()` factory call inside `run()` (currently module-level global state, a testing hazard)
-- Return enough information from `run()` for `main` to call `exit(1)`
+### 1d. Fix CLI entry point — ✅
+`main` is async and calls `exit(1)` on failure. `run({settingsPath})` builds the use case inside
+the function and returns `bool`. ↪ It returns `!report.hasErrors`, because `BatchCodeGenerationUseCase`
+now returns a `BuildReport` (errors vs warnings) instead of throwing a `CompositeException`.
 
 ---
 
-## Phase 2: CLI UX (P1)
+## Phase 2: CLI UX (P1) — ✅
 
-### 2a. Stderr for errors
+### 2a. Stderr for errors — ✅ `fe793ba`, `275b00a`
+`Printer.errorOutput` and `Printer.err()` added. ↪ `logError` prints details (error and stack
+trace) to stderr in debug mode only. The user-facing message is printed once by `run()` through
+`BuildReportPrinter`; the plan said "unconditionally", which printed the same error 3 times for a
+missing settings file (nested `runAppTaskSafely`). Tests: `printer_test.dart`, `cli_test.dart`.
 
-**File:** `lib/common/utils/printer.dart`
-- `logError` must write to `stderr` unconditionally (remove `debug` gate on error output)
-- Keep `debug` flag only for stack traces
-- Add `Printer.err(String message)` that always writes to `stderr`
+### 2b. Argument parsing — ✅ `edb6e54` (tests `275b00a`)
+`--help/-h`, `--version`, `--verbose`, `--settings <path>`. ↪ Hand-written parser, no `args`
+dependency. Usage errors exit 1. ⏳ See R10: `--settings` takes the next token even if it is a flag.
 
-### 2b. Argument parsing
+### 2c. Improve error messages — ✅ `edb6e54`
+`BuildLocalizationException` messages now name the missing block.
 
-**File:** `bin/share_localization.dart`
-
-Parse `arguments` (currently ignored). Add:
-
-| Flag | Behaviour |
-|---|---|
-| `--help` / `-h` | Print usage and exit 0 |
-| `--version` | Print version and exit 0 |
-| `--verbose` | Enable `Printer.debug = true` |
-| `--settings <path>` | Override hardcoded `'settings.json'` path |
-
-Pass the resolved settings path into `run(settingsPath)`.
-
-### 2c. Improve error messages
-
-**File:** `lib/code_generation/exceptions/build_localization_exception.dart`
-
-Current messages say _"settings are not provided or corrupted"_ with no guidance. Change to name the missing key and how to fix it, e.g.:
-> `iOS settings block is missing from settings.json. Add an "ios": { "destination_folder": "..." } entry.`
-
-### 2d. User-friendly exception wrappers
-
-New subtypes under `lib/common/exceptions/`:
-- `SettingsNotFoundException(String path)` — wraps `FileSystemException` when settings file is missing
-- `InvalidJsonException(String path, String detail)` — wraps `FormatException` from JSON parsing
-
-Catch and wrap in `JsonData.fromFile` or `SettingsLoaderUseCase.call()`.
+### 2d. User-friendly exception wrappers — ✅ `edb6e54`
+`SettingsNotFoundException`, `InvalidJsonException`, wrapped in `JsonData.fromFile`.
+⏳ See R3: wrong message for bundle files and non-"not found" I/O errors.
 
 ---
 
-## Phase 3: Code Quality (P2)
+## Phase 3: Code Quality (P2) — ✅ `edb6e54`
 
-### 3a. Rename `translation` → `translations` in `LocalizationKeyDto`
-
-**File:** `lib/localizations/dtos/localization_key_dto.dart`
-- Rename field `translation` → `translations`
-- Fix `toString()` label: `localizations: $translation` → `translations: $translations`
-- Update all references (grep: `\.translation\b`)
-
-### 3b. Fix `hashCode` — use `Object.hash`
-
-**Files:** `lib/localizations/dtos/localization_dto.dart`, `lib/localizations/dtos/localization_key_dto.dart`
-
-Replace XOR chaining (`^`) with `Object.hash(field1, field2, ...)` / `Object.hashAll(list)`.
-
-### 3c. Fix `CompositeException` defensive copy
-
-**File:** `lib/common/exceptions/composite_exception.dart`
-
-`this.exceptions = List.unmodifiable(exceptions)` to prevent post-construction mutation.
-
-### 3d. Fix `AndroidOptionsDto` / `IosOptionsDto` constructors
-
-**File:** `lib/settings/dtos/platform_options_dto.dart`
-- `AndroidOptionsDto`: `required bool? useCamelCase` → `bool useCamelCase = false`; same for `useFilePrefixForKeys`
-- `IosOptionsDto`: `required String? bundleName` / `required String? classAccessLevel` → optional named with default `null`
+- 3a ✅ `translation` → `translations` (field, `copyWith`, `toString`, all references).
+- 3b ✅ `hashCode` uses `Object.hash` / `Object.hashAll`.
+- 3c ✅ `CompositeException` copies with `List.unmodifiable`.
+- 3d ✅ ↪ `IosOptionsDto` fields are optional. `AndroidOptionsDto` keeps `bool?` parameters with
+  `?? false`: the settings loader passes a nullable `data.get(...)`, so `bool x = false` would not compile.
 
 ---
 
-## Phase 4: Test Improvements (P2–P3)
+## Phase 4: Test Improvements (P2–P3) — ✅
 
-### 4a. Extract shared mock helper
+- 4a ✅ `60810d8` `test/helpers/mock_file_service_helper.dart` (`setUpMockFileService`).
+- 4b ✅ `60810d8` The four unused mocks removed. ↪ The whole `test/code_generation/mocks.dart` was
+  deleted, nothing imported it once they were gone.
+- 4c ✅ `41806a2` `skipErrorTypes` tests: skip succeeds, no skip fails, skipping one type does not
+  hide another. Mutation-checked.
+- 4d ✅ `e901527` Missing-platform-settings tests for iOS, Android, Flutter (`settingsDtoWithout*`
+  in `test/settings/mocks.dart`, because `copyWith` cannot reset a field to null).
+- 4e ✅ `936e080` New key `file_report` with String, Double and Int arguments and hand-written golden
+  files for the three platforms (`example/test_results/*test_numbers*`). ↪ Argument names are single
+  words on purpose (see B1); the placeholders are reordered so the Android golden also covers `7da889c`.
+- 4f ✅ `aa57390` Batch error paths. ↪ A failing builder does not fail the task: it is reported in
+  `BuildReport.errors` and the other builders still write files (there is no `CompositeException`).
 
-**New file:** `test/helpers/mock_file_service_helper.dart`
+---
 
-The `when/thenAnswer` boilerplate is copy-pasted across all four generator test files. Extract into:
-```dart
-void setUpMockFileService(MockFileService fileService, List<InvocationCreateFile> virtualFiles) { ... }
-```
+## Found while testing (not in the original plan) — ✅
 
-### 4b. Delete unused mocks
+| ID | Fix | Commit |
+|---|---|---|
+| A1 | Android used the order of placeholders in the text, not the declared argument, for position and type (`{size} for {file}` gave `%1$s for %2$f`). Now looked up by name. | `7da889c` |
+| B1 | Flutter body used `$file_name` while the parameter is `fileName`: the generated code did not compile. Also fixed the two committed results. | `f7ce159` |
+| B3 | `{size}MB` was emitted as `$sizeMB`. Now `${size}MB` when an identifier character follows. | `88f4ca0` |
+| B2 | Android: literal `%` becomes `%%` **only for keys with arguments**. | `c49c043` |
+| B4 | Flutter: literal `$` becomes `\$`. | `b4c2138` |
 
-**File:** `test/code_generation/mocks.dart`
+B2 caveat: the rule follows the Android docs and community sources, but it was **not run on a
+device**. Check once in Android Studio before release.
 
-Remove: `MockCodeGenerationUseCase`, `MockBatchCodeGenerationUseCase`, `MockFlutterCodeGenerationUseCase`, `MockBuildIosLocalizationUseCase` — defined but never imported.
+---
 
-### 4c. Add `skipErrorTypes` test
+## Requested additions — ✅
 
-**File:** `test/localizations/use_cases/verification_localization_use_case_test.dart`
+| ID | Change | Commit |
+|---|---|---|
+| I1 | iOS: every generated Swift file starts with `import Foundation`. Expected files updated: `example/results/ios/*.swift` and `example/test_results/ios/*.swift`. Four iOS tests were red first, then green. | `448ff77` |
 
-Assert that when `skipErrorTypes: [VerificationLocalizationExtraArgumentException]`, an extra-argument violation returns `TaskSucceeded` (not `TaskFailed`).
+---
 
-### 4d. Add missing-platform-settings tests
+## Open backlog (from the code review of `main..moonlit-frolicking-moon`)
 
-For each platform test file, add a case: pass a `SettingsDto` with that platform's block set to `null` and assert `TaskFailed` with the correct `BuildLocalizationException` variant.
+Ordered by impact. R1–R3 were reproduced by running the tool; the rest come from reading the code.
 
-### 4e. Add `int` / `double` argument type tests + golden files
+| ID | Where | Problem | Class of service |
+|---|---|---|---|
+| R1 | `verification_localization_use_case.dart:16` | Errors in `skipErrorTypes` vanish. CLAUDE.md says they become a warning. Reproduced: unused argument → "Build completed successfully", no warning. | Standard |
+| R2 | `batch_code_generation_use_case.dart:47` | `Set` replaced by `List`: the same warning repeats once per bundle (reproduced: 2 bundles, 2 identical warnings). | Standard |
+| R3 | `json_data.dart:30` | Any `FileSystemException` is reported as `SettingsNotFoundException`, also for bundles (reproduced with an unreadable bundle). Invalid UTF-8 escapes as `UnexpectedException`. | Standard |
+| R4 (B5) | `android_code_generation_use_case.dart:60` | `&` (and a leading `@` / `?`) not escaped: invalid Android XML. | Standard |
+| R5 (B6) | `flutter_code_generation_use_case.dart:72` | Backslash not escaped in the Dart string. | Standard |
+| R6 (B7) | `ios_code_generation_use_case.dart:85` | Literal `%` not escaped in xcstrings values of keys with arguments (same defect as B2). | Standard |
+| R7 | `build_report_printer.dart:12` | ANSI decided by `stdout` but written to `stderr`; `NO_COLOR` ignored. | Low |
+| R8 | `batch_code_generation_use_case.dart:78` | `Future.wait` keeps only the first load/verify error across bundles. | Low |
+| R9 | `build_report_printer.dart:4` | Redundant deep import (CLAUDE.md: import the barrel); 3 lines over 80 chars. | Low |
+| R10 | `bin/share_localization.dart:23` | `--settings --verbose` takes `--verbose` as the path; `--settings=path` rejected. No tests for `InvalidJsonException` or `BuildReportPrinter`. | Low |
 
-Add a fixture key with `LocalizationKeyArgumentDto(type: LocalizationKeyDtoType.int)` and corresponding golden files for Android (`%d`), iOS (`%lld`), Flutter (`int`) to lock in those format strings.
-
-### 4f. Add error-path tests for `BatchCodeGenerationUseCase`
-
-**File:** `test/code_generation/use_cases/generation_use_case_test.dart`
-
-Add:
-- Settings file does not exist → `TaskFailed`
-- One builder fails, others succeed → `CompositeException` with one entry, other files still written
+**Suggested order:** R1 + R2 together (both live in how the build report is assembled), then R3,
+then R4–R6 as one "escaping" batch with a table of cases per platform, then the low items.
 
 ---
 
 ## Verification
 
 ```bash
-dart analyze                    # zero issues
-dart test                       # all green
+dart analyze                    # lib/ has 5 pre-existing infos, see Status
+dart test                       # 77 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart
@@ -181,7 +216,7 @@ dart run bin/share_localization.dart --settings missing.json; echo "exit: $?"
 
 ---
 
-## Execution Order
+## Execution Order (original)
 
 ```
 Phase 1 (P0 bugs)  →  Phase 2 (CLI UX)  →  Phase 4a–4b (test cleanup)  →  Phase 3 (quality)  →  Phase 4c–4f (new tests)
