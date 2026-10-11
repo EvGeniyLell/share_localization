@@ -118,5 +118,26 @@ void main() {
       );
       expect(virtualFiles, isEmpty);
     });
+
+    test('generationUseCase with int and double arguments', () async {
+      final dtoTask = await generationUseCase(
+        settingsDto,
+        numericLocalizationDto,
+      );
+
+      expect(dtoTask.succeeded, true);
+      expect(virtualFiles.map((f) => f.path), [
+        'example/test_results/ios/TestNumbersLocalization.xcstrings',
+        'example/test_results/ios/TestNumbersLocalization.swift',
+      ]);
+      for (final file in virtualFiles) {
+        final expectedContent = await File(file.path).readAsString();
+        expect(
+          file.content.tremContent(),
+          expectedContent.tremContent(),
+          reason: file.toString(),
+        );
+      }
+    });
   });
 }

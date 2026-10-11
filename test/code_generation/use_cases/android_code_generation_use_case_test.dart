@@ -185,5 +185,32 @@ void main() {
         expect(result, r'{nope} and %2$f');
       });
     });
+
+    test('generationUseCase with int and double arguments', () async {
+      final dtoTask = await generationUseCase(
+        settingsDto.copyWith(
+          android: const AndroidOptionsDto(
+            useCamelCase: false,
+            useFilePrefixForKeys: true,
+            destinationFolder: 'example/test_results/android/values',
+          ),
+        ),
+        numericLocalizationDto,
+      );
+
+      expect(dtoTask.succeeded, true);
+      expect(virtualFiles.map((f) => f.path), [
+        'example/test_results/android/values/test_numbers.xml',
+        'example/test_results/android/values-de/test_numbers.xml',
+      ]);
+      for (final file in virtualFiles) {
+        final expectedContent = await File(file.path).readAsString();
+        expect(
+          file.content.tremContent(),
+          expectedContent.tremContent(),
+          reason: file.toString(),
+        );
+      }
+    });
   });
 }

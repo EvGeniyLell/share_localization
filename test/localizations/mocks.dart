@@ -10,6 +10,14 @@ const localizationDto = LocalizationDto(
   keys: [loginMessageKey],
 );
 
+// Covers int and double arguments, with placeholders in a different order than
+// the declared arguments. Argument names are single words on purpose.
+const numericLocalizationDto = LocalizationDto(
+  name: 'test_numbers.json',
+  languages: [localizationEnLanguage, localizationDeLanguage],
+  keys: [fileReportKey],
+);
+
 const localizationEnLanguage = LanguageDto(key: 'en');
 const localizationDeLanguage = LanguageDto(key: 'de');
 const localizationUaLanguage = LanguageDto(key: 'ua');
@@ -56,6 +64,37 @@ const loginTitleKey = LocalizationKeyDto(
     LocalizationKeyTranslationDto(
       languageKey: 'de',
       message: 'Ther Loghingher Paghedguahter',
+    ),
+  ],
+);
+
+// -- fileReport ---------------------------------------------------------------
+
+const fileReportKey = LocalizationKeyDto(
+  key: 'file_report',
+  comment: 'This is a report about a file.',
+  arguments: [
+    LocalizationKeyArgumentDto(
+      name: 'title',
+      type: LocalizationKeyDtoType.string,
+    ),
+    LocalizationKeyArgumentDto(
+      name: 'size',
+      type: LocalizationKeyDtoType.double,
+    ),
+    LocalizationKeyArgumentDto(
+      name: 'pages',
+      type: LocalizationKeyDtoType.int,
+    ),
+  ],
+  translations: [
+    LocalizationKeyTranslationDto(
+      languageKey: 'en',
+      message: 'File {title} has {pages} pages and weighs {size} MB',
+    ),
+    LocalizationKeyTranslationDto(
+      languageKey: 'de',
+      message: 'Datei {title} hat {pages} Seiten und wiegt {size} MB',
     ),
   ],
 );

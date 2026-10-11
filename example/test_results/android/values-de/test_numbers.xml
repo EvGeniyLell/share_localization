@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- File {title} has {pages} pages and weighs {size} MB -->
+    <string name="test_numbers_file_report">Datei %1$s hat %3$d Seiten und wiegt %2$f MB</string>
+</resources>

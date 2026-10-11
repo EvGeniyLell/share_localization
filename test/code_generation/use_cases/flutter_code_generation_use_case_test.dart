@@ -89,5 +89,27 @@ void main() {
         expect(virtualFiles, isEmpty);
       },
     );
+
+    test('generationUseCase with int and double arguments', () async {
+      final dtoTask = await generationUseCase(
+        settingsDto,
+        numericLocalizationDto,
+      );
+
+      expect(dtoTask.succeeded, true);
+      expect(virtualFiles.map((f) => f.path), [
+        'example/test_results/flutter/test_numbers_localization.dart',
+        'example/test_results/flutter/test_numbers_localization_en.dart',
+        'example/test_results/flutter/test_numbers_localization_de.dart',
+      ]);
+      for (final file in virtualFiles) {
+        final expectedContent = await File(file.path).readAsString();
+        expect(
+          file.content.tremContent(),
+          expectedContent.tremContent(),
+          reason: file.toString(),
+        );
+      }
+    });
   });
 }
