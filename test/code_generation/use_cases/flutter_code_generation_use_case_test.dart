@@ -243,6 +243,56 @@ void main() {
           );
         });
       });
+
+      // A backslash is escaped first, so the escapes added for `'`, newline,
+      // `$` and placeholders are not doubled.
+      group('literal backslash', () {
+        test('is escaped in a path', () {
+          expect(
+            getterFor(r'Path C:\dir for {size}'),
+            r"String total(double size) => 'Path C:\\dir for $size';",
+          );
+        });
+
+        test('is escaped before a placeholder', () {
+          expect(
+            getterFor(r'\{size}MB'),
+            r"String total(double size) => '\\${size}MB';",
+          );
+        });
+      });
+    });
+
+    group('flutterEscape', () {
+      test('escapes a backslash', () {
+        expect(r'C:\dir'.flutterEscape(), r'C:\\dir');
+      });
+
+      test('keeps a literal backslash-n apart from a real newline', () {
+        expect(r'\n'.flutterEscape(), r'\\n');
+        expect('\n'.flutterEscape(), r'\n');
+      });
+
+      test('escapes a backslash before a quote', () {
+        expect(r"\'".flutterEscape(), r"\\\'");
+      });
+
+      test('escapes a backslash before a dollar sign', () {
+        expect(r'\$'.flutterEscape(), r'\\\$');
+      });
+
+      test('escapes a backslash before a placeholder', () {
+        expect(r'\{name}'.flutterEscape(), r'\\$name');
+      });
+
+      test('returns an empty string for empty input', () {
+        expect(''.flutterEscape(), '');
+      });
+
+      test('escapes a lone backslash', () {
+        // A single backslash cannot be a raw string literal.
+        expect(String.fromCharCode(0x5C).flutterEscape(), r'\\');
+      });
     });
   });
 }

@@ -63,11 +63,16 @@ extension StringToFlutter on String {
   /// (`{size}MB`), the braces form `${size}MB` is used so Dart does not read
   /// `$sizeMB` as one name.
   ///
+  /// A literal `\` is written as `\\` first, otherwise Dart reads sequences such
+  /// as `\d` as invalid escapes, or `\n` as a newline. It is escaped before the
+  /// other replacements, so the backslashes added for them are not doubled.
+  ///
   /// A literal `$` is written as `\$`, otherwise it would start an
   /// interpolation. It is escaped before the placeholders are replaced, so the
   /// `$` added for them stays as is.
   String flutterEscape() {
-    return replaceAll("'", r"\'")
+    return replaceAll(RegExp(r'\\'), r'\\')
+        .replaceAll("'", r"\'")
         .replaceAll('\n', r'\n')
         .replaceAll(r'$', r'\$')
         .replaceAllMapped(
