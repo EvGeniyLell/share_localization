@@ -63,10 +63,13 @@ extension StringToAndroid on String {
   /// would be escaped again. A leading `@` or `?` is prefixed with a backslash,
   /// because Android reads it as a resource or theme attribute reference.
   String androidTranslationEscape() {
-    final escaped = replaceAll(
-      '&',
-      '&amp;',
-    ).replaceAll('<', '&lt;').replaceAll("'", r"\'").replaceAll('\n', r'\n');
+    // Backslash must come first, or the `\` added by the later replacements
+    // would be doubled too.
+    final escaped = replaceAll(RegExp(r'\\'), r'\\')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll("'", r"\'")
+        .replaceAll('\n', r'\n');
     if (escaped.startsWith('@') || escaped.startsWith('?')) {
       return '\\$escaped';
     }

@@ -158,6 +158,42 @@ void main() {
           expect(entry.key.androidTranslationEscape(), entry.value);
         });
       }
+
+      // aapt reads `\` as an escape character, so a literal backslash must be
+      // written as `\\`. Without this, `C:\dir` fails the build and a typed
+      // backslash followed by `n` would become a newline.
+      test('doubles a literal backslash in a path', () {
+        expect(r'C:\dir'.androidTranslationEscape(), r'C:\\dir');
+      });
+
+      test('doubles a backslash before n but keeps a real newline', () {
+        expect(r'\n'.androidTranslationEscape(), r'\\n');
+        expect('\n'.androidTranslationEscape(), r'\n');
+      });
+
+      test('doubles a backslash before a quote and escapes the quote', () {
+        expect(r"\'".androidTranslationEscape(), r"\\\'");
+      });
+
+      test('doubles a lone backslash', () {
+        expect(r'\'.androidTranslationEscape(), r'\\');
+      });
+
+      test('does not add a second prefix after a backslash before @', () {
+        expect(r'\@home'.androidTranslationEscape(), r'\\@home');
+      });
+
+      test('prefixes a leading @ after a backslash is escaped', () {
+        expect(r'@\x'.androidTranslationEscape(), r'\@\\x');
+      });
+
+      test('doubles a backslash alongside & and <', () {
+        expect(r'a\&<'.androidTranslationEscape(), r'a\\&amp;&lt;');
+      });
+
+      test('keeps an empty string empty', () {
+        expect(''.androidTranslationEscape(), '');
+      });
     });
 
     group('buildLocaleItemGetter', () {
@@ -203,6 +239,50 @@ void main() {
         );
 
         expect(result, contains(r'>\@%1$s &amp; more</string>'));
+      });
+
+      test('doubles a literal backslash in the string element', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginTitleKey.copyWith(
+            key: 'path',
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: r'Path C:\dir',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        expect(result, contains(r'>Path C:\\dir</string>'));
+      });
+
+      test('doubles a literal backslash next to a placeholder', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginMessageKey.copyWith(
+            key: 'dir',
+            arguments: const [
+              LocalizationKeyArgumentDto(
+                name: 'name',
+                type: LocalizationKeyDtoType.string,
+              ),
+            ],
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: r'C:\{name}',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        expect(result, contains(r'>C:\\%1$s</string>'));
       });
     });
 
