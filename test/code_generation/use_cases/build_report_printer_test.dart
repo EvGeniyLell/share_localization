@@ -137,4 +137,173 @@ void main() {
       expect(err, ['✗  Something broke']);
     });
   });
+
+  group('BuildReportPrinter colour per stream', () {
+    const yellow = '\x1B[33m';
+    const green = '\x1B[32m';
+    const red = '\x1B[31m';
+    const reset = '\x1B[0m';
+    const noEnv = <String, String>{};
+    const noColourEnv = <String, String>{'NO_COLOR': '1'};
+    const emptyNoColourEnv = <String, String>{'NO_COLOR': ''};
+    const warnLine = '  ⚠  iOS generation skipped.';
+    const errLine = '  ✗  Something broke';
+    const failLine = '✗  Build failed — 1 error, 1 warning';
+    const successLine = '✓  Build completed successfully';
+    const warnSummary = '✓  Build completed with 1 warning';
+
+    late List<String> rawOut;
+    late List<String> rawErr;
+
+    setUp(() {
+      rawOut = [];
+      rawErr = [];
+      Printer.output = (line) => rawOut.add('$line');
+      Printer.errorOutput = (line) => rawErr.add('$line');
+    });
+
+    test('(a) stdout on, stderr off: stdout coloured, stderr plain', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: false,
+        environment: noEnv,
+      ).print(BuildReport([warning, error]));
+
+      expect(rawOut, ['$yellow$warnLine$reset']);
+      expect(rawErr, [errLine, failLine]);
+    });
+
+    test('(a) stdout on, stderr off: warnings-only report is coloured', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: false,
+        environment: noEnv,
+      ).print(BuildReport([warning]));
+
+      expect(rawOut, ['$yellow$warnLine$reset', '$green$warnSummary$reset']);
+      expect(rawErr, isEmpty);
+    });
+
+    test('(a) stdout on, stderr off: success line is coloured', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: false,
+        environment: noEnv,
+      ).print(BuildReport([]));
+
+      expect(rawOut, ['$green$successLine$reset']);
+      expect(rawErr, isEmpty);
+    });
+
+    test('(b) stdout off, stderr on: error lines and failure are red', () {
+      BuildReportPrinter(
+        stdoutAnsi: false,
+        stderrAnsi: true,
+        environment: noEnv,
+      ).print(BuildReport([warning, error]));
+
+      expect(rawOut, [warnLine]);
+      expect(rawErr, ['$red$errLine$reset', '$red$failLine$reset']);
+    });
+
+    test('(c) both on: warning and error report is exactly coloured', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: true,
+        environment: noEnv,
+      ).print(BuildReport([warning, error]));
+
+      expect(rawOut, ['$yellow$warnLine$reset']);
+      expect(rawErr, ['$red$errLine$reset', '$red$failLine$reset']);
+    });
+
+    test('(c) both on: success report is green', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: true,
+        environment: noEnv,
+      ).print(BuildReport([]));
+
+      expect(rawOut, ['$green$successLine$reset']);
+      expect(rawErr, isEmpty);
+    });
+
+    test('(c) both on: warnings-only report is yellow then green', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: true,
+        environment: noEnv,
+      ).print(BuildReport([warning]));
+
+      expect(rawOut, ['$yellow$warnLine$reset', '$green$warnSummary$reset']);
+      expect(rawErr, isEmpty);
+    });
+
+    test('(d) printError follows the stderr flag, not stdout', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: false,
+        environment: noEnv,
+      ).printError(error);
+
+      expect(rawErr, ['✗  Something broke']);
+    });
+
+    test('(d) printError is red when only stderr supports colour', () {
+      BuildReportPrinter(
+        stdoutAnsi: false,
+        stderrAnsi: true,
+        environment: noEnv,
+      ).printError(error);
+
+      expect(rawErr, ['$red✗  Something broke$reset']);
+    });
+
+    test('(e) NO_COLOR set disables colour even when both are on', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: true,
+        environment: noColourEnv,
+      ).print(BuildReport([warning, error]));
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: true,
+        environment: noColourEnv,
+      ).printError(error);
+
+      expect(rawOut, [warnLine]);
+      expect(rawErr, [errLine, failLine, '✗  Something broke']);
+    });
+
+    test('(e) empty NO_COLOR does not disable colour', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: true,
+        environment: emptyNoColourEnv,
+      ).print(BuildReport([]));
+
+      expect(rawOut, ['$green$successLine$reset']);
+    });
+
+    test('(e) environment without NO_COLOR keeps colour on', () {
+      BuildReportPrinter(
+        stdoutAnsi: true,
+        stderrAnsi: true,
+        environment: const {'TERM': 'xterm'},
+      ).print(BuildReport([]));
+
+      expect(rawOut, ['$green$successLine$reset']);
+    });
+
+    test('(f) both off: everything is plain', () {
+      BuildReportPrinter(
+        stdoutAnsi: false,
+        stderrAnsi: false,
+        environment: noEnv,
+      ).print(BuildReport([warning, error]));
+
+      expect(rawOut, [warnLine]);
+      expect(rawErr, [errLine, failLine]);
+    });
+  });
 }
