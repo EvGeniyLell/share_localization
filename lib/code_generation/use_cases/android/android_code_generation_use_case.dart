@@ -76,8 +76,12 @@ extension StringToAndroid on String {
     return escaped;
   }
 
+  /// Makes a description safe inside an XML comment.
+  ///
+  /// A comment must not contain `--`, so each hyphen followed by another
+  /// hyphen is followed by a space instead (`--` becomes `- -`).
   String androidDescriptionEscape() {
-    return replaceAll('\n', r'\n');
+    return replaceAll('\n', r'\n').replaceAll(RegExp('-(?=-)'), '- ');
   }
 
   /// Replaces `{name}` with a positional format specifier, e.g. `%2$d`.

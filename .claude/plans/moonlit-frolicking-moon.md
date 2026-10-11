@@ -12,10 +12,11 @@
 | Requested additions | ✅ Done | `448ff77` |
 | Backlog R1, R2, R4, R5, N0 | ✅ Done | `8e25f71`, `1239cea`, `40295ef`, `06338d1`, `72bcc0e` |
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
-| Backlog N5, N9 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog R3, R7–R10 and N1–N4, N7, N10, N11 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
+| Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
+| Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
+| Backlog R3, R7–R10 and N2–N4, N7, N10, N11 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
 
-**Verification now:** `dart test` 138/138 green. `dart analyze lib test` reports 4 infos that
+**Verification now:** `dart test` 148/148 green. `dart analyze lib test` reports 4 infos that
 are not from this plan (3x line length in `build_report_printer.dart`, 1x type parameter name).
 Not yet verified on a real device: the Android `%%` rule (see B2).
 
@@ -29,8 +30,10 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** N1 (`--` in the Android description comment), then R3. N6 was checked and closed:
-not a bug. N9 is done in the working tree: `key.comment` goes through `iosXCSTranslationEscape` in
+**Next task:** R3 (wrong exception for unreadable bundle files, `json_data.dart`), then R8. N1 is
+done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
+`-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
+and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
 the xcstrings JSON and through `iosSwiftTranslationEscape` (now also real CR → `\r`) in the Swift
 `///`; a `"` in a Swift doc comment now shows as `\"`, same as the translation text there. R6 and N8 are committed (`9e8f0cb`: iOS `%` → `%%` for
 keys with arguments, applied before the placeholder substitution; xcstrings JSON value escapes `\`
@@ -207,7 +210,7 @@ the tool):
 | ID | Where | Problem | Class of service |
 |---|---|---|---|
 | N0 ✅ `72bcc0e` | `android_code_generation_use_case.dart` `androidTranslationEscape` | A literal `\` is passed through; aapt reads it as an escape sequence (`C:\dir`, `\d`) and the build can fail. Same family as R5, other rules. | Standard |
-| N1 | `android_code_generation_use_case_xml.dart` | The description goes into `<!-- $description -->`; `--` or `-->` in it breaks the XML. | Standard |
+| N1 ✅ uncommitted | `android_code_generation_use_case_xml.dart` | The description goes into `<!-- $description -->`; `--` or `-->` in it breaks the XML. | Standard |
 | N2 | same | `"` is not escaped; aapt silently changes spaces. | Low |
 | N3 | same | A key that gives an invalid resource name (starts with a digit, characters outside `[a-z0-9_]`) is not validated. | Low |
 | N4 | same | Leading, trailing and repeated spaces, and a literal tab, are collapsed by Android into one space: valid output, different from the source (`Name:<tab>Value` shows as `Name: Value`; iOS and Flutter keep the tab). Fix idea: write `\t`, and quote the value or use ` `. Not run on a device. | Low |
@@ -216,7 +219,7 @@ Found while doing R5 (from the agent's report, not yet reproduced by running the
 
 | ID | Where | Problem | Class of service |
 |---|---|---|---|
-| N5 ✅ uncommitted | `flutter_code_generation_use_case.dart` `flutterEscape` | A real `\r` is not escaped: a raw carriage return lands inside a single-quoted Dart string. Probably the same on Android and iOS (check). | Standard |
+| N5 ✅ `40c258c` | `flutter_code_generation_use_case.dart` `flutterEscape` | A real `\r` is not escaped: a raw carriage return lands inside a single-quoted Dart string. Probably the same on Android and iOS (check). | Standard |
 | N6 ✅ not a bug | same | A placeholder `{unknown}` that is not a declared argument: reproduced with the tool, verification stops the build first (`Missing argument "unknown"`, exit 1, no files written; covered by `failed with missingArgument` in `verification_localization_use_case_test.dart`). Nothing to fix. | closed |
 | N7 | `flutterDescriptionEscape` | The description goes into a `///` comment; `\r` ends the comment line and the rest becomes Dart code. | Low |
 
@@ -225,7 +228,7 @@ Found while doing R6 (confirmed by reading the code, not run):
 | ID | Where | Problem | Class of service |
 |---|---|---|---|
 | N8 ✅ `9e8f0cb` | `ios_code_generation_use_case.dart` `iosXCSTranslationEscape` | The xcstrings value is JSON: a literal `\` is not escaped (`C:\dir` is an invalid JSON escape, backslash+n becomes a newline); raw tab and `\r` are invalid JSON too (tab and `\r` inferred from the JSON spec). Same rule as N0 and R5: backslash step first. | Standard |
-| N9 ✅ uncommitted | `ios_code_generation_use_case_xcstrings.dart:29`, `..._swift.dart:66` | `key.comment` is inserted unescaped into the xcstrings JSON (a `"`, backslash or newline breaks the JSON) and into the Swift `///` comment (a newline ends the block, the rest becomes Swift code). | Standard |
+| N9 ✅ `40c258c` | `ios_code_generation_use_case_xcstrings.dart:29`, `..._swift.dart:66` | `key.comment` is inserted unescaped into the xcstrings JSON (a `"`, backslash or newline breaks the JSON) and into the Swift `///` comment (a newline ends the block, the rest becomes Swift code). | Standard |
 | N10 | `iosSwiftTranslationEscape` | Same backslash gap, but the text goes into a doc comment, so the effect is small. | Low |
 
 Found while doing N8 (observation, not run):
@@ -234,7 +237,7 @@ Found while doing N8 (observation, not run):
 |---|---|---|---|
 | N11 | `iosXCSTranslationEscape` | Control characters U+0000–U+001F other than tab, newline and `\r` (`\b`, `\f`, NUL) are still written raw, which is invalid JSON. Needs a `\uXXXX` escape per code point. Unlikely in real translations. | Low |
 
-**Suggested order (updated):** N1, R3, R8, then the low items
+**Suggested order (updated):** R3, R8, then the low items
 (R7, R9, R10, N2–N4, N7, N10, N11). Single-word argument names in new fixtures.
 
 ---
@@ -243,7 +246,7 @@ Found while doing N8 (observation, not run):
 
 ```bash
 dart analyze lib test           # 4 pre-existing infos, see Status
-dart test                       # 138 green
+dart test                       # 148 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart

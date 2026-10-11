@@ -196,7 +196,52 @@ void main() {
       });
     });
 
+    group('androidDescriptionEscape', () {
+      // Each row: input -> expected output. An XML comment must not contain
+      // `--`, so every hyphen followed by another hyphen gets a space after it.
+      final cases = <String, String>{
+        'a -- b': 'a - - b',
+        'x --> y': 'x - -> y',
+        '---': '- - -',
+        '----': '- - - -',
+        'well-known': 'well-known',
+        '-start': '-start',
+        'end-': 'end-',
+        'a\nb': r'a\nb',
+        '': '',
+      };
+      for (final entry in cases.entries) {
+        test('escapes ${entry.key.isEmpty ? '<empty>' : entry.key}', () {
+          expect(entry.key.androidDescriptionEscape(), entry.value);
+        });
+      }
+    });
+
     group('buildLocaleItemGetter', () {
+      test('keeps the comment free of -- while the value keeps it', () {
+        final result = generationUseCase.buildLocaleItemGetter(
+          settingsDto.toPlatformSettingsDto()!,
+          '',
+          loginTitleKey.copyWith(
+            key: 'dash',
+            translations: const [
+              LocalizationKeyTranslationDto(
+                languageKey: 'en',
+                message: 'Use -- or --> here & more',
+              ),
+            ],
+          ),
+          'en',
+        );
+
+        final comment = RegExp(
+          '<!--(.*?)-->',
+          dotAll: true,
+        ).firstMatch(result)!.group(1)!;
+        expect(comment.contains('--'), isFalse, reason: result);
+        expect(result, contains('>Use -- or --> here &amp; more</string>'));
+      });
+
       test('produces a valid string element for an ampersand', () {
         final result = generationUseCase.buildLocaleItemGetter(
           settingsDto.toPlatformSettingsDto()!,
