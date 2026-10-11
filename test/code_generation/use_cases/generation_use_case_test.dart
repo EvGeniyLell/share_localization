@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:mocktail/mocktail.dart';
 import 'package:share_localization/code_generation/build_report.dart';
+import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
 import 'package:share_localization/code_generation/use_cases/batch_code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
@@ -164,6 +165,33 @@ void main() {
           ),
         );
         expect(virtualFiles, isNotEmpty);
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    });
+
+    test('reports the missing ios block once for two bundles', () async {
+      final tempDir = Directory.systemTemp.createTempSync('share_loc_r2_');
+      try {
+        // Same settings as the example, without the "ios" block.
+        final json =
+            jsonDecode(File('example/settings.json').readAsStringSync())
+                as Map<String, dynamic>
+              ..remove('ios');
+        final settingsFile = File('${tempDir.path}/settings.json')
+          ..writeAsStringSync(jsonEncode(json));
+
+        final result = await generationUseCase(settingsFile.path);
+
+        expect(result.succeeded, isTrue);
+        final report = result.data;
+        expect(report.hasErrors, isFalse);
+        final iosWarnings = report.warnings.where(
+          (w) =>
+              w is BuildLocalizationException &&
+              w.type == BuildLocalizationExceptionType.missingIosSettings,
+        );
+        expect(iosWarnings, hasLength(1));
       } finally {
         tempDir.deleteSync(recursive: true);
       }

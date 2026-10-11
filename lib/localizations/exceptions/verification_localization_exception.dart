@@ -1,9 +1,21 @@
+import 'package:meta/meta.dart';
 import 'package:share_localization/common/common.dart';
 
+@immutable
 class VerificationLocalizationException implements AppException {
   final String message;
 
   const VerificationLocalizationException(this.message);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VerificationLocalizationException &&
+          runtimeType == other.runtimeType &&
+          message == other.message;
+
+  @override
+  int get hashCode => Object.hash(runtimeType, message);
 
   factory VerificationLocalizationException.missingLanguage({
     required String language,

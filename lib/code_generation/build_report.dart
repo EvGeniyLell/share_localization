@@ -7,7 +7,9 @@ class BuildReport {
   final List<AppException> errors;
 
   BuildReport(List<AppException> all)
-      : warnings = all.where(_isWarning).toList(),
+      // A Set keeps first-seen order, so equal warnings from several bundles
+      // (e.g. the same missing "ios" block) are reported once.
+      : warnings = all.where(_isWarning).toSet().toList(),
         errors = all.where((e) => !_isWarning(e)).toList();
 
   static bool _isWarning(AppException e) =>
