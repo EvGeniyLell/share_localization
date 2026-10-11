@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
+import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
+import 'package:share_localization/code_generation/use_cases/resource_name_validation.dart';
 import 'package:share_localization/common/common.dart';
 import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
@@ -21,6 +23,7 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
       if (pSettings == null) {
         throw const BuildLocalizationException.missingIosSettings();
       }
+      _validateResourceNames(localization);
       final xcStrings = generateXCStrings(pSettings, localization);
       await fileService.createFile(
         path: filePath(pSettings, localization, xcStringExtension),
@@ -34,6 +37,30 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
     });
   }
 
+  /// Throws before any file is written if a key gives an invalid or duplicate
+  /// name, see [validateResourceNames].
+  ///
+  /// Swift allows one static member per name and argument types, so two keys
+  /// clash only when they have the same camelCase base and the same ordered
+  /// argument types. That is their xcstrings key, used as the identity. The
+  /// argument names do not matter: `foo(_ name: String)` and
+  /// `foo(_ user: String)` are the same declaration.
+  void _validateResourceNames(LocalizationDto localization) {
+    validateResourceNames(
+      platform: ResourcePlatform.ios,
+      bundleName: localization.name,
+      entries: localization.keys.map((key) {
+        final name = _iosItemName(key);
+        return ResourceNameEntry(
+          key: key.key,
+          name: name,
+          baseName: name,
+          identity: key.iosXCStringKey(),
+        );
+      }),
+    );
+  }
+
   String filePath(
     IosSettingsDto settings,
     LocalizationDto localization,
@@ -44,6 +71,11 @@ class IosCodeGenerationUseCase extends CodeGenerationUseCase {
         '${localizationPostfix.capitalize()}.$extension';
   }
 }
+
+/// The Swift identifier of [key], used as the static member name in the Swift
+/// file and as the base of its xcstrings keys, and checked by
+/// [validateResourceNames].
+String _iosItemName(LocalizationKeyDto key) => key.key.camelCase();
 
 @visibleForTesting
 extension LocalizationKeyDtoTypeToIos on LocalizationKeyDtoType {
@@ -67,7 +99,7 @@ extension IosLocalizationKeyDto on LocalizationKeyDto {
     final arg = arguments.map((argument) {
       return '%${argument.type.iosMarker}';
     });
-    return [key.camelCase(), ...arg].join();
+    return [_iosItemName(this), ...arg].join();
   }
 
   /// return string aka "loginMessage\(name)\(pass)"
@@ -75,7 +107,7 @@ extension IosLocalizationKeyDto on LocalizationKeyDto {
     final arg = arguments.map((argument) {
       return '\\(${argument.name.camelCase()})';
     });
-    return [key.camelCase(), ...arg].join();
+    return [_iosItemName(this), ...arg].join();
   }
 }
 

@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
+import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
+import 'package:share_localization/code_generation/use_cases/resource_name_validation.dart';
 import 'package:share_localization/common/common.dart';
 import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
@@ -18,6 +20,7 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
       if (pSettings == null) {
         throw const BuildLocalizationException.missingFlutterSettings();
       }
+      _validateResourceNames(localization);
       final common = generateCommon(pSettings, localization);
       await fileService.createFile(
         path: filePath(pSettings, null, localization),
@@ -33,6 +36,19 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
     });
   }
 
+  /// Throws before any file is written if a key gives an invalid or duplicate
+  /// name, see [validateResourceNames].
+  void _validateResourceNames(LocalizationDto localization) {
+    validateResourceNames(
+      platform: ResourcePlatform.flutter,
+      bundleName: localization.name,
+      entries: localization.keys.map((key) {
+        final name = _flutterItemName(key);
+        return ResourceNameEntry(key: key.key, name: name, baseName: name);
+      }),
+    );
+  }
+
   String filePath(
     FlutterSettingsDto settings,
     SettingsLanguageDto? language,
@@ -45,6 +61,10 @@ class FlutterCodeGenerationUseCase extends CodeGenerationUseCase {
         '.dart';
   }
 }
+
+/// The Dart getter or method name of [key], used in the abstract class and in
+/// every locale class, and checked by [validateResourceNames].
+String _flutterItemName(LocalizationKeyDto key) => key.key.camelCase();
 
 extension LocalizationKeyDtoTypeToFlutter on LocalizationKeyDtoType {
   String get dartType => switch (this) {

@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
+import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
+import 'package:share_localization/code_generation/exceptions/invalid_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/flutter/flutter_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
@@ -323,6 +325,81 @@ void main() {
       test('escapes a lone backslash', () {
         // A single backslash cannot be a raw string literal.
         expect(String.fromCharCode(0x5C).flutterEscape(), r'\\');
+      });
+    });
+
+    group('invalid or duplicate resource names', () {
+      final dashKey = loginTitleKey.copyWith(key: 'my-key');
+      final underscoreKey = loginTitleKey.copyWith(key: 'my_key');
+      final cyrillicKey = loginTitleKey.copyWith(key: 'ключ');
+
+      test('fails for duplicate names and writes nothing', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto,
+          localizationDto.copyWith(keys: [dashKey, underscoreKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          const DuplicateResourceNameException(
+            platform: ResourcePlatform.flutter,
+            key: 'my_key',
+            otherKey: 'my-key',
+            name: 'myKey',
+            bundleName: 'test_feature_A.json',
+          ),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('fails for a key with no ASCII letters, writes nothing', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto,
+          localizationDto.copyWith(keys: [cyrillicKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          const InvalidResourceNameException(
+            platform: ResourcePlatform.flutter,
+            key: 'ключ',
+            name: '',
+            bundleName: 'test_feature_A.json',
+          ),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('reports an invalid and a duplicate key in key order', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto,
+          localizationDto.copyWith(
+            keys: [cyrillicKey, dashKey, underscoreKey],
+          ),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
+            const InvalidResourceNameException(
+              platform: ResourcePlatform.flutter,
+              key: 'ключ',
+              name: '',
+              bundleName: 'test_feature_A.json',
+            ),
+            const DuplicateResourceNameException(
+              platform: ResourcePlatform.flutter,
+              key: 'my_key',
+              otherKey: 'my-key',
+              name: 'myKey',
+              bundleName: 'test_feature_A.json',
+            ),
+          ]),
+        );
+        expect(virtualFiles, isEmpty);
       });
     });
   });

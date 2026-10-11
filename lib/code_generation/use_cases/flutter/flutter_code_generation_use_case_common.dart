@@ -151,7 +151,7 @@ $className lookup$className(Locale locale) {
     // String get creatingDocumentBody;
     // or
     // String maxFileSizeError(String fileSize);
-    final itemName = key.key.camelCase();
+    final itemName = _flutterItemName(key);
     if (key.arguments.isEmpty) {
       return 'String get $itemName;';
     }

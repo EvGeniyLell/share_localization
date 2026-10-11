@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
-import 'package:share_localization/code_generation/exceptions/invalid_android_resource_name_exception.dart';
+import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
+import 'package:share_localization/code_generation/exceptions/invalid_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/android/android_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
@@ -458,7 +459,7 @@ void main() {
           expect(dtoTask.failed, isTrue);
           expect(
             dtoTask.exception,
-            isA<InvalidAndroidResourceNameException>().having(
+            isA<InvalidResourceNameException>().having(
               (e) => e.name,
               'name',
               '1st_key',
@@ -491,12 +492,14 @@ void main() {
         expect(
           dtoTask.exception,
           isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
-            const InvalidAndroidResourceNameException(
+            const InvalidResourceNameException(
+              platform: ResourcePlatform.android,
               key: '1stKey',
               name: '1st_key',
               bundleName: 'test_feature_A.json',
             ),
-            const InvalidAndroidResourceNameException(
+            const InvalidResourceNameException(
+              platform: ResourcePlatform.android,
               key: 'ключ',
               name: '',
               bundleName: 'test_feature_A.json',
@@ -517,7 +520,7 @@ void main() {
           );
 
           expect(dtoTask.failed, isTrue);
-          expect(dtoTask.exception, isA<InvalidAndroidResourceNameException>());
+          expect(dtoTask.exception, isA<InvalidResourceNameException>());
           expect(virtualFiles, isEmpty);
         },
       );
@@ -537,7 +540,7 @@ void main() {
         expect(dtoTask.failed, isTrue);
         expect(
           dtoTask.exception,
-          isA<InvalidAndroidResourceNameException>().having(
+          isA<InvalidResourceNameException>().having(
             (e) => e.name,
             'name',
             '1stKey',
@@ -564,7 +567,7 @@ void main() {
         expect(dtoTask.failed, isTrue);
         expect(
           dtoTask.exception,
-          isA<InvalidAndroidResourceNameException>().having(
+          isA<InvalidResourceNameException>().having(
             (e) => e.name,
             'name',
             '2fa_feature_login_title',
@@ -588,6 +591,128 @@ void main() {
             contains('<string name="my_key">'),
           );
         }
+      });
+
+      test('prefix on and key "ключ" fails with empty base', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: false,
+              useFilePrefixForKeys: true,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(keys: [cyrillicKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(dtoTask.exception.toString(), contains('"ключ"'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('prefix off: "my-key" and "my_key" are duplicates', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(android: noPrefixSettings),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              loginMessageKey.copyWith(key: 'my_key'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        final message = dtoTask.exception.toString();
+        expect(message, contains('"my-key"'));
+        expect(message, contains('"my_key"'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('prefix on: duplicate final names are reported', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: false,
+              useFilePrefixForKeys: true,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              loginMessageKey.copyWith(key: 'my_key'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        final message = dtoTask.exception.toString();
+        expect(message, contains('"my-key"'));
+        expect(message, contains('"my_key"'));
+        expect(message, contains('Android'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('empty base and duplicate are two errors in key order', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: false,
+              useFilePrefixForKeys: true,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              cyrillicKey,
+              loginMessageKey.copyWith(key: 'my_key'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.exception, isA<CompositeException>());
+        final exceptions = (dtoTask.exception as CompositeException).exceptions;
+        expect(exceptions, hasLength(2));
+        expect(exceptions[0].toString(), contains('"ключ"'));
+        expect(exceptions[1].toString(), contains('"my_key"'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('every later duplicate is reported, not only the first', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(android: noPrefixSettings),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'my-key'),
+              loginMessageKey.copyWith(key: 'my_key'),
+              loginTitleKey.copyWith(key: 'my key'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.exception, isA<CompositeException>());
+        final exceptions = (dtoTask.exception as CompositeException).exceptions;
+        expect(exceptions, hasLength(2));
+        expect(exceptions[0].toString(), contains('"my_key"'));
+        expect(exceptions[1].toString(), contains('"my key"'));
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('"MyKey" and "mykey" are different and both succeed', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(android: noPrefixSettings),
+          localizationDto.copyWith(
+            keys: [
+              loginTitleKey.copyWith(key: 'MyKey'),
+              loginMessageKey.copyWith(key: 'mykey'),
+            ],
+          ),
+        );
+
+        expect(dtoTask.succeeded, isTrue);
+        expect(virtualFiles.first.content, contains('<string name="my_key">'));
+        expect(virtualFiles.first.content, contains('<string name="mykey">'));
       });
     });
   });

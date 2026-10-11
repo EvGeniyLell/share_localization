@@ -75,7 +75,7 @@ $getter''';
     // static func loginMessage(_ name: String, _ pass: String) -> String {
     // or
     // static var testA: String {
-    final itemName = key.key.camelCase();
+    final itemName = _iosItemName(key);
     if (key.arguments.isEmpty) {
       return '''
   static var $itemName: String {

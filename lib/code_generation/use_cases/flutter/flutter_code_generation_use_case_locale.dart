@@ -62,7 +62,7 @@ $items
     //   String maxFileSizeError(String fileSize) {
     //     return 'Total file size must be less than $fileSize';
     //   }
-    final itemName = key.key.camelCase();
+    final itemName = _flutterItemName(key);
     final translation = key.translations
         .firstWhere((translation) {
           return translation.languageKey == languageKey;

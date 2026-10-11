@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
+import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
+import 'package:share_localization/code_generation/exceptions/invalid_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/ios/ios_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
@@ -345,6 +347,178 @@ void main() {
               emptyKey.translations.first,
             );
         expect(empty.split('\n').first, '  /// ');
+      });
+    });
+
+    group('invalid or duplicate resource names', () {
+      final dashKey = loginTitleKey.copyWith(key: 'my-key');
+      final underscoreKey = loginTitleKey.copyWith(key: 'my_key');
+      final cyrillicKey = loginTitleKey.copyWith(key: 'ключ');
+
+      test('fails for duplicate names and writes nothing', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto,
+          localizationDto.copyWith(keys: [dashKey, underscoreKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          const DuplicateResourceNameException(
+            platform: ResourcePlatform.ios,
+            key: 'my_key',
+            otherKey: 'my-key',
+            name: 'myKey',
+            bundleName: 'test_feature_A.json',
+          ),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('fails for a key with no ASCII letters, writes nothing', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto,
+          localizationDto.copyWith(keys: [cyrillicKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          const InvalidResourceNameException(
+            platform: ResourcePlatform.ios,
+            key: 'ключ',
+            name: '',
+            bundleName: 'test_feature_A.json',
+          ),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('reports an invalid and a duplicate key in key order', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto,
+          localizationDto.copyWith(keys: [cyrillicKey, dashKey, underscoreKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
+            const InvalidResourceNameException(
+              platform: ResourcePlatform.ios,
+              key: 'ключ',
+              name: '',
+              bundleName: 'test_feature_A.json',
+            ),
+            const DuplicateResourceNameException(
+              platform: ResourcePlatform.ios,
+              key: 'my_key',
+              otherKey: 'my-key',
+              name: 'myKey',
+              bundleName: 'test_feature_A.json',
+            ),
+          ]),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      group('same base, different arguments (identity: base + types)', () {
+        const stringArg = LocalizationKeyArgumentDto(
+          name: 'name',
+          type: LocalizationKeyDtoType.string,
+        );
+        const otherStringArg = LocalizationKeyArgumentDto(
+          name: 'user',
+          type: LocalizationKeyDtoType.string,
+        );
+        const intArg = LocalizationKeyArgumentDto(
+          name: 'count',
+          type: LocalizationKeyDtoType.int,
+        );
+        final plainFoo = loginTitleKey.copyWith(key: 'foo');
+        final fooString = loginTitleKey.copyWith(
+          key: 'foo',
+          arguments: [stringArg],
+        );
+        final fooInt = loginTitleKey.copyWith(key: 'foo', arguments: [intArg]);
+        final fooStringInt = loginTitleKey.copyWith(
+          key: 'foo',
+          arguments: [stringArg, intArg],
+        );
+
+        String swiftOf(List<InvocationCreateFile> files) {
+          return files.singleWhere((f) => f.path.endsWith('.swift')).content;
+        }
+
+        test('a no-arg key and a String-arg key both generate', () async {
+          final dtoTask = await generationUseCase(
+            settingsDto,
+            localizationDto.copyWith(keys: [plainFoo, fooString]),
+          );
+
+          expect(dtoTask.failed, isFalse);
+          expect(virtualFiles, hasLength(2));
+          final swift = swiftOf(virtualFiles);
+          expect(swift, contains('static var foo'));
+          expect(swift, contains('static func foo(_'));
+        });
+
+        test('String and Int args with one base both generate', () async {
+          final dtoTask = await generationUseCase(
+            settingsDto,
+            localizationDto.copyWith(keys: [fooString, fooInt]),
+          );
+
+          expect(dtoTask.failed, isFalse);
+          expect(virtualFiles, hasLength(2));
+          expect(swiftOf(virtualFiles), contains('static func foo(_'));
+        });
+
+        test('one String arg and two args, one base, both generate', () async {
+          final dtoTask = await generationUseCase(
+            settingsDto,
+            localizationDto.copyWith(keys: [fooString, fooStringInt]),
+          );
+
+          expect(dtoTask.failed, isFalse);
+          expect(virtualFiles, hasLength(2));
+          expect(swiftOf(virtualFiles), contains('static func foo(_'));
+        });
+
+        test('same camelCase and types, other arg names: duplicate', () async {
+          final dtoTask = await generationUseCase(
+            settingsDto,
+            localizationDto.copyWith(
+              keys: [
+                fooString.copyWith(key: 'my-key'),
+                fooString.copyWith(key: 'my_key', arguments: [otherStringArg]),
+              ],
+            ),
+          );
+
+          expect(dtoTask.failed, isTrue);
+          expect(
+            dtoTask.exception,
+            const DuplicateResourceNameException(
+              platform: ResourcePlatform.ios,
+              key: 'my_key',
+              otherKey: 'my-key',
+              name: 'myKey',
+              bundleName: 'test_feature_A.json',
+            ),
+          );
+          expect(virtualFiles, isEmpty);
+        });
+      });
+
+      test('valid keys still write both files', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto,
+          localizationDto.copyWith(keys: [loginMessageKey, loginTitleKey]),
+        );
+
+        expect(dtoTask.failed, isFalse);
+        expect(virtualFiles, hasLength(2));
       });
     });
   });

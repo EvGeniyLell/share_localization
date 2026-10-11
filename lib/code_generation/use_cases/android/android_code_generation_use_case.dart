@@ -1,15 +1,13 @@
 import 'package:meta/meta.dart';
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
-import 'package:share_localization/code_generation/exceptions/invalid_android_resource_name_exception.dart';
+import 'package:share_localization/code_generation/exceptions/duplicate_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
+import 'package:share_localization/code_generation/use_cases/resource_name_validation.dart';
 import 'package:share_localization/common/common.dart';
 import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
 
 part 'android_code_generation_use_case_xml.dart';
-
-/// A valid Android resource name: an XML identifier with no `-` or `.`.
-final _validResourceName = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
 class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
   static const xmlExtension = 'xml';
@@ -55,33 +53,23 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
   }
 
   /// Throws before any file is written if a key gives an invalid resource
-  /// name. One error is thrown as is, several as a [CompositeException] in
-  /// key order.
+  /// name, see [validateResourceNames].
   void _validateResourceNames(
     AndroidSettingsDto settings,
     LocalizationDto localization,
   ) {
     final keyPrefix = _localizationKeyPrefix(settings, localization);
-    final errors = <AppException>[];
-    for (final key in localization.keys) {
-      final name = _itemName(settings, keyPrefix, key.key);
-      if (!_validResourceName.hasMatch(name)) {
-        errors.add(
-          InvalidAndroidResourceNameException(
-            key: key.key,
-            name: name,
-            bundleName: localization.name,
-          ),
-        );
-      }
-    }
-    if (errors.isEmpty) {
-      return;
-    }
-    if (errors.length == 1) {
-      throw errors.single;
-    }
-    throw CompositeException(errors);
+    validateResourceNames(
+      platform: ResourcePlatform.android,
+      bundleName: localization.name,
+      entries: localization.keys.map(
+        (key) => ResourceNameEntry(
+          key: key.key,
+          name: _itemName(settings, keyPrefix, key.key),
+          baseName: _itemName(settings, '', key.key),
+        ),
+      ),
+    );
   }
 }
 
