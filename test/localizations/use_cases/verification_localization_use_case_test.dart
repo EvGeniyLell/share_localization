@@ -199,5 +199,96 @@ void main() {
         }
       });
     });
+
+    group('call', () {
+      const extraArgument = LocalizationKeyArgumentDto(
+        name: 'email',
+        type: LocalizationKeyDtoType.string,
+      );
+
+      // One extra argument, reported once per translation (en and de).
+      final withExtraArgument = localizationDto.copyWith(
+        keys: [
+          loginMessageKey.copyWith(
+            arguments: [...loginMessageKeyArguments, extraArgument],
+          ),
+        ],
+      );
+
+      // The extra argument is reported for en only, and de is missing.
+      final withExtraArgumentAndMissingTranslation = localizationDto.copyWith(
+        keys: [
+          loginMessageKey.copyWith(
+            arguments: [...loginMessageKeyArguments, extraArgument],
+            translations: [loginMessageKeyLocalizations[0]],
+          ),
+        ],
+      );
+
+      test('succeeded for a valid localization', () async {
+        final task = await verification(settingsDto, localizationDto);
+
+        expect(task.succeeded, true);
+      });
+
+      test('failed with extraArgument when it is not skipped', () async {
+        final task = await verification(settingsDto, withExtraArgument);
+
+        expect(task.failed, true);
+        expect(
+          task.exception,
+          isA<CompositeException>().having(
+            (e) => e.exceptions,
+            'exceptions',
+            [
+              isA<VerificationLocalizationExtraArgumentException>(),
+              isA<VerificationLocalizationExtraArgumentException>(),
+            ],
+          ),
+        );
+      });
+
+      test('succeeded when extraArgument is in skipErrorTypes', () async {
+        const skippingVerification = VerificationLocalizationUseCase(
+          skipErrorTypes: [VerificationLocalizationExtraArgumentException],
+        );
+
+        final task = await skippingVerification(
+          settingsDto,
+          withExtraArgument,
+        );
+
+        expect(task.succeeded, true);
+      });
+
+      test('skipErrorTypes does not hide other error types', () async {
+        const skippingVerification = VerificationLocalizationUseCase(
+          skipErrorTypes: [VerificationLocalizationExtraArgumentException],
+        );
+
+        final task = await skippingVerification(
+          settingsDto,
+          withExtraArgumentAndMissingTranslation,
+        );
+
+        expect(task.failed, true);
+        expect(
+          task.exception,
+          isA<CompositeException>().having(
+            (e) => e.exceptions,
+            'exceptions',
+            [
+              isA<VerificationLocalizationMissingTranslationException>()
+                  .having((e) => e.key, 'key', loginMessageKey.key)
+                  .having(
+                    (e) => e.language,
+                    'language',
+                    localizationDeLanguage.key,
+                  ),
+            ],
+          ),
+        );
+      });
+    });
   });
 }
