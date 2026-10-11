@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:share_localization/common/exceptions/file_read_exception.dart';
 import 'package:share_localization/common/exceptions/invalid_json_exception.dart';
 import 'package:share_localization/common/exceptions/settings_not_found_exception.dart';
 import 'package:share_localization/common/utils/app_types.dart';
@@ -27,8 +28,15 @@ class JsonData {
     final String content;
     try {
       content = await File(filepath).readAsString();
-    } on FileSystemException {
-      throw SettingsNotFoundException(filepath);
+    } on FileSystemException catch (e) {
+      if (!File(filepath).existsSync()) {
+        throw SettingsNotFoundException(filepath);
+      }
+      final osMessage = e.osError?.message;
+      final detail = osMessage != null && osMessage.isNotEmpty
+          ? '${e.message} ($osMessage)'
+          : e.message;
+      throw FileReadException(filepath, detail);
     }
 
     final Object? decoded;
