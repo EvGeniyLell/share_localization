@@ -110,7 +110,10 @@ extension StringToFlutter on String {
     );
   }
 
-  String flutterDescriptionEscape() {
-    return replaceAll('\n', r'\n');
+  /// Escapes text written into a `///` doc comment line, such as the comment
+  /// and the description. A real `\n` or `\r` would end the comment early, so
+  /// each is written as the two characters `\n` or `\r`.
+  String flutterDocCommentEscape() {
+    return replaceAll('\n', r'\n').replaceAll('\r', r'\r');
   }
 }

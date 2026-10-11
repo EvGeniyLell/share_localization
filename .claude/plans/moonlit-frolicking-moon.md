@@ -14,9 +14,9 @@
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
 | Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog R7–R10 and N7, N10, N11, N13 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
+| Backlog R7–R10 and N10, N11, N13 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
 
-**Verification now:** `dart test` 199/199 green. `dart analyze lib test` reports 4 infos that
+**Verification now:** `dart test` 208/208 green. `dart analyze lib test` reports 4 infos that
 are not from this plan (3x line length in `build_report_printer.dart`, 1x type parameter name).
 Not yet verified on a real device: the Android `%%` rule (see B2).
 
@@ -30,7 +30,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** R7 (ANSI colour by stderr, `NO_COLOR`), then R9, R10, N7, N10, N11, N13. N4 is done in the working tree (owner commits). N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
+**Next task:** N10 (Swift doc comment backslash), then N11, then the CLI block R7, R9, R10 and N13. N4 is committed (`a5e46a2`). N7 is done in the working tree (owner commits). N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
 done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
 `-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
 and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
@@ -221,7 +221,7 @@ Found while doing R5 (from the agent's report, not yet reproduced by running the
 |---|---|---|---|
 | N5 ✅ `40c258c` | `flutter_code_generation_use_case.dart` `flutterEscape` | A real `\r` is not escaped: a raw carriage return lands inside a single-quoted Dart string. Probably the same on Android and iOS (check). | Standard |
 | N6 ✅ not a bug | same | A placeholder `{unknown}` that is not a declared argument: reproduced with the tool, verification stops the build first (`Missing argument "unknown"`, exit 1, no files written; covered by `failed with missingArgument` in `verification_localization_use_case_test.dart`). Nothing to fix. | closed |
-| N7 | `flutterDescriptionEscape` | The description goes into a `///` comment; `\r` ends the comment line and the rest becomes Dart code. | Low |
+| N7 ✅ working tree | `flutterDocCommentEscape` (was `flutterDescriptionEscape`) | Text in a `///` comment: `\r` in the description ended the line and the rest became Dart code, and `key.comment` was not escaped at all (`\n` or `\r` there also injected code). Fixed: one escape (`\n`, `\r` as two characters) for both comment and description. | Low |
 
 Found while doing R6 (confirmed by reading the code, not run):
 
@@ -250,7 +250,7 @@ Found while doing N8 (observation, not run):
 
 ```bash
 dart analyze lib test           # 4 pre-existing infos, see Status
-dart test                       # 199 green
+dart test                       # 208 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart

@@ -275,6 +275,85 @@ void main() {
       });
     });
 
+    // Dart ends a `//` comment at `\n` or `\r`, so the comment and the
+    // description of a `///` doc comment keep line breaks as two characters.
+    group('doc comment', () {
+      String commonFor(String comment, String message) {
+        final key = LocalizationKeyDto(
+          key: 'doc_line',
+          comment: comment,
+          arguments: const [],
+          translations: [
+            LocalizationKeyTranslationDto(languageKey: 'en', message: message),
+          ],
+        );
+        return generationUseCase.generateCommon(
+          settingsDto.toPlatformSettingsDto()!,
+          localizationDto.copyWith(keys: [key]),
+        );
+      }
+
+      // Every line that mentions the marker must be a `///` line.
+      bool markerOnlyInDocLines(String content, String marker) {
+        final lines = content.split(RegExp(r'\r\n|\n|\r'));
+        final marked = lines.where((line) => line.contains(marker));
+        return marked.isNotEmpty &&
+            marked.every((line) => line.trimLeft().startsWith('///'));
+      }
+
+      test('escapes a carriage return in the description', () {
+        final content = commonFor('Plain.', 'line1\rint injected = 1;');
+        expect(content, contains(r"  /// **'line1\rint injected = 1;'**"));
+        expect(content.contains('\r'), isFalse);
+        expect(markerOnlyInDocLines(content, 'injected'), isTrue);
+      });
+
+      test('keeps a newline in the comment on one line', () {
+        final content = commonFor('first\nint injected = 2;', 'Ok');
+        expect(content, contains(r'  /// first\nint injected = 2;'));
+        expect(content.contains('\r'), isFalse);
+        expect(markerOnlyInDocLines(content, 'injected'), isTrue);
+      });
+
+      test('keeps a carriage return in the comment on one line', () {
+        final content = commonFor('first\rint injected = 3;', 'Ok');
+        expect(content, contains(r'  /// first\rint injected = 3;'));
+        expect(content.contains('\r'), isFalse);
+        expect(markerOnlyInDocLines(content, 'injected'), isTrue);
+      });
+
+      test('keeps a CRLF in the comment on one line', () {
+        final content = commonFor('first\r\nint injected = 4;', 'Ok');
+        expect(content, contains(r'  /// first\r\nint injected = 4;'));
+        expect(content.contains('\r'), isFalse);
+        expect(markerOnlyInDocLines(content, 'injected'), isTrue);
+      });
+
+      test('leaves a plain single-line comment and description unchanged', () {
+        final content = commonFor('This is a total.', 'Total');
+        expect(content, contains('  /// This is a total.\n'));
+        expect(content, contains("  /// **'Total'**"));
+      });
+    });
+
+    group('flutterDocCommentEscape', () {
+      test('escapes a CRLF pair as two escapes in order', () {
+        expect('a\r\nb'.flutterDocCommentEscape(), r'a\r\nb');
+      });
+
+      test('escapes a lone carriage return', () {
+        expect('a\rb'.flutterDocCommentEscape(), r'a\rb');
+      });
+
+      test('escapes a lone newline', () {
+        expect('a\nb'.flutterDocCommentEscape(), r'a\nb');
+      });
+
+      test('keeps single-line text unchanged', () {
+        expect('Total size'.flutterDocCommentEscape(), 'Total size');
+      });
+    });
+
     group('flutterEscape', () {
       test('escapes a backslash', () {
         expect(r'C:\dir'.flutterEscape(), r'C:\\dir');

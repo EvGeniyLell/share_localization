@@ -63,10 +63,10 @@ extension BuildFlutterLocalizationUseCaseCommon
           }).message;
           final getter = buildCommonItemGetter(key);
           return '''
-  /// $comment
+  /// ${comment.flutterDocCommentEscape()}
   ///
   /// In $defaultLanguage, this message translates to:
-  /// **'${translation.flutterDescriptionEscape()}'**
+  /// **'${translation.flutterDocCommentEscape()}'**
   $getter
       ''';
         })
