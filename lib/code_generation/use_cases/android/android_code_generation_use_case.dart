@@ -62,10 +62,12 @@ extension StringToAndroid on String {
   /// `&` must be replaced before `<`, otherwise the `&` of the new `&lt;`
   /// would be escaped again. A leading `@` or `?` is prefixed with a backslash,
   /// because Android reads it as a resource or theme attribute reference.
+  /// A `"` becomes `\"`, because an unescaped quote is dropped from the output.
   String androidTranslationEscape() {
     // Backslash must come first, or the `\` added by the later replacements
     // would be doubled too.
     final escaped = replaceAll(RegExp(r'\\'), r'\\')
+        .replaceAll('"', r'\"')
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
         .replaceAll("'", r"\'")

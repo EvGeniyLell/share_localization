@@ -194,6 +194,16 @@ void main() {
       test('keeps an empty string empty', () {
         expect(''.androidTranslationEscape(), '');
       });
+
+      // An unescaped `"` toggles quote mode in aapt and is dropped from the
+      // output, so `Say "hi"` would render as `Say hi`.
+      test('escapes a literal double quote', () {
+        expect('Say "hi"'.androidTranslationEscape(), r'Say \"hi\"');
+      });
+
+      test('doubles a backslash before a double quote', () {
+        expect(r'\"'.androidTranslationEscape(), r'\\\"');
+      });
     });
 
     group('androidDescriptionEscape', () {
