@@ -1,11 +1,15 @@
 import 'package:meta/meta.dart';
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
+import 'package:share_localization/code_generation/exceptions/invalid_android_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/code_generation_use_case.dart';
 import 'package:share_localization/common/common.dart';
 import 'package:share_localization/localizations/localizations.dart';
 import 'package:share_localization/settings/settings.dart';
 
 part 'android_code_generation_use_case_xml.dart';
+
+/// A valid Android resource name: an XML identifier with no `-` or `.`.
+final _validResourceName = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 
 class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
   static const xmlExtension = 'xml';
@@ -19,13 +23,16 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
       if (pSettings == null) {
         throw const BuildLocalizationException.missingAndroidSettings();
       }
-      await Future.wait(pSettings.languages.map((language) async {
-        final xml = generateXml(pSettings, language, localization);
-        await fileService.createFile(
-          path: filePath(pSettings, language, localization, xmlExtension),
-          content: xml,
-        );
-      }));
+      _validateResourceNames(pSettings, localization);
+      await Future.wait(
+        pSettings.languages.map((language) async {
+          final xml = generateXml(pSettings, language, localization);
+          await fileService.createFile(
+            path: filePath(pSettings, language, localization, xmlExtension),
+            content: xml,
+          );
+        }),
+      );
     });
   }
 
@@ -46,6 +53,63 @@ class AndroidCodeGenerationUseCase extends CodeGenerationUseCase {
     });
     return '${settings.options.destinationFolder}$languageKey/$fileName.$extension';
   }
+
+  /// Throws before any file is written if a key gives an invalid resource
+  /// name. One error is thrown as is, several as a [CompositeException] in
+  /// key order.
+  void _validateResourceNames(
+    AndroidSettingsDto settings,
+    LocalizationDto localization,
+  ) {
+    final keyPrefix = _localizationKeyPrefix(settings, localization);
+    final errors = <AppException>[];
+    for (final key in localization.keys) {
+      final name = _itemName(settings, keyPrefix, key.key);
+      if (!_validResourceName.hasMatch(name)) {
+        errors.add(
+          InvalidAndroidResourceNameException(
+            key: key.key,
+            name: name,
+            bundleName: localization.name,
+          ),
+        );
+      }
+    }
+    if (errors.isEmpty) {
+      return;
+    }
+    if (errors.length == 1) {
+      throw errors.single;
+    }
+    throw CompositeException(errors);
+  }
+}
+
+/// The file name prefix added to keys, or empty when prefixes are off.
+String _localizationKeyPrefix(
+  AndroidSettingsDto settings,
+  LocalizationDto localization,
+) {
+  return switch (settings.options.useFilePrefixForKeys) {
+    true => localization.name.baseFilename(),
+    false => '',
+  };
+}
+
+/// The final Android resource name of [key], with [localizationKeyPrefix]
+/// added in front when it is not empty.
+String _itemName(
+  AndroidSettingsDto settings,
+  String localizationKeyPrefix,
+  String key,
+) {
+  final fullKey = [
+    localizationKeyPrefix,
+    key,
+  ].where((s) => s.isNotEmpty).join('_');
+  return settings.options.useCamelCase
+      ? fullKey.camelCase()
+      : fullKey.snakeCase();
 }
 
 extension LocalizationKeyDtoTypeToAndroid on LocalizationKeyDtoType {

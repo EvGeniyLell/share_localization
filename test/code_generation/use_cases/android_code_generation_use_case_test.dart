@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:share_localization/code_generation/exceptions/build_localization_exception.dart';
+import 'package:share_localization/code_generation/exceptions/invalid_android_resource_name_exception.dart';
 import 'package:share_localization/code_generation/use_cases/android/android_code_generation_use_case.dart';
 import 'package:test/test.dart';
 
@@ -435,6 +436,159 @@ void main() {
           reason: file.toString(),
         );
       }
+    });
+
+    group('invalid resource names', () {
+      const noPrefixSettings = AndroidOptionsDto(
+        useCamelCase: false,
+        useFilePrefixForKeys: false,
+        destinationFolder: 'example/test_results/android/values',
+      );
+      final badKey = loginTitleKey.copyWith(key: '1stKey');
+      final cyrillicKey = loginTitleKey.copyWith(key: 'ключ');
+
+      test(
+        'fails for a key starting with a digit and writes nothing',
+        () async {
+          final dtoTask = await generationUseCase(
+            settingsDto.copyWith(android: noPrefixSettings),
+            localizationDto.copyWith(keys: [badKey]),
+          );
+
+          expect(dtoTask.failed, isTrue);
+          expect(
+            dtoTask.exception,
+            isA<InvalidAndroidResourceNameException>().having(
+              (e) => e.name,
+              'name',
+              '1st_key',
+            ),
+          );
+          expect(virtualFiles, isEmpty);
+        },
+      );
+
+      test(
+        'fails for a key with no ASCII letters and writes nothing',
+        () async {
+          final dtoTask = await generationUseCase(
+            settingsDto.copyWith(android: noPrefixSettings),
+            localizationDto.copyWith(keys: [cyrillicKey]),
+          );
+
+          expect(dtoTask.failed, isTrue);
+          expect(virtualFiles, isEmpty);
+        },
+      );
+
+      test('reports every bad key in order as a composite', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(android: noPrefixSettings),
+          localizationDto.copyWith(keys: [badKey, cyrillicKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          isA<CompositeException>().having((e) => e.exceptions, 'exceptions', [
+            const InvalidAndroidResourceNameException(
+              key: '1stKey',
+              name: '1st_key',
+              bundleName: 'test_feature_A.json',
+            ),
+            const InvalidAndroidResourceNameException(
+              key: 'ключ',
+              name: '',
+              bundleName: 'test_feature_A.json',
+            ),
+          ]),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test(
+        'a single bad key among valid keys fails and writes nothing',
+        () async {
+          final dtoTask = await generationUseCase(
+            settingsDto.copyWith(android: noPrefixSettings),
+            localizationDto.copyWith(
+              keys: [loginTitleKey, badKey, loginMessageKey],
+            ),
+          );
+
+          expect(dtoTask.failed, isTrue);
+          expect(dtoTask.exception, isA<InvalidAndroidResourceNameException>());
+          expect(virtualFiles, isEmpty);
+        },
+      );
+
+      test('camelCase keeps 1stKey and still fails', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: true,
+              useFilePrefixForKeys: false,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(keys: [badKey]),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          isA<InvalidAndroidResourceNameException>().having(
+            (e) => e.name,
+            'name',
+            '1stKey',
+          ),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('a digit-leading bundle name with file prefix fails', () async {
+        final dtoTask = await generationUseCase(
+          settingsDto.copyWith(
+            android: const AndroidOptionsDto(
+              useCamelCase: false,
+              useFilePrefixForKeys: true,
+              destinationFolder: 'example/test_results/android/values',
+            ),
+          ),
+          localizationDto.copyWith(
+            name: '2fa_feature.json',
+            keys: [loginTitleKey],
+          ),
+        );
+
+        expect(dtoTask.failed, isTrue);
+        expect(
+          dtoTask.exception,
+          isA<InvalidAndroidResourceNameException>().having(
+            (e) => e.name,
+            'name',
+            '2fa_feature_login_title',
+          ),
+        );
+        expect(virtualFiles, isEmpty);
+      });
+
+      test('"my-key" and "my key" succeed as my_key', () async {
+        for (final key in ['my-key', 'my key']) {
+          virtualFiles.clear();
+          final dtoTask = await generationUseCase(
+            settingsDto.copyWith(android: noPrefixSettings),
+            localizationDto.copyWith(keys: [loginTitleKey.copyWith(key: key)]),
+          );
+
+          expect(dtoTask.succeeded, isTrue, reason: key);
+          expect(virtualFiles, hasLength(2), reason: key);
+          expect(
+            virtualFiles.first.content,
+            contains('<string name="my_key">'),
+          );
+        }
+      });
     });
   });
 }

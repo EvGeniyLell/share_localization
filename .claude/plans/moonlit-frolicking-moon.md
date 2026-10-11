@@ -14,9 +14,9 @@
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
 | Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog R7–R10 and N2–N4, N7, N10, N11 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
+| Backlog R7–R10 and N4, N7, N10, N11 | ⏳ Open | see "Open backlog" (N6 closed: not a bug) |
 
-**Verification now:** `dart test` 154/154 green. `dart analyze lib test` reports 4 infos that
+**Verification now:** `dart test` 163/163 green. `dart analyze lib test` reports 4 infos that
 are not from this plan (3x line length in `build_report_printer.dart`, 1x type parameter name).
 Not yet verified on a real device: the Android `%%` rule (see B2).
 
@@ -30,7 +30,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** R7 (ANSI colour decided by stdout but written to stderr; `NO_COLOR`). R3 is committed. R8 is done in the working tree (`load()` collects every load and verify error: one error thrown as is, several as one flattened `CompositeException` in file order; owner commits). N1 is
+**Next task:** N4 (Android whitespace and tab). N3 is done in the working tree (`InvalidAndroidResourceNameException`, validated once per bundle before any Android file is written; owner commits). R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
 done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
 `-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
 and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
@@ -200,7 +200,7 @@ Ordered by impact. R1–R3 were reproduced by running the tool; the rest come fr
 | R5 (B6) ✅ `06338d1` | `flutter_code_generation_use_case.dart:72` | Backslash not escaped in the Dart string. | Standard |
 | R6 (B7) ✅ `9e8f0cb` | `ios_code_generation_use_case.dart:85` | Literal `%` not escaped in xcstrings values of keys with arguments (same defect as B2). | Standard |
 | R7 | `build_report_printer.dart:12` | ANSI decided by `stdout` but written to `stderr`; `NO_COLOR` ignored. | Low |
-| R8 ✅ working tree | `batch_code_generation_use_case.dart:78` | `Future.wait` keeps only the first load/verify error across bundles. Fixed: all collected, flattened `CompositeException` in file order. | Low |
+| R8 ✅ `62d39d3` | `batch_code_generation_use_case.dart:78` | `Future.wait` keeps only the first load/verify error across bundles. Fixed: all collected, flattened `CompositeException` in file order. | Low |
 | R9 | `build_report_printer.dart:4` | Redundant deep import (CLAUDE.md: import the barrel); 3 lines over 80 chars. | Low |
 | R10 | `bin/share_localization.dart:23` | `--settings --verbose` takes `--verbose` as the path; `--settings=path` rejected. No tests for `InvalidJsonException` or `BuildReportPrinter`. | Low |
 
@@ -211,8 +211,8 @@ the tool):
 |---|---|---|---|
 | N0 ✅ `72bcc0e` | `android_code_generation_use_case.dart` `androidTranslationEscape` | A literal `\` is passed through; aapt reads it as an escape sequence (`C:\dir`, `\d`) and the build can fail. Same family as R5, other rules. | Standard |
 | N1 ✅ uncommitted | `android_code_generation_use_case_xml.dart` | The description goes into `<!-- $description -->`; `--` or `-->` in it breaks the XML. | Standard |
-| N2 | same | `"` is not escaped; aapt silently changes spaces. | Low |
-| N3 | same | A key that gives an invalid resource name (starts with a digit, characters outside `[a-z0-9_]`) is not validated. | Low |
+| N2 ✅ `86af022` (committed under the R8 message) | same | `"` was not escaped (aapt drops it). Fixed: `"` → `\"` after the backslash step. | Low |
+| N3 ✅ working tree | same | A key that gives an invalid resource name (starts with a digit, characters outside `[a-z0-9_]`) was not validated. Fixed: error `InvalidAndroidResourceNameException` (regex `^[A-Za-z_][A-Za-z0-9_]*$` on the final name), all bad keys of a bundle reported together. Open caveat: with `use_file_prefix_for_keys` a key with no ASCII letters collapses to the bare prefix (valid but wrong, duplicates possible). | Low |
 | N4 | same | Leading, trailing and repeated spaces, and a literal tab, are collapsed by Android into one space: valid output, different from the source (`Name:<tab>Value` shows as `Name: Value`; iOS and Flutter keep the tab). Fix idea: write `\t`, and quote the value or use ` `. Not run on a device. | Low |
 
 Found while doing R5 (from the agent's report, not yet reproduced by running the tool):
@@ -246,7 +246,7 @@ Found while doing N8 (observation, not run):
 
 ```bash
 dart analyze lib test           # 4 pre-existing infos, see Status
-dart test                       # 154 green
+dart test                       # 163 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart
