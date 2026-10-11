@@ -16,6 +16,8 @@ class BuildReportPrinter {
       _ansi ? '$code$text$_reset' : text;
 
   void print(BuildReport report) {
+    final errorCount = report.errors.length;
+    final warningCount = report.warnings.length;
     for (final w in report.warnings) {
       Printer().log(_colour(_yellow, '  ⚠  ${_warningText(w)}'));
     }
@@ -23,17 +25,22 @@ class BuildReportPrinter {
       Printer().err(_colour(_red, '  ✗  $e'));
     }
     if (report.hasErrors) {
-      final s = report.errors.length == 1 ? 'error' : 'errors';
-      final ws = report.warnings.isEmpty
-          ? ''
-          : ', ${report.warnings.length} warning${report.warnings.length == 1 ? '' : 's'}';
-      Printer().err(_colour(_red, '✗  Build failed — ${report.errors.length} $s$ws'));
-    } else if (report.warnings.isNotEmpty) {
-      final ws = report.warnings.length == 1 ? 'warning' : 'warnings';
-      Printer().log(_colour(_green, '✓  Build completed with ${report.warnings.length} $ws'));
+      final warnings = _count(warningCount, 'warning');
+      final suffix = warningCount > 0 ? ', $warnings' : '';
+      final summary = '${_count(errorCount, 'error')}$suffix';
+      Printer().err(_colour(_red, '✗  Build failed — $summary'));
+    } else if (warningCount > 0) {
+      final summary = _count(warningCount, 'warning');
+      Printer().log(_colour(_green, '✓  Build completed with $summary'));
     } else {
       Printer().log(_colour(_green, '✓  Build completed successfully'));
     }
+  }
+
+  /// Formats `count` with [noun], pluralised unless the count is exactly 1.
+  static String _count(int count, String noun) {
+    final word = count == 1 ? noun : '${noun}s';
+    return '$count $word';
   }
 
   String _warningText(AppException warning) {
