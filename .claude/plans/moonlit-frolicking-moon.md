@@ -1,6 +1,6 @@
 # Plan: Production Hardening — share_localization
 
-## Status (branch `moonlit-frolicking-moon`, tip `448ff77`, everything merged)
+## Status (branch `moonlit-frolicking-moon`, tip `40295ef`, everything committed)
 
 | Phase | Status | Commits |
 |---|---|---|
@@ -10,9 +10,10 @@
 | 4 Test improvements | ✅ Done | `60810d8`, `41806a2`, `e901527`, `936e080`, `aa57390` |
 | Found while testing (not in the original plan) | ✅ Done | `7da889c`, `f7ce159`, `88f4ca0`, `c49c043`, `b4c2138` |
 | Requested additions | ✅ Done | `448ff77` |
-| Backlog from code review | ⏳ Open | see "Open backlog" |
+| Backlog R1, R2, R4 | ✅ Done | `8e25f71`, `1239cea`, `40295ef` |
+| Backlog R3, R5–R10 and N0–N4 | ⏳ Open | see "Open backlog" |
 
-**Verification now:** `dart test` 77/77 green. `dart analyze` on `lib/` reports 5 infos that
+**Verification now:** `dart test` 101/101 green. `dart analyze lib test` reports 4 infos that
 are not from this plan (3x line length in `build_report_printer.dart`, 1x type parameter name).
 Not yet verified on a real device: the Android `%%` rule (see B2).
 
@@ -24,14 +25,12 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 
 **Start:** open the session in `/Users/evg/Work/share_localization` (the main folder, branch
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
-first. Everything above is merged; nothing is uncommitted except this plan file (see "Housekeeping").
+first. Everything above is committed; the tree is clean.
 
-**Next task:** R1 + R2 together (both live in how `BuildReport` is assembled in
-`batch_code_generation_use_case.dart`).
-- Decision still needed for R1: should an error in `skipErrorTypes` become a **warning** in
-  `BuildReport`? Recommended: yes (CLAUDE.md already says "downgrading it to a warning").
-- R2: de-duplicate equal warnings again (the old code used a `Set`; `BuildLocalizationException`
-  already implements `==`).
+**Next task:** R5 (Flutter: backslash not escaped), then N0 (the same for Android, different
+rules), then R6. R1 + R2 + R4 are done: skipped verification errors are warnings in `BuildReport`
+(`VerificationLocalizationException` counts as a warning), equal warnings are shown once, and
+Android escapes `&` before `<` and a leading `@` / `?`.
 
 **How we work (keep doing this):**
 1. One item at a time, WIP 1. Finish and commit before starting the next.
@@ -71,10 +70,9 @@ first. Everything above is merged; nothing is uncommitted except this plan file 
   owner's call.
 
 **Housekeeping (owner: repo owner):**
-- This plan file is only staged, not committed. Commit it, otherwise a new worktree will not see it.
 - Remove the old worktree and branch:
   `git worktree remove .claude/worktrees/cli-stderr-errors-d3067c && git branch -d claude/cli-stderr-errors-d3067c`
-- Before release: run the Android `%%` check and decide R1.
+- Before release: run the Android `%%` check.
 
 ---
 
@@ -181,10 +179,10 @@ Ordered by impact. R1–R3 were reproduced by running the tool; the rest come fr
 
 | ID | Where | Problem | Class of service |
 |---|---|---|---|
-| R1 | `verification_localization_use_case.dart:16` | Errors in `skipErrorTypes` vanish. CLAUDE.md says they become a warning. Reproduced: unused argument → "Build completed successfully", no warning. | Standard |
-| R2 | `batch_code_generation_use_case.dart:47` | `Set` replaced by `List`: the same warning repeats once per bundle (reproduced: 2 bundles, 2 identical warnings). | Standard |
+| R1 ✅ `8e25f71` | `verification_localization_use_case.dart:16` | Errors in `skipErrorTypes` vanish. CLAUDE.md says they become a warning. Reproduced: unused argument → "Build completed successfully", no warning. | Standard |
+| R2 ✅ `1239cea` | `batch_code_generation_use_case.dart:47` | `Set` replaced by `List`: the same warning repeats once per bundle (reproduced: 2 bundles, 2 identical warnings). | Standard |
 | R3 | `json_data.dart:30` | Any `FileSystemException` is reported as `SettingsNotFoundException`, also for bundles (reproduced with an unreadable bundle). Invalid UTF-8 escapes as `UnexpectedException`. | Standard |
-| R4 (B5) | `android_code_generation_use_case.dart:60` | `&` (and a leading `@` / `?`) not escaped: invalid Android XML. | Standard |
+| R4 (B5) ✅ `40295ef` | `android_code_generation_use_case.dart:60` | `&` (and a leading `@` / `?`) not escaped: invalid Android XML. | Standard |
 | R5 (B6) | `flutter_code_generation_use_case.dart:72` | Backslash not escaped in the Dart string. | Standard |
 | R6 (B7) | `ios_code_generation_use_case.dart:85` | Literal `%` not escaped in xcstrings values of keys with arguments (same defect as B2). | Standard |
 | R7 | `build_report_printer.dart:12` | ANSI decided by `stdout` but written to `stderr`; `NO_COLOR` ignored. | Low |
@@ -192,16 +190,27 @@ Ordered by impact. R1–R3 were reproduced by running the tool; the rest come fr
 | R9 | `build_report_printer.dart:4` | Redundant deep import (CLAUDE.md: import the barrel); 3 lines over 80 chars. | Low |
 | R10 | `bin/share_localization.dart:23` | `--settings --verbose` takes `--verbose` as the path; `--settings=path` rejected. No tests for `InvalidJsonException` or `BuildReportPrinter`. | Low |
 
-**Suggested order:** R1 + R2 together (both live in how the build report is assembled), then R3,
-then R4–R6 as one "escaping" batch with a table of cases per platform, then the low items.
+Found while doing R4 (from reading the code and the agent's report, not reproduced by running
+the tool):
+
+| ID | Where | Problem | Class of service |
+|---|---|---|---|
+| N0 | `android_code_generation_use_case.dart` `androidTranslationEscape` | A literal `\` is passed through; aapt reads it as an escape sequence (`C:\dir`, `\d`) and the build can fail. Same family as R5, other rules. | Standard |
+| N1 | `android_code_generation_use_case_xml.dart` | The description goes into `<!-- $description -->`; `--` or `-->` in it breaks the XML. | Standard |
+| N2 | same | `"` is not escaped; aapt silently changes spaces. | Low |
+| N3 | same | A key that gives an invalid resource name (starts with a digit, characters outside `[a-z0-9_]`) is not validated. | Low |
+| N4 | same | Leading, trailing and repeated spaces are collapsed by Android: valid output, different from the source. | Low |
+
+**Suggested order (updated):** R5, then N0, then R6 (escaping batch, one commit per fix), then N1,
+R3, R8, then the low items (R7, R9, R10, N2–N4). Single-word argument names in new fixtures.
 
 ---
 
 ## Verification
 
 ```bash
-dart analyze                    # lib/ has 5 pre-existing infos, see Status
-dart test                       # 77 green
+dart analyze lib test           # 4 pre-existing infos, see Status
+dart test                       # 101 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart
