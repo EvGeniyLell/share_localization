@@ -10,6 +10,13 @@ Future<void> main(List<String> arguments) async {
 
   for (var i = 0; i < arguments.length; i++) {
     final arg = arguments[i];
+    if (arg.startsWith('--settings=')) {
+      settingsPath = arg.substring('--settings='.length);
+      if (settingsPath.isEmpty) {
+        _exitMissingSettingsPath();
+      }
+      continue;
+    }
     switch (arg) {
       case '--help':
       case '-h':
@@ -21,11 +28,10 @@ Future<void> main(List<String> arguments) async {
       case '--verbose':
         verbose = true;
       case '--settings':
-        if (i + 1 < arguments.length) {
+        if (i + 1 < arguments.length && !arguments[i + 1].startsWith('-')) {
           settingsPath = arguments[++i];
         } else {
-          stderr.writeln('Error: --settings requires a path argument.');
-          exit(1);
+          _exitMissingSettingsPath();
         }
       default:
         stderr.writeln('Unknown option: $arg');
@@ -44,6 +50,11 @@ Future<void> main(List<String> arguments) async {
   }
 }
 
+Never _exitMissingSettingsPath() {
+  stderr.writeln('Error: --settings requires a path argument.');
+  exit(1);
+}
+
 void _printHelp() {
   stdout.writeln('''
 Usage: share_localization [options]
@@ -53,6 +64,7 @@ Options:
   --version               Show the tool version and exit
   --verbose               Enable verbose output with stack traces
   --settings <path>       Path to settings.json (default: settings.json)
+  --settings=<path>       Same as above; use this form for paths starting with -
 
 The tool reads <settings.json> from the current working directory by default
 and generates platform-native localisation files for iOS, Flutter, and Android.

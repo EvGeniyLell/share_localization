@@ -14,9 +14,9 @@
 | Backlog R6, N8 | ✅ Done | `9e8f0cb` |
 | Backlog N5, N9 | ✅ Done | `40c258c` (one commit for both) |
 | Backlog N1 | ✅ Done, **not committed yet** (owner commits) | working tree |
-| Backlog R7, R10 and N13 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
+| Backlog R7 and N13 | ⏳ Open | see "Open backlog" (N6 and N10 closed: not a bug) |
 
-**Verification now:** `dart test` 219/219 green. `dart analyze lib test` reports 1 info that
+**Verification now:** `dart test` 226/226 green. `dart analyze lib test` reports 1 info that
 is not from this plan (the type parameter name in `platform_settings_dto.dart`).
 Not yet verified on a real device: the Android `%%` rule (see B2) and `\u0020` for edge spaces (N4).
 
@@ -30,7 +30,7 @@ Legend: ✅ done · ⏳ open · ↪ deviates from the plan (reason given).
 `moonlit-frolicking-moon`), with automatic worktrees switched off. Read this file and `CLAUDE.md`
 first. All code fixes above are committed; the only uncommitted change may be this plan file.
 
-**Next task:** R10, then R7, then N13. R9 is done in the working tree (owner commits); N11 is committed (`7e1ae7b`). N4 is committed (`a5e46a2`). N7 is committed (`4d0968c`). N10 was checked with swiftc and closed: not a bug. N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
+**Next task:** R7, then N13. R10 is done in the working tree (owner commits); R9 is committed (`47f7fae`). Optional R11: the last analyze info (`platform_settings_dto.dart`, type parameter name). N4 is committed (`a5e46a2`). N7 is committed (`4d0968c`). N10 was checked with swiftc and closed: not a bug. N12, N14 and N15 are committed (`99506e7`): shared `validateResourceNames` (`resource_name_validation.dart`) with `InvalidResourceNameException` and `DuplicateResourceNameException` (field `platform`) now guards Android, Flutter and iOS before any file is written. R3 and R8 are committed; `86af022` carries the R8 message but holds N2 (Android `"` → `\"`). N1 is
 done in the working tree (`androidDescriptionEscape` breaks every `--` into `- -` with
 `-(?=-)`, because `--` is not allowed inside an XML comment); the owner commits it. N6 was checked
 and closed: not a bug. N9 is done (`40c258c`): `key.comment` goes through `iosXCSTranslationEscape` in
@@ -202,7 +202,7 @@ Ordered by impact. R1–R3 were reproduced by running the tool; the rest come fr
 | R7 | `build_report_printer.dart:12` | ANSI decided by `stdout` but written to `stderr`; `NO_COLOR` ignored. | Low |
 | R8 ✅ `62d39d3` | `batch_code_generation_use_case.dart:78` | `Future.wait` keeps only the first load/verify error across bundles. Fixed: all collected, flattened `CompositeException` in file order. | Low |
 | R9 ✅ working tree | `build_report_printer.dart:4` | 3 lines over 80 chars: fixed with a `_count` helper, output pinned by 8 new characterisation tests. The "deep import" no longer exists (sibling files of the same module are imported directly, like in the other generators). | Low |
-| R10 | `bin/share_localization.dart:23` | `--settings --verbose` takes `--verbose` as the path; `--settings=path` rejected. No tests for `InvalidJsonException` (`BuildReportPrinter` now has 8 tests from R9). | Low |
+| R10 ✅ working tree | `bin/share_localization.dart:23` | `--settings --verbose` took `--verbose` as the path; `--settings=path` was rejected; no CLI test for `InvalidJsonException`. Fixed: a `-`-prefixed next argument is "requires a path"; `--settings=<path>` supported (empty value is an error, `--settings=-x` keeps the value); 7 new real-process tests incl. `InvalidJsonException`. | Low |
 
 Found while doing R4 (from reading the code and the agent's report, not reproduced by running
 the tool):
@@ -250,7 +250,7 @@ Found while doing N8 (observation, not run):
 
 ```bash
 dart analyze lib test           # 4 pre-existing infos, see Status
-dart test                       # 219 green
+dart test                       # 226 green
 
 # End-to-end happy path
 cd example && dart run ../bin/share_localization.dart
